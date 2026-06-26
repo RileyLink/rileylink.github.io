@@ -198,6 +198,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Solver DOM elements
   const secretSetupSlots = document.querySelectorAll("#secretSetup .mm-peg");
+  const btnRandomSecret = document.getElementById("btnRandomSecret");
   const btnStartSolver = document.getElementById("btnStartSolver");
   const btnSolverStep = document.getElementById("btnSolverStep");
   const btnSolverAuto = document.getElementById("btnSolverAuto");
@@ -388,6 +389,18 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  btnRandomSecret.addEventListener("click", () => {
+    if (solverState && solverState.running) return;
+    const randomCode = engine.createSecretCode();
+    secretSetupCode = randomCode.split("");
+    secretSetupSlots.forEach((slot, idx) => {
+      slot.setAttribute("data-color", secretSetupCode[idx]);
+    });
+    btnStartSolver.removeAttribute("disabled");
+    btnStartSolver.classList.add("btn--primary");
+    showBanner("Random secret code generated!", "info");
+  });
+
   // ───────────────────────────────
   // Game Actions — Play Mode
   // ───────────────────────────────
@@ -489,45 +502,81 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Check if Brute Force mode
     if (currentMode === "brute") {
-      const tStart = performance.now();
-      const guesses = [];
-      const correctScore = "@@@@";
-      
-      for (const guess of combinations) {
-        guesses.push(guess);
-        const scr = engine.score(secretCode, guess);
-        if (scr === correctScore) {
-          break;
-        }
-      }
-      
-      const tEnd = performance.now();
-      const totalTime = tEnd - tStart;
-      const totalGuesses = guesses.length;
-      
-      // Render final winning guess on row 0 of the board so user sees it visually
-      renderGuessOnBoard(0, guesses[guesses.length - 1]);
-      renderFeedback(0, "@@@@");
-      
-      // Set game over and reveal
-      isGameOver = true;
-      revealSecretCode(secretCode);
-      
-      // Update visual stats
-      statGuesses.textContent = totalGuesses;
-      statCandidates.textContent = "0 / 1296";
-      statPruned.textContent = "100.0%";
-      statTime.textContent = `${totalTime.toFixed(2)} ms`;
-      
-      candidatesScroll.innerHTML = `<span class="mm-cand-pill" style="border-color:var(--accent);">Code Found!</span>`;
-      
-      // Disable buttons
       btnStartSolver.setAttribute("disabled", "true");
       btnSolverStep.setAttribute("disabled", "true");
       btnSolverAuto.setAttribute("disabled", "true");
-      btnSolverStop.setAttribute("disabled", "true");
+      btnSolverStop.removeAttribute("disabled");
       
-      showBanner(`Brute Force Solver finished instantly in ${totalGuesses} guesses (${totalTime.toFixed(2)} ms)!`, "success");
+      const tStart = performance.now();
+      let idx = 0;
+      const batchSize = 35; // check 35 combinations every tick (~1100 per second)
+      const correctScore = "@@@@";
+      
+      // Let's create a temporary state object so stop works
+      solverState = {
+        running: true,
+        mode: "brute"
+      };
+
+      showBanner("Decryption sequence in progress...", "info");
+
+      autoPlayTimer = setInterval(() => {
+        const batchLimit = Math.min(idx + batchSize, combinations.length);
+        
+        for (let i = idx; i < batchLimit; i++) {
+          const guess = combinations[i];
+          const scr = engine.score(secretCode, guess);
+          
+          // Flash checking guesses on row 0 (the bottom row)
+          renderGuessOnBoard(0, guess);
+          renderFeedback(0, scr);
+          
+          // Speed update stats
+          statGuesses.textContent = i + 1;
+          const percent = (((i + 1) / 1296) * 100).toFixed(1);
+          statPruned.textContent = `${percent}%`;
+          
+          // Flash the current candidate list
+          candidatesScroll.innerHTML = `<span class="mm-cand-pill" style="border-color:var(--accent); color:var(--accent)">Scanning: ${guess}</span>`;
+          
+          if (scr === correctScore) {
+            clearInterval(autoPlayTimer);
+            autoPlayTimer = null;
+            solverState.running = false;
+            
+            const tEnd = performance.now();
+            const totalTime = tEnd - tStart;
+            
+            // Lock guess on board
+            renderGuessOnBoard(0, guess);
+            renderFeedback(0, "@@@@");
+            
+            // Set game over and reveal
+            isGameOver = true;
+            revealSecretCode(secretCode);
+            
+            // Update visual stats
+            statGuesses.textContent = i + 1;
+            statCandidates.textContent = "0 / 1296";
+            statPruned.textContent = "100.0%";
+            statTime.textContent = `${totalTime.toFixed(1)} ms`;
+            candidatesScroll.innerHTML = `<span class="mm-cand-pill" style="border-color:var(--accent);">Code Found!</span>`;
+            
+            btnSolverStop.setAttribute("disabled", "true");
+            showBanner(`Brute Force Solver successfully decrypted the code in ${i + 1} guesses (${totalTime.toFixed(1)} ms)!`, "success");
+            return;
+          }
+        }
+        
+        idx += batchSize;
+        if (idx >= combinations.length) {
+          clearInterval(autoPlayTimer);
+          autoPlayTimer = null;
+          solverState.running = false;
+          btnSolverStop.setAttribute("disabled", "true");
+          showBanner("Brute Force completed: Secret code not found!", "error");
+        }
+      }, 30);
       return;
     }
 
@@ -720,8 +769,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     btnSolverStop.setAttribute("disabled", "true");
     if (solverState && solverState.running) {
-      btnSolverAuto.removeAttribute("disabled");
-      btnSolverStep.removeAttribute("disabled");
+      if (solverState.mode === "knuth") {
+        btnSolverAuto.removeAttribute("disabled");
+        btnSolverStep.removeAttribute("disabled");
+      } else if (solverState.mode === "brute") {
+        btnStartSolver.removeAttribute("disabled");
+        btnStartSolver.classList.add("btn--primary");
+        showBanner("Decryption sequence stopped.", "info");
+      }
     }
   }
 

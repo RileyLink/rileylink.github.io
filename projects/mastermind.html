@@ -163,19 +163,20 @@
           <div class="mm-instruction-box">
             <h4>Algorithm Visualizer</h4>
             <p style="margin-bottom:0; font-size:var(--text-sm)">
-              Set a secret code for the computer by clicking the slots below to cycle through the colors. Press <strong>Start Solver</strong> to initialize, then step through or play automatically. Watch how the solver filters candidate solutions in real-time.
+              Set a secret code for the computer by selecting a color from the palette and clicking the slots below, or click <strong>Random Code</strong>. Press <strong>Start Solver</strong> to initialize, then step through or watch the solver filter candidate solutions in real-time.
             </p>
           </div>
 
           <!-- Secret Setup Slots -->
           <h4 style="margin-bottom:var(--space-sm)">Set Secret Code</h4>
-          <div style="display:flex; gap:var(--space-md); align-items:center; margin-bottom:var(--space-lg);">
+          <div style="display:flex; gap:var(--space-md); align-items:center; flex-wrap:wrap; margin-bottom:var(--space-lg);">
             <div id="secretSetup" style="display:flex; gap:var(--space-sm);">
               <div class="mm-peg is-clickable"></div>
               <div class="mm-peg is-clickable"></div>
               <div class="mm-peg is-clickable"></div>
               <div class="mm-peg is-clickable"></div>
             </div>
+            <button class="btn btn--outline btn--small" id="btnRandomSecret">Random Code</button>
             <button class="btn btn--primary btn--small" id="btnStartSolver" disabled>Start Solver</button>
           </div>
 
