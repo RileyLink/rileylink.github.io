@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Beauty of the Furuta Pendulum — Riley Link</title>
+  <meta name="description" content="The Furuta pendulum is one of the most elegant examples in geometric control — a system that seems impossible to stabilize, yet yields beautifully to the right mathematical framework.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/blog.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Prism.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+
+  <!-- Reading Progress Bar -->
+  <div class="reading-progress" id="reading-progress"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="../../index.html" class="nav-logo">Riley Link</a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="../../index.html#about" class="nav-link">About</a></li>
+        <li><a href="../index.html" class="nav-link active">Blog</a></li>
+        <li><a href="../../index.html#projects" class="nav-link">Projects</a></li>
+        <li><a href="../../index.html#resume" class="nav-link">Resume</a></li>
+        <li><a href="../../index.html#contact" class="nav-link">Contact</a></li>
+        <li>
+          <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Mobile TOC Toggle -->
+  <div class="article-wrapper" style="display:block; max-width:720px; margin:0 auto; padding: 2rem 2rem 0;">
+    <button class="toc-mobile-toggle" id="toc-mobile-toggle">
+      Table of Contents <span class="toggle-icon">▾</span>
+    </button>
+    <div class="toc-mobile-content" id="toc-mobile-content">
+      <nav>
+        <ul>
+          <li><a href="#introduction">Introduction</a></li>
+          <li><a href="#the-setup">The Setup</a></li>
+          <li><a href="#equations-of-motion">Equations of Motion</a></li>
+          <li><a href="#the-control-challenge">The Control Challenge</a></li>
+          <li><a href="#energy-based-swing-up">Energy-Based Swing-Up</a></li>
+          <li><a href="#lqr-stabilization">LQR Stabilization</a></li>
+          <li><a href="#putting-it-together">Putting It Together</a></li>
+          <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Article Layout -->
+  <div class="article-wrapper">
+    <div class="article-spacer"></div>
+
+    <!-- Main Article -->
+    <article>
+      <header class="article-header">
+        <a href="../index.html" class="back-to-blog">← Back to blog</a>
+        <h1>The Beauty of the Furuta Pendulum</h1>
+        <div class="article-meta">
+          <span class="meta-category">Geometric Control</span>
+          <span class="meta-dot"></span>
+          <span class="meta-date">June 15, 2026</span>
+          <span class="meta-dot"></span>
+          <span class="meta-readtime">12 min read</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+
+        <h2 id="introduction">Introduction <a href="#introduction" class="anchor-link">#</a></h2>
+
+        <p>There's a special class of problems in control theory that I keep coming back to — the ones that <em>look</em> impossible at first glance but unravel beautifully once you find the right mathematical angle. The Furuta pendulum is perhaps the most elegant example in this class.</p>
+
+        <p>First proposed by Katsuhisa Furuta at the Tokyo Institute of Technology in 1992, the rotary inverted pendulum (as it's formally known) consists of a motor-driven horizontal arm with a freely-rotating vertical pendulum attached at its tip. The goal? Balance the pendulum upright — inverted — by controlling <em>only</em> the horizontal arm's rotation.</p>
+
+        <blockquote>
+          <p>The Furuta pendulum is underactuated: we have two degrees of freedom but only one control input. This gap between what we can directly control and what we want to achieve is where the mathematics gets interesting.</p>
+        </blockquote>
+
+        <p>If you've ever tried to balance a broomstick on your palm, you have some intuition for what's happening here. But the Furuta pendulum adds a twist — literally. Instead of moving your hand in a plane, you're rotating an arm. The coupling between rotational motion and the pendulum's swing creates a rich dynamical system that has become a benchmark problem in nonlinear control.</p>
+
+        <p>In this post, we'll derive the equations of motion from first principles using Lagrangian mechanics, analyze the control challenge, and build up a hybrid controller that can swing the pendulum up from rest and stabilize it at the inverted equilibrium. Let's get started.</p>
+
+        <hr>
+
+        <h2 id="the-setup">The Setup <a href="#the-setup" class="anchor-link">#</a></h2>
+
+        <p>Picture the physical system. A DC motor sits at the center, driving a horizontal arm of length $L_1$ and mass $m_1$. At the end of this arm, a pendulum of length $L_2$ and mass $m_2$ is free to rotate in the vertical plane. The system has two generalized coordinates:</p>
+
+        <ul>
+          <li>$\theta$ — the angle of the horizontal arm (motor-driven),</li>
+          <li>$\phi$ — the angle of the pendulum from the upright vertical position.</li>
+        </ul>
+
+        <p>We define $\phi = 0$ as the <em>upright</em> (inverted) equilibrium, so $\phi = \pi$ corresponds to the pendulum hanging straight down. The motor exerts a torque $\tau$ on the arm. There is no direct actuation on the pendulum — it moves only through the coupling with the arm.</p>
+
+        <p>For simplicity, we'll model the arm and pendulum as uniform rigid rods, so their centers of mass lie at $L_1/2$ and $L_2/2$, respectively. The moments of inertia about their centers of mass are $J_1 = \frac{1}{3}m_1 L_1^2$ for the arm (about the pivot) and $J_2 = \frac{1}{3}m_2 L_2^2$ for the pendulum (about its pivot at the arm tip).</p>
+
+        <hr>
+
+        <h2 id="equations-of-motion">Equations of Motion <a href="#equations-of-motion" class="anchor-link">#</a></h2>
+
+        <p>We'll derive the equations of motion using the Lagrangian approach. This is one of those rare situations where Lagrangian mechanics isn't just more elegant than Newton's laws — it's practically <em>necessary</em>, because the constraint forces at the pivot would be painful to track directly.</p>
+
+        <h3>Kinetic Energy</h3>
+
+        <p>The total kinetic energy has contributions from the arm's rotation and the pendulum's combined rotational and translational motion. The position of the pendulum's center of mass in Cartesian coordinates involves both $\theta$ and $\phi$, and after working through the geometry, the total kinetic energy is:</p>
+
+        $$T = \frac{1}{2}J_1 \dot{\theta}^2 + \frac{1}{2}J_2 \dot{\phi}^2 + \frac{1}{2}m_2 L_1^2 \dot{\theta}^2 + \frac{1}{2}m_2 \left(\frac{L_2}{2}\right)^2 \dot{\theta}^2 \sin^2\phi + m_2 L_1 \frac{L_2}{2} \dot{\theta}\dot{\phi}\cos\phi$$
+
+        <p>Let's define some shorthand to keep things readable. Let $\ell_2 = L_2 / 2$ (distance to the pendulum's center of mass), and define:</p>
+
+        $$\alpha = J_1 + m_2 L_1^2, \quad \beta = J_2 + m_2 \ell_2^2, \quad \gamma = m_2 L_1 \ell_2$$
+
+        <p>Note that $\beta$ here absorbs the pendulum's moment of inertia about its pivot (by the parallel axis theorem, effectively). With this notation, the kinetic energy simplifies to:</p>
+
+        $$T = \frac{1}{2}\left(\alpha + m_2 \ell_2^2 \sin^2\phi\right)\dot{\theta}^2 + \frac{1}{2}\beta\,\dot{\phi}^2 + \gamma \cos\phi\;\dot{\theta}\dot{\phi}$$
+
+        <h3>Potential Energy</h3>
+
+        <p>The arm moves in the horizontal plane, so it doesn't contribute to potential energy. Only the pendulum matters here:</p>
+
+        $$V = m_2 g \ell_2 \cos\phi$$
+
+        <p>Note the sign: since $\phi = 0$ is the upright position, $\cos\phi$ is maximized at the top, which corresponds to maximum potential energy. The pendulum "wants" to fall to $\phi = \pi$.</p>
+
+        <h3>The Lagrangian and Euler-Lagrange Equations</h3>
+
+        <p>The Lagrangian is $L = T - V$. Applying the Euler-Lagrange equations for both $\theta$ and $\phi$, we arrive at a pair of coupled, nonlinear second-order ODEs. After careful differentiation (which I'll spare you most of), the result is:</p>
+
+        $$\left(\alpha + m_2 \ell_2^2 \sin^2\phi\right)\ddot{\theta} + \gamma\cos\phi\;\ddot{\phi} - \gamma\sin\phi\;\dot{\phi}^2 + m_2 \ell_2^2 \sin\phi\cos\phi\;\dot{\theta}\dot{\phi} = \tau$$
+
+        $$\beta\,\ddot{\phi} + \gamma\cos\phi\;\ddot{\theta} - m_2 \ell_2^2 \sin\phi\cos\phi\;\dot{\theta}^2 - m_2 g \ell_2 \sin\phi = 0$$
+
+        <p>These equations can be written in the standard manipulator form:</p>
+
+        $$M(q)\ddot{q} + C(q, \dot{q})\dot{q} + G(q) = B\tau$$
+
+        <p>where $q = [\theta, \phi]^T$, $M(q)$ is the mass/inertia matrix, $C$ captures Coriolis and centrifugal terms, $G$ is the gravity vector, and $B = [1, 0]^T$ reflects that only $\theta$ is directly actuated.</p>
+
+        <blockquote>
+          <p>Pause and appreciate this structure for a moment. The mass matrix $M(q)$ is configuration-dependent — it changes as the pendulum swings. The off-diagonal terms in $M$ are what couple the arm and pendulum dynamics. This coupling is both the source of difficulty and the mechanism that makes control possible.</p>
+        </blockquote>
+
+        <hr>
+
+        <h2 id="the-control-challenge">The Control Challenge <a href="#the-control-challenge" class="anchor-link">#</a></h2>
+
+        <p>Let's now understand <em>why</em> this problem is hard. There are three fundamental challenges:</p>
+
+        <p><strong>Underactuation.</strong> We have two degrees of freedom ($\theta$, $\phi$) but only one control input ($\tau$). We can't independently command both the arm and the pendulum. Instead, we must use the arm's motion to <em>indirectly</em> influence the pendulum through the coupling terms in the equations of motion.</p>
+
+        <p><strong>Nonlinearity.</strong> The equations of motion are highly nonlinear — $\sin\phi$, $\cos\phi$, products of velocities, and configuration-dependent inertia all appear. Linear control techniques work only in a small neighborhood of an equilibrium.</p>
+
+        <p><strong>Instability.</strong> The inverted equilibrium ($\phi = 0$, $\dot{\phi} = 0$) is unstable. The linearization around this point reveals an eigenvalue in the right-half plane. Without active control, any perturbation causes the pendulum to fall.</p>
+
+        <h3>Linearization at the Upright Equilibrium</h3>
+
+        <p>To design a stabilizing controller, we linearize around $\phi = 0$, $\dot{\theta} = 0$, $\dot{\phi} = 0$, $\theta = 0$. Near this point, $\sin\phi \approx \phi$ and $\cos\phi \approx 1$, and velocity product terms vanish to first order. The linearized dynamics take the standard state-space form:</p>
+
+        $$\dot{x} = Ax + Bu$$
+
+        <p>where $x = [\theta, \phi, \dot{\theta}, \dot{\phi}]^T$ and $u = \tau$. The matrices $A$ and $B$ have a clean structure that depends on the physical parameters. The key observation is that the pair $(A, B)$ is <em>controllable</em> — meaning that, despite having only one input, we can steer the system to any nearby state. This is the mathematical certificate that stabilization is possible.</p>
+
+        <hr>
+
+        <h2 id="energy-based-swing-up">Energy-Based Swing-Up <a href="#energy-based-swing-up" class="anchor-link">#</a></h2>
+
+        <p>The linearized controller only works near the top. But we need to get there first — the pendulum starts hanging down at $\phi = \pi$. This is where energy-based swing-up comes in, an idea due to Åström and Furuta (2000).</p>
+
+        <p>The insight is elegant: define the pendulum's total energy (kinetic + potential) relative to the upright equilibrium:</p>
+
+        $$E = \frac{1}{2}J_2\dot{\phi}^2 + m_2 g \ell_2(\cos\phi - 1)$$
+
+        <p>At the upright equilibrium ($\phi = 0$, $\dot{\phi} = 0$), we have $E = 0$. When the pendulum hangs at rest ($\phi = \pi$), $E = -2m_2 g \ell_2$. The goal of the swing-up controller is to <em>pump energy into the pendulum</em> until $E \approx 0$, at which point the pendulum has just enough energy to reach the top.</p>
+
+        <p>The swing-up control law is:</p>
+
+        $$\tau_{\text{swing}} = k_E \, E \, \dot{\phi} \, \cos\phi$$
+
+        <p>where $k_E > 0$ is a gain parameter. The intuition: we accelerate the arm in the direction that <em>increases</em> the pendulum's energy when $E < 0$ (energy deficit) and decreases it when $E > 0$ (energy surplus). The $\cos\phi$ term ensures we only push when the push will be effective — near the bottom of the swing.</p>
+
+        <p>One can show that this controller makes $E = 0$ a globally attractive set (with some technical caveats about avoiding the downward equilibrium). Here's a basic implementation:</p>
+
+        <div class="code-block-wrapper">
+          <span class="code-lang-label">Python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+
+def swing_up_control(phi, phi_dot, params):
+    """Energy-based swing-up controller for the Furuta pendulum.
+    
+    Args:
+        phi: Pendulum angle from upright (rad)
+        phi_dot: Pendulum angular velocity (rad/s)
+        params: Dict with keys 'm2', 'l2', 'g', 'J2', 'k_E'
+    
+    Returns:
+        tau: Control torque applied to the arm
+    """
+    m2, l2, g = params['m2'], params['l2'], params['g']
+    J2, k_E = params['J2'], params['k_E']
+    
+    # Pendulum energy relative to upright equilibrium
+    E = 0.5 * J2 * phi_dot**2 + m2 * g * l2 * (np.cos(phi) - 1)
+    
+    # Swing-up control law
+    tau = k_E * E * phi_dot * np.cos(phi)
+    
+    # Saturate torque to physical limits
+    tau_max = params.get('tau_max', 1.0)
+    tau = np.clip(tau, -tau_max, tau_max)
+    
+    return tau</code></pre>
+        </div>
+
+        <hr>
+
+        <h2 id="lqr-stabilization">LQR Stabilization <a href="#lqr-stabilization" class="anchor-link">#</a></h2>
+
+        <p>Once the swing-up controller brings the pendulum close to the upright position, we switch to a linear controller for stabilization. The go-to method is the <strong>Linear Quadratic Regulator (LQR)</strong>.</p>
+
+        <p>LQR solves the following problem: given the linearized dynamics $\dot{x} = Ax + Bu$, find the state-feedback gain $K$ that minimizes the infinite-horizon cost:</p>
+
+        $$J = \int_0^\infty \left(x^T Q x + u^T R u\right) dt$$
+
+        <p>where $Q \succeq 0$ and $R \succ 0$ are weight matrices that let us trade off state regulation against control effort. The solution is $u = -Kx$ where $K = R^{-1}B^T P$ and $P$ is the unique positive-definite solution of the continuous algebraic Riccati equation:</p>
+
+        $$A^T P + PA - PBR^{-1}B^T P + Q = 0$$
+
+        <p>The beauty of LQR is that we get optimality <em>and</em> guaranteed stability margins (at least 60° of phase margin and infinite gain margin for single-input systems). For the Furuta pendulum, we construct $A$ and $B$ from our linearized equations and then compute $K$:</p>
+
+        <div class="code-block-wrapper">
+          <span class="code-lang-label">Python</span>
+          <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+          <pre><code class="language-python">import numpy as np
+from scipy.linalg import solve_continuous_are
+
+def compute_lqr_gain(params):
+    """Compute LQR gain for the Furuta pendulum near upright.
+    
+    Returns the gain matrix K such that u = -K @ x stabilizes
+    the system around [theta, phi, theta_dot, phi_dot] = 0.
+    """
+    m2, l2, g = params['m2'], params['l2'], params['g']
+    L1 = params['L1']
+    J1, J2 = params['J1'], params['J2']
+    
+    alpha = J1 + m2 * L1**2
+    beta = J2
+    gamma = m2 * L1 * l2
+    
+    # Determinant of mass matrix at phi=0
+    det_M = alpha * beta - gamma**2
+    
+    # Linearized A matrix (4x4)
+    A = np.zeros((4, 4))
+    A[0, 2] = 1.0
+    A[1, 3] = 1.0
+    A[2, 1] = -gamma * m2 * g * l2 / det_M
+    A[3, 1] = alpha * m2 * g * l2 / det_M
+    
+    # Linearized B matrix (4x1)
+    B = np.zeros((4, 1))
+    B[2, 0] = beta / det_M
+    B[3, 0] = -gamma / det_M
+    
+    # Cost matrices — tune these for your hardware
+    Q = np.diag([1.0, 10.0, 0.5, 1.0])
+    R = np.array([[0.1]])
+    
+    # Solve the Riccati equation
+    P = solve_continuous_are(A, B, Q, R)
+    K = np.linalg.inv(R) @ B.T @ P
+    
+    return K</code></pre>
+        </div>
+
+        <p>The choice of $Q$ and $R$ is where the art lives. Penalizing $\phi$ heavily (the 10.0 in the second diagonal entry) tells the controller that keeping the pendulum upright is more important than zeroing out the arm angle. The $R$ value controls how aggressively we use the motor — a smaller $R$ means more aggressive control but higher torque demands.</p>
+
+        <hr>
+
+        <h2 id="putting-it-together">Putting It Together <a href="#putting-it-together" class="anchor-link">#</a></h2>
+
+        <p>The complete controller is a <strong>hybrid switching controller</strong> with two modes:</p>
+
+        <ol>
+          <li><strong>Swing-up mode:</strong> When $|\phi| > \phi_{\text{thresh}}$ (the pendulum is far from upright), use the energy-based swing-up controller.</li>
+          <li><strong>Stabilization mode:</strong> When $|\phi| \leq \phi_{\text{thresh}}$ (the pendulum is near upright), switch to LQR.</li>
+        </ol>
+
+        <p>A typical threshold is $\phi_{\text{thresh}} \approx 15°$ to $20°$, which should be within the region of attraction of the LQR controller. In practice, you might add hysteresis to avoid chattering at the boundary:</p>
+
+        $$\tau = \begin{cases} -K x & \text{if } |\phi| < \phi_{\text{thresh}} \text{ (stabilize)} \\ k_E \, E \, \dot{\phi} \cos\phi & \text{otherwise (swing up)} \end{cases}$$
+
+        <p>When you simulate this — or better yet, run it on physical hardware — the behavior is mesmerizing. The arm rocks back and forth, gradually pumping energy into the pendulum like pushing a child on a swing. The oscillations grow until the pendulum swings over the top, and then the LQR kicks in, making fine corrections to hold it in place. The transition is seamless when tuned well.</p>
+
+        <p>The whole process from hanging down to balanced upright typically takes 3–5 swings, depending on the system parameters and the gain $k_E$. Each swing adds energy until the system reaches the homoclinic orbit — the trajectory that connects the downward equilibrium to the upward one.</p>
+
+        <hr>
+
+        <h2 id="conclusion">Conclusion <a href="#conclusion" class="anchor-link">#</a></h2>
+
+        <p>What makes the Furuta pendulum beautiful isn't any single technique — it's the way different ideas from across control theory come together. Lagrangian mechanics gives us the dynamics. Energy shaping handles the global swing-up. Linearization and LQR provide local stabilization. And the switching logic ties it all into a coherent whole.</p>
+
+        <p>This is, in many ways, a microcosm of modern control theory. Real-world systems are nonlinear, underactuated, and unstable. We rarely have a single controller that works everywhere. Instead, we stitch together different strategies, each valid in its own domain, and the challenge is making the transitions smooth and provably safe.</p>
+
+        <p>If you're a student learning control theory, I can't recommend this system enough as a study vehicle. It's complex enough to be interesting, simple enough to be tractable, and the physical intuition is always right there, waiting to guide your mathematics.</p>
+
+        <blockquote>
+          <p>The Furuta pendulum reminds us that elegance in engineering isn't about simplicity — it's about finding the right abstraction that makes a complex problem feel inevitable.</p>
+        </blockquote>
+
+        <p>In a future post, we'll look at the Lyapunov theory that underpins the stability guarantees for both the swing-up and stabilization phases. If you're curious about that, check out my next post on Lyapunov stability.</p>
+
+      </div><!-- /.article-body -->
+
+      <!-- Post Navigation -->
+      <nav class="post-nav">
+        <div class="nav-placeholder"></div>
+        <a href="lyapunov-stability.html" class="nav-next">
+          <span class="nav-label">Next →</span>
+          <span class="nav-title">A Gentle Introduction to Lyapunov Stability</span>
+        </a>
+      </nav>
+
+    </article>
+
+    <!-- Table of Contents Sidebar -->
+    <aside class="toc-sidebar" id="toc-sidebar">
+      <div class="toc-title">On this page</div>
+      <nav>
+        <ul>
+          <li><a href="#introduction">Introduction</a></li>
+          <li><a href="#the-setup">The Setup</a></li>
+          <li><a href="#equations-of-motion">Equations of Motion</a></li>
+          <li><a href="#the-control-challenge">The Control Challenge</a></li>
+          <li class="toc-h3"><a href="#lqr-stabilization">Linearization</a></li>
+          <li><a href="#energy-based-swing-up">Energy-Based Swing-Up</a></li>
+          <li><a href="#lqr-stabilization">LQR Stabilization</a></li>
+          <li><a href="#putting-it-together">Putting It Together</a></li>
+          <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+      </nav>
+    </aside>
+  </div>
+
+  <!-- Back to Top -->
+  <button class="back-to-top" id="back-to-top" aria-label="Back to top">↑</button>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">© 2026 Riley Link</p>
+      <div class="footer-links">
+        <a href="https://github.com/RileyLink" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://scholar.google.com/" class="footer-link" target="_blank" rel="noopener noreferrer">Scholar</a>
+        <a href="https://www.linkedin.com/in/riley-link" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JS -->
+  <script src="../../js/main.js"></script>
+
+  <!-- Article Scripts -->
+  <script>
+    // ---- KaTeX Auto-Render ----
+    document.addEventListener('DOMContentLoaded', function() {
+      if (typeof renderMathInElement !== 'undefined') {
+        renderMathInElement(document.body, {
+          delimiters: [
+            { left: '$$', right: '$$', display: true },
+            { left: '$', right: '$', display: false }
+          ],
+          throwOnError: false
+        });
+      }
+    });
+
+    // ---- Reading Progress Bar ----
+    const progressBar = document.getElementById('reading-progress');
+    window.addEventListener('scroll', () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = window.scrollY;
+      const progress = docHeight > 0 ? (scrolled / docHeight) * 100 : 0;
+      progressBar.style.width = progress + '%';
+    });
+
+    // ---- Back to Top Button ----
+    const backToTop = document.getElementById('back-to-top');
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        backToTop.classList.add('visible');
+      } else {
+        backToTop.classList.remove('visible');
+      }
+    });
+    backToTop.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ---- TOC Active Section Tracking ----
+    const tocLinks = document.querySelectorAll('.toc-sidebar nav a, .toc-mobile-content nav a');
+    const sections = [];
+    tocLinks.forEach(link => {
+      const id = link.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) sections.push({ id, el, link });
+    });
+
+    function updateActiveTOC() {
+      let current = '';
+      for (const s of sections) {
+        const rect = s.el.getBoundingClientRect();
+        if (rect.top <= 120) current = s.id;
+      }
+      tocLinks.forEach(link => {
+        const id = link.getAttribute('href').slice(1);
+        if (id === current) {
+          link.classList.add('active');
+        } else {
+          link.classList.remove('active');
+        }
+      });
+    }
+
+    window.addEventListener('scroll', updateActiveTOC);
+    updateActiveTOC();
+
+    // ---- Mobile TOC Toggle ----
+    const tocToggle = document.getElementById('toc-mobile-toggle');
+    const tocMobileContent = document.getElementById('toc-mobile-content');
+    if (tocToggle && tocMobileContent) {
+      tocToggle.addEventListener('click', () => {
+        tocToggle.classList.toggle('open');
+        tocMobileContent.classList.toggle('show');
+      });
+    }
+
+    // ---- Copy Code Button ----
+    function copyCode(btn) {
+      const codeBlock = btn.closest('.code-block-wrapper').querySelector('code');
+      const text = codeBlock.innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = 'Copy';
+          btn.classList.remove('copied');
+        }, 2000);
+      });
+    }
+  </script>
+
+</body>
+</html>

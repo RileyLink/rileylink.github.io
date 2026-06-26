@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Riley Link</title>
+  <meta name="description" content="Tutorials, writeups, and mathematical explorations by Riley Link — Cornell Applied Mathematics PhD student.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/blog.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="../index.html" class="nav-logo">Riley Link</a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="../index.html#about" class="nav-link">About</a></li>
+        <li><a href="./index.html" class="nav-link active">Blog</a></li>
+        <li><a href="../index.html#projects" class="nav-link">Projects</a></li>
+        <li><a href="../index.html#resume" class="nav-link">Resume</a></li>
+        <li><a href="../index.html#contact" class="nav-link">Contact</a></li>
+        <li>
+          <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Blog Hero -->
+  <section class="blog-hero">
+    <h1>Blog</h1>
+    <p class="subtitle">Tutorials, writeups, and mathematical explorations</p>
+  </section>
+
+  <!-- Category Filter -->
+  <div class="category-filter" id="category-filter">
+    <button class="category-pill active" data-category="all">All</button>
+    <button class="category-pill" data-category="mathematics">Mathematics</button>
+    <button class="category-pill" data-category="geometric-mechanics">Geometric Mechanics</button>
+    <button class="category-pill" data-category="control-theory">Control Theory</button>
+    <button class="category-pill" data-category="programming">Programming</button>
+    <button class="category-pill" data-category="tutorials">Tutorials</button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="blog-search">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="blog-search-input" placeholder="Search posts..." aria-label="Search blog posts">
+  </div>
+
+  <!-- Post Grid -->
+  <div class="post-grid" id="post-grid">
+
+    <!-- Post 1 — Furuta Pendulum -->
+    <a href="posts/furuta-pendulum.html" class="post-card" data-category="control-theory" data-title="The Beauty of the Furuta Pendulum" data-excerpt="The Furuta pendulum is one of the most elegant examples in control theory">
+      <div class="post-card-meta">
+        <span class="post-card-category">Control Theory</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-date">June 15, 2026</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-readtime">12 min read</span>
+      </div>
+      <h2>The Beauty of the Furuta Pendulum</h2>
+      <p class="excerpt">The Furuta pendulum is one of the most elegant examples in control theory — a system that seems impossible to stabilize, yet yields beautifully to the right mathematical framework...</p>
+      <span class="read-more">Read more →</span>
+    </a>
+
+    <!-- Post 2 — Lyapunov Stability -->
+    <a href="posts/lyapunov-stability.html" class="post-card" data-category="mathematics" data-title="A Gentle Introduction to Lyapunov Stability" data-excerpt="Stability is one of those concepts that feels intuitive until you try to make it precise">
+      <div class="post-card-meta">
+        <span class="post-card-category">Mathematics</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-date">May 28, 2026</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-readtime">15 min read</span>
+      </div>
+      <h2>A Gentle Introduction to Lyapunov Stability</h2>
+      <p class="excerpt">Stability is one of those concepts that feels intuitive until you try to make it precise. In this post, we'll build up the theory of Lyapunov stability from scratch...</p>
+      <span class="read-more">Read more →</span>
+    </a>
+
+    <!-- Post 3 — Symmetries and Conservation Laws -->
+    <a href="#" class="post-card" data-category="geometric-mechanics" data-title="Symmetries and Conservation Laws" data-excerpt="An exploration of Noether's theorem and symmetries in mechanical systems">
+      <div class="post-card-meta">
+        <span class="post-card-category">Geometric Mechanics</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-date">April 10, 2026</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-readtime">10 min read</span>
+      </div>
+      <h2>Symmetries and Conservation Laws</h2>
+      <p class="excerpt">An exploration of Noether's theorem and how symmetries in mechanical systems lead naturally to conservation laws, forming the foundation of geometric mechanics...</p>
+      <span class="read-more">Read more →</span>
+    </a>
+
+    <!-- Post 4 — Symbolic Mechanics -->
+    <a href="#" class="post-card" data-category="programming" data-title="Symbolic Mechanics with SymPy" data-excerpt="How to use Python's SymPy library to automate the derivation of equations of motion">
+      <div class="post-card-meta">
+        <span class="post-card-category">Programming</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-date">March 22, 2026</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-readtime">8 min read</span>
+      </div>
+      <h2>Symbolic Mechanics with SymPy</h2>
+      <p class="excerpt">Deriving Euler-Lagrange equations by hand is error-prone. Learn how to use Python's SymPy library to automate symbolic derivations for complex mechanical systems...</p>
+      <span class="read-more">Read more →</span>
+    </a>
+
+    <!-- Post 5 — Kalman Filter -->
+    <a href="#" class="post-card" data-category="control-theory" data-title="Understanding the Kalman Filter" data-excerpt="The Kalman filter is one of the most important algorithms of the 20th century">
+      <div class="post-card-meta">
+        <span class="post-card-category">Control Theory</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-date">February 14, 2026</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-readtime">18 min read</span>
+      </div>
+      <h2>Understanding the Kalman Filter</h2>
+      <p class="excerpt">The Kalman filter is one of the most important algorithms of the 20th century. Let's derive it from first principles and build an intuition for why it works...</p>
+      <span class="read-more">Read more →</span>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">© 2026 Riley Link</p>
+      <div class="footer-links">
+        <a href="https://github.com/RileyLink" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://scholar.google.com/" class="footer-link" target="_blank" rel="noopener noreferrer">Scholar</a>
+        <a href="https://www.linkedin.com/in/riley-link" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JS -->
+  <script src="../js/main.js"></script>
+
+  <!-- Blog filtering & search -->
+  <script>
+    (function() {
+      // Category filtering
+      const filterBtns = document.querySelectorAll('.category-pill');
+      const postCards = document.querySelectorAll('.post-card');
+      const searchInput = document.getElementById('blog-search-input');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filterPosts();
+        });
+      });
+
+      searchInput.addEventListener('input', () => {
+        filterPosts();
+      });
+
+      function filterPosts() {
+        const activeCategory = document.querySelector('.category-pill.active').dataset.category;
+        const query = searchInput.value.toLowerCase().trim();
+
+        postCards.forEach(card => {
+          const category = card.dataset.category;
+          const title = (card.dataset.title || '').toLowerCase();
+          const excerpt = (card.dataset.excerpt || '').toLowerCase();
+
+          const matchCategory = activeCategory === 'all' || category === activeCategory;
+          const matchSearch = !query || title.includes(query) || excerpt.includes(query);
+
+          if (matchCategory && matchSearch) {
+            card.style.display = '';
+            card.style.opacity = '1';
+            card.style.transform = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>
