@@ -130,7 +130,7 @@
 
         <!-- Presets Selector -->
         <h4 style="margin-bottom: var(--space-xs)">Presets</h4>
-        <div style="margin-bottom: var(--space-md)">
+        <div style="margin-bottom: var(--space-xs)">
           <select id="presetSelect" class="btn btn--outline" style="width: 100%; text-align: left; padding: var(--space-xs) var(--space-sm);">
             <option value="stacked-gon-4">Stacked Gons (n = 4) - Takes 2 steps</option>
             <option value="stacked-gon-10">Stacked Gons (n = 10) - Takes 5 steps</option>
@@ -138,6 +138,10 @@
             <option value="nonisomorphic-trees">Non-Isomorphic Trees (V = 10)</option>
             <option value="custom">Custom Editable Graph</option>
           </select>
+        </div>
+        <!-- Preset Explanation Container -->
+        <div id="presetExplanation" style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.4; margin-bottom: var(--space-md); padding: var(--space-xs) var(--space-sm); background: rgba(255,255,255,0.02); border-radius: var(--radius); border: 1px solid var(--border)">
+          <!-- Populated by JS -->
         </div>
 
         <!-- Controls -->
@@ -197,7 +201,6 @@
   <footer class="footer">
     <div class="container footer__inner">
       <p class="footer__copyright">© 2026 Riley Link</p>
-      <p class="footer__tagline">Built with ☕ and curiosity</p>
     </div>
   </footer>
 

@@ -11,9 +11,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let isAutoPlaying = false;
   let autoplayTimer = null;
   let autoplaySpeed = 1000; // ms
+  let isTerminated = false;
   
   let colorMap = {}; // Maps stringified multisets to deterministic color index
   let usedColorsCount = 0;
+
+  // Explanations for each preset
+  const presetExplanations = {
+    "stacked-gon-4": "<strong>Stacked Gons (n = 4)</strong>: Two stacked 7-gons ($G_1$) vs. a stacked 8-gon and a 6-gon ($G_2$). They are non-isomorphic but share the same degree sequences. 1-WL refinement distinguishes them in exactly 2 steps ($n/2$ iterations).",
+    "stacked-gon-10": "<strong>Stacked Gons (n = 10)</strong>: Two stacked 13-gons ($G_1$) vs. a stacked 14-gon and a 12-gon ($G_2$). Larger stacked gons whose color refinement partitions split after exactly 5 iterations ($n/2$ steps).",
+    "isomorphic-cycles": "<strong>Isomorphic Cycles (V = 8)</strong>: Two identical 8-vertex cycles. Since they are isomorphic, their color partitions stabilize immediately on iteration 0 and stay identical forever.",
+    "nonisomorphic-trees": "<strong>Non-Isomorphic Trees (V = 10)</strong>: Two trees with identical degree sequences but different branching layouts. The colors will split at iteration 1, immediately showing they are non-isomorphic.",
+    "custom": "<strong>Custom Editable Graph</strong>: Add vertices by clicking on empty canvas space. Drag-link from one node to another to create edges. Press backspace/delete to remove selected nodes."
+  };
 
   // Premium HSL color scheme palette for different color partitions
   const partitionColors = [
@@ -48,6 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // DOM Elements
   const presetSelect = document.getElementById("presetSelect");
+  const presetExplanation = document.getElementById("presetExplanation");
   const btnStep = document.getElementById("btnStep");
   const btnPlay = document.getElementById("btnPlay");
   const btnReset = document.getElementById("btnReset");
@@ -88,8 +99,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function runPhysicsLoop() {
     updatePhysics(G1);
     updatePhysics(G2);
-    renderGraph(G1, svgG1, "G1");
-    renderGraph(G2, svgG2, "G2");
+    updateSVGPositions(G1, "G1");
+    updateSVGPositions(G2, "G2");
     animFrameId = requestAnimationFrame(runPhysicsLoop);
   }
 
@@ -217,6 +228,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function loadPreset(presetName) {
     cancelAnimationFrame(animFrameId);
+    stopAutoplay();
     currentIteration = 0;
     iterationLabel.textContent = `Iteration ${currentIteration}`;
     hideBanner();
@@ -227,9 +239,15 @@ document.addEventListener("DOMContentLoaded", () => {
     edgeDrawingStartNode = null;
     customEditPanel.style.display = "none";
     editMode = false;
+    isTerminated = false;
     
     colorMap = {};
     usedColorsCount = 0;
+
+    // Set explanation text
+    if (presetExplanation) {
+      presetExplanation.innerHTML = presetExplanations[presetName] || "";
+    }
 
     if (presetName === "stacked-gon-4") {
       G1 = createStackedGonPreset(4, 1); // 2 stacked 7-gons (V=12)
@@ -265,6 +283,10 @@ document.addEventListener("DOMContentLoaded", () => {
     // Compute degrees for initial labels
     computeInitialDegrees(G1);
     computeInitialDegrees(G2);
+    
+    // Create actual SVG DOM elements
+    createSVGNodes(G1, svgG1, "G1");
+    createSVGNodes(G2, svgG2, "G2");
     
     // Draw initial color partitioning table
     updatePartitionList();
@@ -366,9 +388,16 @@ document.addEventListener("DOMContentLoaded", () => {
   // ───────────────────────────────
 
   function runWLIteration() {
+    if (isTerminated) {
+      appendLog("WL Test has already finished. Please click 'Reset' or choose a new preset to run again.", true);
+      stopAutoplay();
+      return;
+    }
+
     if (G1.vertices.length !== G2.vertices.length) {
       showBanner("Refinement Blocked: Vertices count mismatch. Graphs cannot be isomorphic.", "error");
       appendLog("WL Test failed: Graph sizes do not match.", true);
+      isTerminated = true;
       stopAutoplay();
       return;
     }
@@ -445,9 +474,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       vG1.label = hash1;
       vG1.color = getLabelColor(hash1);
+      if (vG1.circle) vG1.circle.setAttribute("fill", vG1.color);
 
       vG2.label = hash2;
       vG2.color = getLabelColor(hash2);
+      if (vG2.circle) vG2.circle.setAttribute("fill", vG2.color);
 
       nextLabelsG1.push(hash1);
       nextLabelsG2.push(hash2);
@@ -471,11 +502,13 @@ document.addEventListener("DOMContentLoaded", () => {
       // Color sets mismatch -> NON-ISOMORPHIC
       showBanner(`Iteration ${currentIteration}: Partition mismatch detected! Graphs are NOT isomorphic.`, "error");
       appendLog(`Iteration ${currentIteration}: Color partitions do not match. Graphs are NOT isomorphic!`, true);
+      isTerminated = true;
       stopAutoplay();
     } else if (!labelsChanged) {
       // Color partitions stabilized -> ISOMORPHIC (Test passed)
       showBanner(`Iteration ${currentIteration}: Partitioning stabilized. Graphs are likely isomorphic!`, "success");
       appendLog(`Iteration ${currentIteration}: Color groups stabilized. WL test passed!`, true);
+      isTerminated = true;
       stopAutoplay();
     } else {
       // Color sets still match, refinement continues
@@ -496,8 +529,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // UI Rendering & Interactivity
   // ───────────────────────────────
 
-  function renderGraph(graph, svgEl, graphId) {
-    // Collect coordinates and links
+  function createSVGNodes(graph, svgEl, graphId) {
     svgEl.innerHTML = "";
     
     // 1. Draw edges
@@ -511,15 +543,8 @@ document.addEventListener("DOMContentLoaded", () => {
         line.setAttribute("x2", v.x);
         line.setAttribute("y2", v.y);
         line.setAttribute("class", "wl-edge");
-        
-        // Highlight active connections during node hovers
-        if (selectedNode && selectedGraphId === graphId) {
-          if (u.id === selectedNode.id || v.id === selectedNode.id) {
-            line.classList.add("is-highlighted");
-          }
-        }
-
         svgEl.appendChild(line);
+        e.element = line;
       }
     });
 
@@ -533,10 +558,6 @@ document.addEventListener("DOMContentLoaded", () => {
       circle.setAttribute("r", 15);
       circle.setAttribute("class", "wl-node");
       circle.setAttribute("fill", v.color);
-
-      if (selectedNode && selectedNode.id === v.id && selectedGraphId === graphId) {
-        circle.classList.add("is-selected");
-      }
 
       // Physics drag-and-drop actions
       circle.addEventListener("mousedown", (e) => {
@@ -560,13 +581,52 @@ document.addEventListener("DOMContentLoaded", () => {
       text.setAttribute("x", v.x);
       text.setAttribute("y", v.y);
       text.setAttribute("class", "wl-node-text");
-      
-      // Node label representation (show simple ID and degree)
       text.textContent = v.id;
 
       group.appendChild(circle);
       group.appendChild(text);
       svgEl.appendChild(group);
+
+      v.circle = circle;
+      v.text = text;
+      v.element = group;
+    });
+  }
+
+  function updateSVGPositions(graph, graphId) {
+    // Update lines
+    graph.edges.forEach(e => {
+      const u = graph.vertices.find(n => n.id === e.source);
+      const v = graph.vertices.find(n => n.id === e.target);
+      if (u && v && e.element) {
+        e.element.setAttribute("x1", u.x);
+        e.element.setAttribute("y1", u.y);
+        e.element.setAttribute("x2", v.x);
+        e.element.setAttribute("y2", v.y);
+        
+        // Highlight active connections during node hovers
+        if (selectedNode && selectedGraphId === graphId && (u.id === selectedNode.id || v.id === selectedNode.id)) {
+          e.element.classList.add("is-highlighted");
+        } else {
+          e.element.classList.remove("is-highlighted");
+        }
+      }
+    });
+
+    // Update nodes
+    graph.vertices.forEach(v => {
+      if (v.circle && v.text) {
+        v.circle.setAttribute("cx", v.x);
+        v.circle.setAttribute("cy", v.y);
+        v.text.setAttribute("x", v.x);
+        v.text.setAttribute("y", v.y);
+
+        if (selectedNode && selectedNode.id === v.id && selectedGraphId === graphId) {
+          v.circle.classList.add("is-selected");
+        } else {
+          v.circle.classList.remove("is-selected");
+        }
+      }
     });
   }
 
@@ -675,6 +735,7 @@ document.addEventListener("DOMContentLoaded", () => {
     wlTooltip.innerHTML = html;
   }
 
+  // Hide tooltip
   function hideTooltip() {
     wlTooltip.style.display = "none";
   }
@@ -729,6 +790,9 @@ document.addEventListener("DOMContentLoaded", () => {
             computeInitialDegrees(G1);
             computeInitialDegrees(G2);
             updatePartitionList();
+            
+            // Recreate DOM nodes with new edge
+            createSVGNodes(graph, targetGraphId === "G1" ? svgG1 : svgG2, targetGraphId);
           }
         }
       }
@@ -764,6 +828,7 @@ document.addEventListener("DOMContentLoaded", () => {
     g1NodeCount.textContent = `${G1.vertices.length} nodes`;
     computeInitialDegrees(G1);
     updatePartitionList();
+    createSVGNodes(G1, svgG1, "G1");
   });
 
   canvasG2El.addEventListener("click", (e) => {
@@ -790,6 +855,7 @@ document.addEventListener("DOMContentLoaded", () => {
     g2NodeCount.textContent = `${G2.vertices.length} nodes`;
     computeInitialDegrees(G2);
     updatePartitionList();
+    createSVGNodes(G2, svgG2, "G2");
   });
 
   // Keyboard deletes for custom editor
@@ -812,6 +878,8 @@ document.addEventListener("DOMContentLoaded", () => {
       computeInitialDegrees(G1);
       computeInitialDegrees(G2);
       updatePartitionList();
+      createSVGNodes(graph, selectedGraphId === "G1" ? svgG1 : svgG2, selectedGraphId);
+      
       selectedNode = null;
       selectedGraphId = null;
     }
@@ -866,11 +934,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // ───────────────────────────────
 
   btnStep.addEventListener("click", () => {
+    if (isTerminated) {
+      appendLog("WL Test has already finished. Please click 'Reset' or choose a new preset to run again.", true);
+      return;
+    }
     stopAutoplay();
     runWLIteration();
   });
 
   btnPlay.addEventListener("click", () => {
+    if (isTerminated) {
+      appendLog("WL Test has already finished. Please click 'Reset' or choose a new preset to run again.", true);
+      return;
+    }
     if (isAutoPlaying) {
       stopAutoplay();
     } else {
@@ -901,6 +977,7 @@ document.addEventListener("DOMContentLoaded", () => {
     g1NodeCount.textContent = "0 nodes";
     computeInitialDegrees(G1);
     updatePartitionList();
+    createSVGNodes(G1, svgG1, "G1");
   });
 
   btnClearG2.addEventListener("click", () => {
@@ -908,6 +985,7 @@ document.addEventListener("DOMContentLoaded", () => {
     g2NodeCount.textContent = "0 nodes";
     computeInitialDegrees(G2);
     updatePartitionList();
+    createSVGNodes(G2, svgG2, "G2");
   });
 
   // Initialize page load
