@@ -322,11 +322,24 @@
   border: 1px solid var(--border);
 }
 
+.mm-palette .mm-peg {
+  width: 20px;
+  height: 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3), inset 0 -2px 4px rgba(0,0,0,0.4);
+}
+
+.mm-palette .mm-peg.is-selected {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  transform: scale(1.15) !important;
+  box-shadow: 0 0 10px var(--accent);
+}
+
 .mm-palette-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
 }
 
 .mm-palette-label {
@@ -586,4 +599,37 @@
   background-color: rgba(59, 130, 246, 0.1);
   color: #3b82f6;
   border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* --- Peg Pop Animations --- */
+@keyframes pegPop {
+  0% { transform: scale(0.3); opacity: 0.1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.mm-peg[data-color] {
+  animation: pegPop 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.25) forwards;
+}
+
+/* --- Speed Button Controls --- */
+.mm-speed-btn {
+  background-color: var(--bg-code);
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-size: var(--text-xs);
+  transition: all var(--duration) var(--ease);
+}
+
+.mm-speed-btn:hover {
+  color: var(--text);
+  background-color: var(--border);
+}
+
+.mm-speed-btn.is-active {
+  background-color: var(--accent);
+  color: #ffffff;
 }

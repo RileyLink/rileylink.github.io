@@ -177,21 +177,19 @@
               <div class="mm-peg is-clickable"></div>
             </div>
             <button class="btn btn--outline btn--small" id="btnRandomSecret">Random Code</button>
-            <button class="btn btn--primary btn--small" id="btnStartSolver" disabled>Start Solver</button>
           </div>
 
           <!-- Solver Actions -->
           <h4 style="margin-bottom:var(--space-sm)">Controls</h4>
-          <div style="display:flex; gap:var(--space-xs); flex-wrap:wrap; margin-bottom:var(--space-lg);">
+          <div style="display:flex; gap:var(--space-md); align-items:center; flex-wrap:wrap; margin-bottom:var(--space-lg);">
+            <button class="btn btn--outline btn--small" id="btnSolverPlayPause" disabled>Play Solver</button>
             <button class="btn btn--outline btn--small" id="btnSolverStep" disabled>Next Step</button>
-            <button class="btn btn--outline btn--small" id="btnSolverAuto" disabled>Auto Play</button>
-            <button class="btn btn--outline btn--small" id="btnSolverStop" disabled>Stop</button>
-          </div>
-
-          <!-- Auto Play Speed Slider -->
-          <div class="mm-slider-wrap">
-            <label for="speedSlider">Delay: <span id="speedVal">1.0s</span></label>
-            <input type="range" id="speedSlider" class="mm-slider" min="100" max="3000" step="100" value="1000">
+            
+            <!-- Speed Switcher -->
+            <div style="display:inline-flex; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden;">
+              <button class="mm-speed-btn is-active" id="btnSpeedSlow" type="button">Slow Mode</button>
+              <button class="mm-speed-btn" id="btnSpeedFast" type="button" style="border-left:1px solid var(--border)">Fast Mode</button>
+            </div>
           </div>
 
           <hr style="border:0; border-top:1px solid var(--border); margin:var(--space-lg) 0;">

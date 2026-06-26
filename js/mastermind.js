@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Solver running state
   let solverState = null;
   let autoPlayTimer = null;
-  let autoPlaySpeed = 1000; // ms
+  let activeSpeedMode = "slow"; // "slow" | "fast"
 
   // DOM Cache
   const boardEl = document.getElementById("mmBoard");
@@ -199,12 +199,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Solver DOM elements
   const secretSetupSlots = document.querySelectorAll("#secretSetup .mm-peg");
   const btnRandomSecret = document.getElementById("btnRandomSecret");
-  const btnStartSolver = document.getElementById("btnStartSolver");
+  const btnSolverPlayPause = document.getElementById("btnSolverPlayPause");
   const btnSolverStep = document.getElementById("btnSolverStep");
-  const btnSolverAuto = document.getElementById("btnSolverAuto");
-  const btnSolverStop = document.getElementById("btnSolverStop");
-  const speedSlider = document.getElementById("speedSlider");
-  const speedVal = document.getElementById("speedVal");
+  const btnSpeedSlow = document.getElementById("btnSpeedSlow");
+  const btnSpeedFast = document.getElementById("btnSpeedFast");
 
   // Visualizer stats
   const statGuesses = document.getElementById("statGuesses");
@@ -380,11 +378,14 @@ document.addEventListener("DOMContentLoaded", () => {
       secretSetupCode[idx] = activeColor;
       slot.setAttribute("data-color", activeColor);
       
-      // Enable Start button if complete
+      // Enable Play/Step buttons if complete
       const isFilled = secretSetupCode.every(c => c !== "");
       if (isFilled) {
-        btnStartSolver.removeAttribute("disabled");
-        btnStartSolver.classList.add("btn--primary");
+        btnSolverPlayPause.removeAttribute("disabled");
+        btnSolverPlayPause.classList.add("btn--primary");
+        if (currentMode === "knuth") {
+          btnSolverStep.removeAttribute("disabled");
+        }
       }
     });
   });
@@ -396,8 +397,11 @@ document.addEventListener("DOMContentLoaded", () => {
     secretSetupSlots.forEach((slot, idx) => {
       slot.setAttribute("data-color", secretSetupCode[idx]);
     });
-    btnStartSolver.removeAttribute("disabled");
-    btnStartSolver.classList.add("btn--primary");
+    btnSolverPlayPause.removeAttribute("disabled");
+    btnSolverPlayPause.classList.add("btn--primary");
+    if (currentMode === "knuth") {
+      btnSolverStep.removeAttribute("disabled");
+    }
     showBanner("Random secret code generated!", "info");
   });
 
@@ -427,31 +431,40 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  function renderFeedback(row, scoreStr) {
+  function renderFeedback(row, scoreStr, delay = 0) {
     const rowEl = document.getElementById(`row-${row}`);
     if (!rowEl) return;
     
     const feedbackDiv = rowEl.querySelector(".mm-feedback");
-    feedbackDiv.innerHTML = "";
     
-    // Sort scores: Black ('@') first, then White ('o')
-    for (let i = 0; i < scoreStr.length; i++) {
-      if (scoreStr[i] === "@") {
-        const badge = document.createElement("span");
-        badge.className = "mm-badge";
-        badge.textContent = "@";
-        badge.setAttribute("data-type", "exact");
-        feedbackDiv.appendChild(badge);
+    const drawScores = () => {
+      feedbackDiv.innerHTML = "";
+      // Sort scores: Black ('@') first, then White ('o')
+      for (let i = 0; i < scoreStr.length; i++) {
+        if (scoreStr[i] === "@") {
+          const badge = document.createElement("span");
+          badge.className = "mm-badge";
+          badge.textContent = "@";
+          badge.setAttribute("data-type", "exact");
+          feedbackDiv.appendChild(badge);
+        }
       }
-    }
-    for (let i = 0; i < scoreStr.length; i++) {
-      if (scoreStr[i] === "o") {
-        const badge = document.createElement("span");
-        badge.className = "mm-badge";
-        badge.textContent = "o";
-        badge.setAttribute("data-type", "color");
-        feedbackDiv.appendChild(badge);
+      for (let i = 0; i < scoreStr.length; i++) {
+        if (scoreStr[i] === "o") {
+          const badge = document.createElement("span");
+          badge.className = "mm-badge";
+          badge.textContent = "o";
+          badge.setAttribute("data-type", "color");
+          feedbackDiv.appendChild(badge);
+        }
       }
+    };
+
+    if (delay > 0) {
+      feedbackDiv.innerHTML = ""; // Clear immediately
+      setTimeout(drawScores, delay);
+    } else {
+      drawScores();
     }
   }
 
@@ -499,118 +512,81 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 1-to-1 matching C++ setup
     const combinations = engine.generateCombinations();
-    
-    // Check if Brute Force mode
+
     if (currentMode === "brute") {
-      btnStartSolver.setAttribute("disabled", "true");
-      btnSolverStep.setAttribute("disabled", "true");
-      btnSolverAuto.setAttribute("disabled", "true");
-      btnSolverStop.removeAttribute("disabled");
-      
-      const tStart = performance.now();
-      let idx = 0;
-      const batchSize = 35; // check 35 combinations every tick (~1100 per second)
-      const correctScore = "@@@@";
-      
-      // Let's create a temporary state object so stop works
       solverState = {
         running: true,
-        mode: "brute"
+        mode: "brute",
+        combinations: combinations,
+        idx: 0,
+        startTime: performance.now()
+      };
+      // Disable secret selection
+      secretSetupSlots.forEach(s => s.classList.remove("is-clickable"));
+      showBanner("Brute Force Solver initialized. Press Play to start decryption.", "info");
+    } else {
+      const candidateSolutions = [...combinations];
+
+      let firstGuess = "";
+      // Replicates standard C++ first guess loop:
+      // for (int i = 0; i < CODELENGTH; ++i) { currentGuess += colors[i / 2]; }
+      for (let i = 0; i < 4; i++) {
+        firstGuess += engine.colors[Math.floor(i / 2)]; // RRWW
+      }
+
+      solverState = {
+        running: true,
+        mode: "knuth",
+        combinations: combinations,
+        candidateSolutions: candidateSolutions,
+        currentGuess: firstGuess,
+        step: 1,
+        totalPruned: 0,
+        candidatesLeft: 1296,
+        startTime: performance.now()
       };
 
-      showBanner("Decryption sequence in progress...", "info");
-
-      autoPlayTimer = setInterval(() => {
-        const batchLimit = Math.min(idx + batchSize, combinations.length);
-        
-        for (let i = idx; i < batchLimit; i++) {
-          const guess = combinations[i];
-          const scr = engine.score(secretCode, guess);
-          
-          // Flash checking guesses on row 0 (the bottom row)
-          renderGuessOnBoard(0, guess);
-          renderFeedback(0, scr);
-          
-          // Speed update stats
-          statGuesses.textContent = i + 1;
-          const percent = (((i + 1) / 1296) * 100).toFixed(1);
-          statPruned.textContent = `${percent}%`;
-          
-          // Flash the current candidate list
-          candidatesScroll.innerHTML = `<span class="mm-cand-pill" style="border-color:var(--accent); color:var(--accent)">Scanning: ${guess}</span>`;
-          
-          if (scr === correctScore) {
-            clearInterval(autoPlayTimer);
-            autoPlayTimer = null;
-            solverState.running = false;
-            
-            const tEnd = performance.now();
-            const totalTime = tEnd - tStart;
-            
-            // Lock guess on board
-            renderGuessOnBoard(0, guess);
-            renderFeedback(0, "@@@@");
-            
-            // Set game over and reveal
-            isGameOver = true;
-            revealSecretCode(secretCode);
-            
-            // Update visual stats
-            statGuesses.textContent = i + 1;
-            statCandidates.textContent = "0 / 1296";
-            statPruned.textContent = "100.0%";
-            statTime.textContent = `${totalTime.toFixed(1)} ms`;
-            candidatesScroll.innerHTML = `<span class="mm-cand-pill" style="border-color:var(--accent);">Code Found!</span>`;
-            
-            btnSolverStop.setAttribute("disabled", "true");
-            showBanner(`Brute Force Solver successfully decrypted the code in ${i + 1} guesses (${totalTime.toFixed(1)} ms)!`, "success");
-            return;
-          }
-        }
-        
-        idx += batchSize;
-        if (idx >= combinations.length) {
-          clearInterval(autoPlayTimer);
-          autoPlayTimer = null;
-          solverState.running = false;
-          btnSolverStop.setAttribute("disabled", "true");
-          showBanner("Brute Force completed: Secret code not found!", "error");
-        }
-      }, 30);
-      return;
+      // Disable secret selection
+      secretSetupSlots.forEach(s => s.classList.remove("is-clickable"));
+      showBanner("Knuth's Solver initialized. Press Play or Next Step.", "info");
+      updateSolverStats(0, 1296, 0);
     }
+  }
 
-    // Otherwise, Knuth's Solver (step-by-step)
-    const candidateSolutions = [...combinations];
-
-    let firstGuess = "";
-    // Replicates standard C++ first guess loop:
-    // for (int i = 0; i < CODELENGTH; ++i) { currentGuess += colors[i / 2]; }
-    for (let i = 0; i < 4; i++) {
-      firstGuess += engine.colors[Math.floor(i / 2)]; // RRWW
+  function solverFinish(success) {
+    if (autoPlayTimer) {
+      clearInterval(autoPlayTimer);
+      autoPlayTimer = null;
     }
+    if (solverState) {
+      solverState.running = false;
+    }
+    isGameOver = true;
+    revealSecretCode(secretCode);
 
-    solverState = {
-      running: true,
-      mode: currentMode, // "knuth"
-      combinations: combinations,
-      candidateSolutions: candidateSolutions,
-      currentGuess: firstGuess,
-      step: 1,
-      totalPruned: 0,
-      candidatesLeft: 1296
-    };
+    // Disable solver controls
+    btnSolverPlayPause.setAttribute("disabled", "true");
+    btnSolverPlayPause.textContent = "Play Solver";
+    btnSolverPlayPause.classList.remove("btn--primary");
+    btnSolverStep.setAttribute("disabled", "true");
 
-    // UI Updates
-    btnStartSolver.setAttribute("disabled", "true");
-    btnSolverStep.removeAttribute("disabled");
-    btnSolverAuto.removeAttribute("disabled");
-    
-    // Make secret selection static
-    secretSetupSlots.forEach(s => s.classList.remove("is-clickable"));
+    const totalTime = performance.now() - (solverState ? solverState.startTime : performance.now());
+    statTime.textContent = `${totalTime.toFixed(1)} ms`;
 
-    // Render Stats
-    updateSolverStats(0, 1296, 0);
+    if (currentMode === "brute") {
+      if (success) {
+        showBanner(`Brute Force Solver successfully decrypted the code in ${statGuesses.textContent} guesses (${totalTime.toFixed(1)} ms)!`, "success");
+      } else {
+        showBanner("Brute Force completed: Secret code not found!", "error");
+      }
+    } else {
+      if (success) {
+        showBanner(`Knuth's Solver successfully decrypted the code in ${solverState ? solverState.step : activeRow + 1} guesses (${totalTime.toFixed(1)} ms)!`, "success");
+        candidatesScroll.innerHTML = `<span class="mm-cand-pill" style="border-color:var(--accent);">Code Found!</span>`;
+      } else {
+        showBanner("Knuth's Solver failed: Code not found within 10 guesses!", "error");
+      }
+    }
   }
 
   function solverNextStep() {
@@ -619,15 +595,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const tStart = performance.now();
     const currentGuess = solverState.currentGuess;
     
-    // Add to board UI
-    renderGuessOnBoard(activeRow, currentGuess);
+    // Check speed mode for stagger
+    const isSlow = (activeSpeedMode === "slow");
+    
+    // Add to board UI (stagger if slow)
+    renderGuessOnBoard(activeRow, currentGuess, isSlow);
 
     // Get score (replicates C++ score call)
     const currentScore = engine.score(secretCode, currentGuess);
     historyGuesses.push(currentGuess);
     historyScores.push(scoreStr(currentScore));
 
-    renderFeedback(activeRow, currentScore);
+    // Render feedback (delay if slow)
+    renderFeedback(activeRow, currentScore, isSlow ? 600 : 0);
 
     // 1. Remove current guess from combinations and candidate solutions
     engine.removeCode(solverState.combinations, currentGuess);
@@ -640,19 +620,26 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     const currCandidatesSize = solverState.candidateSolutions.length;
-    const prunedCount = prevCandidatesSize - currCandidatesSize;
     solverState.totalPruned = 1296 - currCandidatesSize;
 
-    // Check terminal condition (replicates C++ terminate)
+    // Check terminal condition
     if (currentScore === "@@@@") {
       const tEnd = performance.now();
       updateSolverStats(solverState.step, currCandidatesSize, tEnd - tStart);
-      solverFinish(true);
+      if (isSlow) {
+        setTimeout(() => solverFinish(true), 650);
+      } else {
+        solverFinish(true);
+      }
       return;
     }
 
     if (activeRow >= maxRows - 1) {
-      solverFinish(false);
+      if (isSlow) {
+        setTimeout(() => solverFinish(false), 650);
+      } else {
+        solverFinish(false);
+      }
       return;
     }
 
@@ -682,14 +669,26 @@ document.addEventListener("DOMContentLoaded", () => {
     return s === "" ? "no pegs" : s;
   }
 
-  function renderGuessOnBoard(row, guess) {
+  function renderGuessOnBoard(row, guess, stagger = false) {
     const rowEl = document.getElementById(`row-${row}`);
     if (!rowEl) return;
     
     const pegs = rowEl.querySelectorAll(".mm-slots .mm-peg");
-    pegs.forEach((peg, idx) => {
-      peg.setAttribute("data-color", guess[idx]);
-    });
+    if (stagger) {
+      // Clear colors first
+      pegs.forEach(peg => peg.removeAttribute("data-color"));
+      
+      // Stagger addition
+      pegs.forEach((peg, idx) => {
+        setTimeout(() => {
+          peg.setAttribute("data-color", guess[idx]);
+        }, idx * 150);
+      });
+    } else {
+      pegs.forEach((peg, idx) => {
+        peg.setAttribute("data-color", guess[idx]);
+      });
+    }
   }
 
   function updateSolverStats(step, candidatesLeft, stepDurationMs) {
@@ -717,79 +716,125 @@ document.addEventListener("DOMContentLoaded", () => {
       pill.textContent = candidates[i];
       candidatesScroll.appendChild(pill);
     }
-
-    if (candidates.length > displayLimit) {
-      const more = document.createElement("span");
-      more.className = "mm-cand-pill";
-      more.style.backgroundColor = "transparent";
-      more.style.border = "none";
-      more.textContent = `+ ${candidates.length - displayLimit} more`;
-      candidatesScroll.appendChild(more);
-    }
   }
 
-  function solverFinish(success) {
-    stopAutoPlay();
-    solverState.running = false;
-    isGameOver = true;
-    revealSecretCode(secretCode);
-    
-    btnSolverStep.setAttribute("disabled", "true");
-    btnSolverAuto.setAttribute("disabled", "true");
-    btnSolverStop.setAttribute("disabled", "true");
-
-    if (success) {
-      showBanner(`Solver finished! Guessed the secret code in ${activeRow + 1} steps.`, "success");
-    } else {
-      showBanner("Solver failed: Exceeded maximum board rows!", "error");
-    }
-  }
-
-  // Auto-play buttons
-  btnStartSolver.addEventListener("click", initSolver);
-  
+  // Play/Pause/Step & Speed switcher controls
   btnSolverStep.addEventListener("click", () => {
-    solverNextStep();
+    if (currentMode === "play") return;
+    if (!solverState) {
+      initSolver();
+    }
+    if (solverState && solverState.running && solverState.mode === "knuth") {
+      solverNextStep();
+    }
   });
 
-  btnSolverAuto.addEventListener("click", () => {
-    btnSolverAuto.setAttribute("disabled", "true");
-    btnSolverStop.removeAttribute("disabled");
+  btnSolverPlayPause.addEventListener("click", () => {
+    if (currentMode === "play") return;
+    if (!solverState) {
+      initSolver();
+    }
+    if (autoPlayTimer) {
+      pauseSolver();
+    } else {
+      playSolver();
+    }
+  });
+
+  function playSolver() {
+    if (!solverState || !solverState.running) return;
+    btnSolverPlayPause.textContent = "Pause Solver";
     btnSolverStep.setAttribute("disabled", "true");
     
-    autoPlayTimer = setInterval(() => {
-      solverNextStep();
-    }, autoPlaySpeed);
-  });
+    if (solverState.mode === "knuth") {
+      const delay = (activeSpeedMode === "slow") ? 1500 : 250;
+      autoPlayTimer = setInterval(() => {
+        solverNextStep();
+      }, delay);
+    } else if (solverState.mode === "brute") {
+      const batchSize = (activeSpeedMode === "slow") ? 1 : 35;
+      const tickDelay = (activeSpeedMode === "slow") ? 150 : 30;
+      
+      autoPlayTimer = setInterval(() => {
+        runBruteForceBatch(batchSize);
+      }, tickDelay);
+    }
+  }
 
-  function stopAutoPlay() {
+  function pauseSolver() {
     if (autoPlayTimer) {
       clearInterval(autoPlayTimer);
       autoPlayTimer = null;
     }
-    btnSolverStop.setAttribute("disabled", "true");
-    if (solverState && solverState.running) {
-      if (solverState.mode === "knuth") {
-        btnSolverAuto.removeAttribute("disabled");
-        btnSolverStep.removeAttribute("disabled");
-      } else if (solverState.mode === "brute") {
-        btnStartSolver.removeAttribute("disabled");
-        btnStartSolver.classList.add("btn--primary");
-        showBanner("Decryption sequence stopped.", "info");
-      }
+    btnSolverPlayPause.textContent = "Resume Solver";
+    if (solverState && solverState.mode === "knuth") {
+      btnSolverStep.removeAttribute("disabled");
     }
   }
 
-  btnSolverStop.addEventListener("click", stopAutoPlay);
-
-  speedSlider.addEventListener("input", (e) => {
-    autoPlaySpeed = parseInt(e.target.value);
-    speedVal.textContent = `${(autoPlaySpeed / 1000).toFixed(1)}s`;
+  function runBruteForceBatch(batchSize) {
+    if (!solverState || !solverState.running) return;
     
-    // If playing, adjust interval on the fly
+    const correctScore = "@@@@";
+    const combinations = solverState.combinations;
+    const idx = solverState.idx;
+    const batchLimit = Math.min(idx + batchSize, combinations.length);
+    
+    for (let i = idx; i < batchLimit; i++) {
+      const guess = combinations[i];
+      const scr = engine.score(secretCode, guess);
+      
+      // Flash checking guess on row 0
+      renderGuessOnBoard(0, guess, false);
+      renderFeedback(0, scr, 0);
+      
+      statGuesses.textContent = i + 1;
+      const percent = (((i + 1) / 1296) * 100).toFixed(1);
+      statPruned.textContent = `${percent}%`;
+      candidatesScroll.innerHTML = `<span class="mm-cand-pill" style="border-color:var(--accent); color:var(--accent)">Scanning: ${guess}</span>`;
+      
+      if (scr === correctScore) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+        solverState.running = false;
+        
+        // Show found code on board
+        renderGuessOnBoard(0, guess, false);
+        renderFeedback(0, "@@@@", 0);
+        
+        solverFinish(true);
+        return;
+      }
+    }
+    
+    solverState.idx += batchSize;
+    if (solverState.idx >= combinations.length) {
+      clearInterval(autoPlayTimer);
+      autoPlayTimer = null;
+      solverState.running = false;
+      solverFinish(false);
+    }
+  }
+
+  btnSpeedSlow.addEventListener("click", () => {
+    btnSpeedSlow.classList.add("is-active");
+    btnSpeedFast.classList.remove("is-active");
+    activeSpeedMode = "slow";
+    
     if (autoPlayTimer) {
-      stopAutoPlay();
-      btnSolverAuto.click();
+      pauseSolver();
+      playSolver();
+    }
+  });
+
+  btnSpeedFast.addEventListener("click", () => {
+    btnSpeedFast.classList.add("is-active");
+    btnSpeedSlow.classList.remove("is-active");
+    activeSpeedMode = "fast";
+    
+    if (autoPlayTimer) {
+      pauseSolver();
+      playSolver();
     }
   });
 
@@ -798,7 +843,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // ───────────────────────────────
 
   function resetGame() {
-    stopAutoPlay();
+    if (autoPlayTimer) {
+      clearInterval(autoPlayTimer);
+      autoPlayTimer = null;
+    }
     hideBanner();
     isGameOver = false;
     activeRow = 0;
@@ -830,10 +878,10 @@ document.addEventListener("DOMContentLoaded", () => {
         s.removeAttribute("data-color");
         s.classList.add("is-clickable");
       });
-      btnStartSolver.setAttribute("disabled", "true");
+      btnSolverPlayPause.setAttribute("disabled", "true");
+      btnSolverPlayPause.textContent = "Play Solver";
+      btnSolverPlayPause.classList.remove("btn--primary");
       btnSolverStep.setAttribute("disabled", "true");
-      btnSolverAuto.setAttribute("disabled", "true");
-      btnSolverStop.setAttribute("disabled", "true");
     }
 
     updateRowVisuals();
