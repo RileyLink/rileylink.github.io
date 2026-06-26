@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive Mastermind game and solver utilizing Donald Knuth's Five-Guess Algorithm and Brute Force, based on C++ undergraduate code by Riley Link.">
+  <title>Mastermind Game & Solver — Riley Link</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/mastermind.css">
+</head>
+<body>
+
+  <!-- ============================
+       Navigation
+       ============================ -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="../index.html" class="nav__logo">Riley Link</a>
+
+      <div class="nav__links" id="navLinks">
+        <a href="../index.html#about" class="nav__link">About</a>
+        <a href="../index.html#projects" class="nav__link active">Projects</a>
+        <a href="../index.html#resume" class="nav__link">Resume</a>
+        <a href="../index.html#contact" class="nav__link">Contact</a>
+      </div>
+
+      <div class="nav__actions">
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Hamburger (mobile) -->
+        <button class="nav__hamburger" id="hamburger" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html#about" class="mobile-menu__link">About</a>
+    <a href="../index.html#projects" class="mobile-menu__link">Projects</a>
+    <a href="../index.html#resume" class="mobile-menu__link">Resume</a>
+    <a href="../index.html#contact" class="mobile-menu__link">Contact</a>
+  </div>
+
+  <!-- ============================
+       Main Content Area
+       ============================ -->
+  <main class="mm-container" style="margin-top: var(--nav-height);">
+    <div class="mm-header">
+      <h1 class="mm-title">Mastermind Game & Solver</h1>
+      <p class="mm-subtitle">An interactive exploration of Donald Knuth's Five-Guess Algorithm</p>
+    </div>
+
+    <div class="mm-grid">
+      <!-- LEFT COLUMN: The Physical Board & Shield -->
+      <div class="mm-card mm-card--board">
+        <!-- Mastermind Wooden Board -->
+        <div class="mm-board" id="mmBoard">
+          <!-- Populated by JavaScript -->
+        </div>
+
+        <!-- Secret Shield Area -->
+        <div class="mm-shield" id="mmShield">
+          <div class="mm-shield__cover" id="mmShieldCover">
+            <div class="mm-shield__cover-text" id="mmShieldCoverText">
+              <span style="color:var(--accent);">●</span> SECRET SHIELDED
+            </div>
+          </div>
+          <span class="mm-shield__label">Secret Code:</span>
+          <div class="mm-shield__slots" id="mmShieldSlots">
+            <div class="mm-peg"></div>
+            <div class="mm-peg"></div>
+            <div class="mm-peg"></div>
+            <div class="mm-peg"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Modes & Controller Panel -->
+      <div class="mm-card">
+        <!-- Tab Navigation -->
+        <div class="mm-tab-nav">
+          <button class="mm-tab-btn is-active" id="tabPlay">Play as Codebreaker</button>
+          <button class="mm-tab-btn" id="tabKnuth">Knuth's Solver</button>
+          <button class="mm-tab-btn" id="tabBrute">Brute Force Solver</button>
+        </div>
+
+        <!-- Notification Banner -->
+        <div class="mm-banner" id="mmBanner"></div>
+
+        <!-- MODE 1 PANEL: PLAY MODE -->
+        <div class="mm-panel-content is-active" id="panelPlay">
+          <div class="mm-instruction-box">
+            <h4>How to Play</h4>
+            <p style="margin-bottom:0; font-size:var(--text-sm)">
+              Guess the computer's secret 4-peg code. Colors can repeat. Choose a color from the palette below, click a hole in the active row, then click Submit. 
+              <br><strong>Score symbols:</strong> <span style="font-family:var(--font-mono); font-weight:bold; color:var(--accent);">@</span> = correct color & position. <span style="font-family:var(--font-mono); font-weight:bold; color:var(--text-secondary);">o</span> = correct color, wrong position.
+            </p>
+          </div>
+
+          <h4 style="margin-bottom:var(--space-sm)">Color Palette</h4>
+          <div class="mm-palette">
+            <div class="mm-palette-item">
+              <div class="mm-peg is-selected" data-color="R"></div>
+              <span class="mm-palette-label">R</span>
+            </div>
+            <div class="mm-palette-item">
+              <div class="mm-peg" data-color="W"></div>
+              <span class="mm-palette-label">W</span>
+            </div>
+            <div class="mm-palette-item">
+              <div class="mm-peg" data-color="Y"></div>
+              <span class="mm-palette-label">Y</span>
+            </div>
+            <div class="mm-palette-item">
+              <div class="mm-peg" data-color="G"></div>
+              <span class="mm-palette-label">G</span>
+            </div>
+            <div class="mm-palette-item">
+              <div class="mm-peg" data-color="B"></div>
+              <span class="mm-palette-label">B</span>
+            </div>
+            <div class="mm-palette-item">
+              <div class="mm-peg" data-color="K"></div>
+              <span class="mm-palette-label">K</span>
+            </div>
+          </div>
+
+          <div class="mm-btn-group">
+            <button class="btn btn--large" id="btnSubmit" disabled>Submit Guess</button>
+            <button class="btn btn--outline btn--large" id="btnReset">Reset Game</button>
+          </div>
+        </div>
+
+        <!-- MODE 2 & 3 PANEL: SOLVER (KNUTH / BRUTE FORCE) -->
+        <div class="mm-panel-content" id="panelSolver">
+          <div class="mm-instruction-box">
+            <h4>Algorithm Visualizer</h4>
+            <p style="margin-bottom:0; font-size:var(--text-sm)">
+              Set a secret code for the computer by clicking the slots below to cycle through the colors. Press <strong>Start Solver</strong> to initialize, then step through or play automatically. Watch how the solver filters candidate solutions in real-time.
+            </p>
+          </div>
+
+          <!-- Secret Setup Slots -->
+          <h4 style="margin-bottom:var(--space-sm)">Set Secret Code</h4>
+          <div style="display:flex; gap:var(--space-md); align-items:center; margin-bottom:var(--space-lg);">
+            <div id="secretSetup" style="display:flex; gap:var(--space-sm);">
+              <div class="mm-peg is-clickable"></div>
+              <div class="mm-peg is-clickable"></div>
+              <div class="mm-peg is-clickable"></div>
+              <div class="mm-peg is-clickable"></div>
+            </div>
+            <button class="btn btn--primary btn--small" id="btnStartSolver" disabled>Start Solver</button>
+          </div>
+
+          <!-- Solver Actions -->
+          <h4 style="margin-bottom:var(--space-sm)">Controls</h4>
+          <div style="display:flex; gap:var(--space-xs); flex-wrap:wrap; margin-bottom:var(--space-lg);">
+            <button class="btn btn--outline btn--small" id="btnSolverStep" disabled>Next Step</button>
+            <button class="btn btn--outline btn--small" id="btnSolverAuto" disabled>Auto Play</button>
+            <button class="btn btn--outline btn--small" id="btnSolverStop" disabled>Stop</button>
+          </div>
+
+          <!-- Auto Play Speed Slider -->
+          <div class="mm-slider-wrap">
+            <label for="speedSlider">Delay: <span id="speedVal">1.0s</span></label>
+            <input type="range" id="speedSlider" class="mm-slider" min="100" max="3000" step="100" value="1000">
+          </div>
+
+          <hr style="border:0; border-top:1px solid var(--border); margin:var(--space-lg) 0;">
+
+          <!-- Visualization Stats Grid -->
+          <div class="mm-viz-grid">
+            <div class="mm-stat-box">
+              <div class="mm-stat-val" id="statGuesses">0</div>
+              <div class="mm-stat-lbl">Guesses Made</div>
+            </div>
+            <div class="mm-stat-box">
+              <div class="mm-stat-val" id="statCandidates">1296 / 1296</div>
+              <div class="mm-stat-lbl">Candidates Left</div>
+            </div>
+            <div class="mm-stat-box">
+              <div class="mm-stat-val" id="statPruned">0.0%</div>
+              <div class="mm-stat-lbl">Search Space Pruned</div>
+            </div>
+            <div class="mm-stat-box">
+              <div class="mm-stat-val" id="statTime">0.0 ms</div>
+              <div class="mm-stat-lbl">Step Computation</div>
+            </div>
+          </div>
+
+          <!-- Remaining Candidates Panel -->
+          <div class="mm-candidates-container">
+            <div class="mm-candidates-title">
+              <span>Possible Candidates</span>
+              <span style="font-family:var(--font-mono); font-size:10px; color:var(--text-secondary)">Search Space View</span>
+            </div>
+            <div class="mm-candidates-scroll" id="candidatesScroll">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================
+         C++ Source Code Viewer Section
+         ============================ -->
+    <div class="mm-card mm-code-card">
+      <div class="mm-code-header">
+        <div class="mm-code-title">
+          <svg style="width:24px; height:24px; color:var(--accent);" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+          Original C++ Implementation
+        </div>
+        <div style="display:flex; align-items:center; gap:var(--space-md); flex-wrap:wrap;">
+          <div class="mm-code-tabs">
+            <button class="mm-code-tab" id="tabH">mastermind.h</button>
+            <button class="mm-code-tab is-active" id="tabCPP">mastermind.cpp</button>
+            <button class="mm-code-tab" id="tabMain">main.cpp</button>
+          </div>
+          <a class="mm-code-dl" id="codeDownload" href="./mastermind-cpp/mastermind.cpp" download="mastermind.cpp">
+            <svg style="width:16px; height:16px;" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download File
+          </a>
+        </div>
+      </div>
+
+      <div class="mm-code-body">
+        <pre class="mm-code-pre"><code id="codePre">Loading source file...</code></pre>
+      </div>
+      <p style="margin-top:var(--space-md); font-size:var(--text-xs); color:var(--text-secondary); font-family:var(--font-serif); text-align:center;">
+        *Note: The visual app runs a 1-to-1 JavaScript port of the original C++ member functions shown above, ensuring exact algorithmic fidelity.
+      </p>
+    </div>
+  </main>
+
+  <!-- ============================
+       Footer
+       ============================ -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p class="footer__copyright">© 2026 Riley Link</p>
+      <p class="footer__tagline">Built with ☕ and curiosity</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../js/main.js"></script>
+  <script src="../js/mastermind.js"></script>
+</body>
+</html>
