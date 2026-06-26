@@ -19,6 +19,9 @@ document.addEventListener("DOMContentLoaded", () => {
       this.show = false;    // Flipped face up
       this.matched = false; // Part of a matching rank column (points zeroed)
     }
+    flip() {
+      this.show = true;
+    }
   }
 
   // Game state
