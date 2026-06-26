@@ -25,7 +25,7 @@
 
       <div class="nav__links" id="navLinks">
         <a href="#about" class="nav__link">About</a>
-        <a href="#projects" class="nav__link">Projects</a>
+        <a href="projects.html" class="nav__link">Projects</a>
         <a href="#resume" class="nav__link">Resume</a>
         <a href="#contact" class="nav__link">Contact</a>
       </div>
@@ -64,7 +64,7 @@
   <!-- Mobile Menu Overlay -->
   <div class="mobile-menu" id="mobileMenu">
     <a href="#about" class="mobile-menu__link">About</a>
-    <a href="#projects" class="mobile-menu__link">Projects</a>
+    <a href="projects.html" class="mobile-menu__link">Projects</a>
     <a href="#resume" class="mobile-menu__link">Resume</a>
     <a href="#contact" class="mobile-menu__link">Contact</a>
   </div>
@@ -143,86 +143,18 @@
 
 
   <!-- ============================
-       Projects Section
+       Projects Section Teaser
        ============================ -->
   <section class="section section--alt" id="projects">
     <div class="container">
       <div class="fade-in">
         <h2 class="section-title">Projects & Publications</h2>
       </div>
-
-      <div class="projects__grid stagger fade-in">
-        <!-- Project 1 — SIURO Publication -->
-        <article class="project-card">
-          <div class="project-card__header">
-            <span class="project-card__tag">Publication</span>
-            <h3 class="project-card__title">A Framework for Approximating Perturbed Optimal Control</h3>
-            <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
-              Published in <strong>SIAM Undergraduate Research Online (SIURO)</strong> | DOI: 10.1137/24S1686000
-            </div>
-          </div>
-          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
-            Co-authored during undergraduate research, this paper establishes a mathematical and computational framework for approximating perturbed optimal control problems.
-          </p>
-          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
-            <a href="https://doi.org/10.1137/24S1686000" class="btn btn--outline btn--small" target="_blank" rel="noopener">Journal Paper</a>
-            <a href="https://arxiv.org/abs/2408.09546" class="btn btn--text btn--small" target="_blank" rel="noopener">arXiv Preprint</a>
-          </div>
-        </article>
-
-        <!-- Project 2 — Short Films -->
-        <article class="project-card">
-          <div class="project-card__header">
-            <span class="project-card__tag">Creative</span>
-            <h3 class="project-card__title">Short Films</h3>
-            <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
-              Undergraduate film coursework & personal projects
-            </div>
-          </div>
-          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
-            I enjoyed writing and directing the short film <em>Perspective</em>. Additionally, I made a short film about my decision to go to Cornell for my PhD.
-          </p>
-          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
-            <a href="https://youtu.be/efpOr8c10rQ?si=nKeXlarpa1ql4bwd" class="btn btn--outline btn--small" target="_blank" rel="noopener">Perspective Film</a>
-            <a href="https://youtu.be/ytDEEJb6lKc?si=9VBfFbbxD4cyU41t" class="btn btn--text btn--small" target="_blank" rel="noopener">Cornell Decision</a>
-          </div>
-        </article>
-
-        <!-- Project 3 — Mastermind Solver -->
-        <article class="project-card">
-          <div class="project-card__header">
-            <span class="project-card__tag">Software & Theory</span>
-            <h3 class="project-card__title">Mastermind Solver (Knuth's Algorithm)</h3>
-            <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
-              Undergraduate game & visual optimization demo
-            </div>
-          </div>
-          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
-            An interactive visual implementation of my C++ Mastermind game. Play as codebreaker, or watch Donald Knuth's minimax algorithm prune candidate solutions step-by-step.
-          </p>
-          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
-            <a href="projects/mastermind.html" class="btn btn--outline btn--small">Play Game</a>
-            <a href="https://github.com/RileyLink/Mastermind-with-Donald-Knuth-Five-Guess-Algorithm" class="btn btn--text btn--small" target="_blank" rel="noopener">GitHub Repo</a>
-          </div>
-        </article>
-
-        <!-- Project 4 — Weisfeiler-Leman Graph Isomorphism Test -->
-        <article class="project-card">
-          <div class="project-card__header">
-            <span class="project-card__tag">Graph Theory & Algorithms</span>
-            <h3 class="project-card__title">Weisfeiler-Leman Graph Isomorphism Visualizer</h3>
-            <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
-              Iterative color refinement visualization demo
-            </div>
-          </div>
-          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
-            An interactive tool visualizing the 1-Weisfeiler-Leman (1-WL) graph isomorphism test in real time. Watch color propagation split vertex partitions step-by-step to distinguish non-isomorphic graphs (like stacked gons).
-          </p>
-          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
-            <a href="projects/wl-isomorphism.html" class="btn btn--outline btn--small">Run Visualizer</a>
-            <a href="https://github.com/RileyLink/Weisfeiler-Leman-Graph-Isomorphism-Test" class="btn btn--text btn--small" target="_blank" rel="noopener">GitHub Repo</a>
-          </div>
-        </article>
+      <div class="fade-in" style="max-width: 700px; margin: var(--space-xl) auto 0; text-align: center;">
+        <p style="font-family: var(--font-serif); font-size: var(--text-md); color: var(--text-secondary); line-height: 1.7; margin-bottom: var(--space-lg);">
+          I build interactive visual tools for algorithm theory, implement optimal control software, publish mathematical research, and write/direct creative short films.
+        </p>
+        <a href="projects.html" class="btn btn--primary btn--large">View All Projects & Publications &rarr;</a>
       </div>
     </div>
   </section>

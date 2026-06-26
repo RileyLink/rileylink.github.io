@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Projects & Publications by Riley Link — PhD student in Applied Mathematics at Cornell University.">
+  <title>Projects & Publications — Riley Link</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+
+  <!-- ============================
+       Navigation
+       ============================ -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="index.html" class="nav__logo">Riley Link</a>
+
+      <div class="nav__links" id="navLinks">
+        <a href="index.html#about" class="nav__link">About</a>
+        <a href="#" class="nav__link active">Projects</a>
+        <a href="index.html#resume" class="nav__link">Resume</a>
+        <a href="index.html#contact" class="nav__link">Contact</a>
+      </div>
+
+      <div class="nav__actions">
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Hamburger (mobile) -->
+        <button class="nav__hamburger" id="hamburger" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="index.html#about" class="mobile-menu__link">About</a>
+    <a href="#" class="mobile-menu__link">Projects</a>
+    <a href="index.html#resume" class="mobile-menu__link">Resume</a>
+    <a href="index.html#contact" class="mobile-menu__link">Contact</a>
+  </div>
+
+
+  <!-- ============================
+       Header Section
+       ============================ -->
+  <section class="section section--alt" style="padding-top: calc(var(--nav-height) + var(--space-3xl)); padding-bottom: var(--space-xl);">
+    <div class="container text-center">
+      <div class="fade-in visible">
+        <h1 class="section-title" style="margin-bottom: var(--space-xs);">Projects & Publications</h1>
+        <p style="font-family: var(--font-serif); font-size: var(--text-md); color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.6;">
+          A collection of my academic publications, open-source software tools, interactive visualizers, and creative work.
+        </p>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================
+       Projects Grid Section
+       ============================ -->
+  <section class="section" style="padding-top: 0;">
+    <div class="container">
+      <div class="projects__grid stagger fade-in visible">
+        <!-- Project 1 — SIURO Publication -->
+        <article class="project-card">
+          <div class="project-card__header">
+            <span class="project-card__tag">Publication</span>
+            <h3 class="project-card__title">A Framework for Approximating Perturbed Optimal Control</h3>
+            <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
+              Published in <strong>SIAM Undergraduate Research Online (SIURO)</strong> | DOI: 10.1137/24S1686000
+            </div>
+          </div>
+          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
+            Co-authored during undergraduate research, this paper establishes a mathematical and computational framework for approximating perturbed optimal control problems.
+          </p>
+          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
+            <a href="https://doi.org/10.1137/24S1686000" class="btn btn--outline btn--small" target="_blank" rel="noopener">Journal Paper</a>
+            <a href="https://arxiv.org/abs/2408.09546" class="btn btn--text btn--small" target="_blank" rel="noopener">arXiv Preprint</a>
+          </div>
+        </article>
+
+        <!-- Project 2 — Short Films -->
+        <article class="project-card">
+          <div class="project-card__header">
+            <span class="project-card__tag">Creative</span>
+            <h3 class="project-card__title">Short Films</h3>
+            <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
+              Undergraduate film coursework & personal projects
+            </div>
+          </div>
+          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
+            I enjoyed writing and directing the short film <em>Perspective</em>. Additionally, I made a short film about my decision to go to Cornell for my PhD.
+          </p>
+          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
+            <a href="https://youtu.be/efpOr8c10rQ?si=nKeXlarpa1ql4bwd" class="btn btn--outline btn--small" target="_blank" rel="noopener">Perspective Film</a>
+            <a href="https://youtu.be/ytDEEJb6lKc?si=9VBfFbbxD4cyU41t" class="btn btn--text btn--small" target="_blank" rel="noopener">Cornell Decision</a>
+          </div>
+        </article>
+
+        <!-- Project 3 — Mastermind Solver -->
+        <article class="project-card">
+          <div class="project-card__header">
+            <span class="project-card__tag">Software & Theory</span>
+            <h3 class="project-card__title">Mastermind Solver (Knuth's Algorithm)</h3>
+            <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
+              Undergraduate game & visual optimization demo
+            </div>
+          </div>
+          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
+            An interactive visual implementation of my C++ Mastermind game. Play as codebreaker, or watch Donald Knuth's minimax algorithm prune candidate solutions step-by-step.
+          </p>
+          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
+            <a href="projects/mastermind.html" class="btn btn--outline btn--small">Play Game</a>
+            <a href="https://github.com/RileyLink/Mastermind-with-Donald-Knuth-Five-Guess-Algorithm" class="btn btn--text btn--small" target="_blank" rel="noopener">GitHub Repo</a>
+          </div>
+        </article>
+
+        <!-- Project 4 — Weisfeiler-Leman Graph Isomorphism Test -->
+        <article class="project-card">
+          <div class="project-card__header">
+            <span class="project-card__tag">Graph Theory & Algorithms</span>
+            <h3 class="project-card__title">Weisfeiler-Leman Graph Isomorphism Visualizer</h3>
+            <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
+              Iterative color refinement visualization demo
+            </div>
+          </div>
+          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
+            An interactive tool visualizing the 1-Weisfeiler-Leman (1-WL) graph isomorphism test in real time. Watch color propagation split vertex partitions step-by-step to distinguish non-isomorphic graphs (like stacked gons).
+          </p>
+          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
+            <a href="projects/wl-isomorphism.html" class="btn btn--outline btn--small">Run Visualizer</a>
+            <a href="https://github.com/RileyLink/Weisfeiler-Leman-Graph-Isomorphism-Test" class="btn btn--text btn--small" target="_blank" rel="noopener">GitHub Repo</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ============================
+       Footer
+       ============================ -->
+  <footer class="footer">
+    <div class="container">
+      <p class="footer__copy">&copy; 2026 Riley Link</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+</body>
+</html>
