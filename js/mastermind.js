@@ -348,7 +348,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // ───────────────────────────────
 
   function setMode(mode) {
-    stopAutoPlay();
     currentMode = mode;
 
     tabPlay.classList.toggle("is-active", mode === "play");
