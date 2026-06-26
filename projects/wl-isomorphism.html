@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Interactive visual tool demonstrating the Weisfeiler-Leman (1-WL) Graph Isomorphism Algorithm running in real-time on stacked gons and custom graphs.">
+  <title>Weisfeiler-Leman Graph Isomorphism Visualizer — Riley Link</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/wl-isomorphism.css">
+</head>
+<body>
+
+  <!-- ============================
+       Navigation
+       ============================ -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="../index.html" class="nav__logo">Riley Link</a>
+
+      <div class="nav__links" id="navLinks">
+        <a href="../index.html#about" class="nav__link">About</a>
+        <a href="../index.html#projects" class="nav__link active">Projects</a>
+        <a href="../index.html#resume" class="nav__link">Resume</a>
+        <a href="../index.html#contact" class="nav__link">Contact</a>
+      </div>
+
+      <div class="nav__actions">
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Hamburger (mobile) -->
+        <button class="nav__hamburger" id="hamburger" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html#about" class="mobile-menu__link">About</a>
+    <a href="../index.html#projects" class="mobile-menu__link">Projects</a>
+    <a href="../index.html#resume" class="mobile-menu__link">Resume</a>
+    <a href="../index.html#contact" class="mobile-menu__link">Contact</a>
+  </div>
+
+  <!-- ============================
+       Main Content Area
+       ============================ -->
+  <main class="wl-container" style="margin-top: var(--nav-height);">
+    <div class="wl-header">
+      <h1 class="wl-title">Weisfeiler-Leman Graph Isomorphism Test</h1>
+      <p class="wl-subtitle">Visualize color refinement partitioning and graph isomorphism in real-time</p>
+    </div>
+
+    <!-- Status Banner Alert -->
+    <div class="wl-banner" id="wlBanner"></div>
+
+    <div class="wl-layout">
+      <!-- LEFT COLUMN: Side-by-side Graph Canvas -->
+      <div class="wl-table">
+        <div class="wl-table-grid">
+          <!-- Graph 1 Panel -->
+          <div class="wl-graph-panel">
+            <div class="wl-graph-title">
+              <span>Graph 1 (G₁)</span>
+              <span id="g1NodeCount" style="font-family:var(--font-mono); font-size:var(--text-xs); opacity:0.7">0 nodes</span>
+            </div>
+            <div class="wl-canvas" id="canvasG1">
+              <svg id="svgG1" width="100%" height="100%"></svg>
+            </div>
+          </div>
+
+          <!-- Graph 2 Panel -->
+          <div class="wl-graph-panel">
+            <div class="wl-graph-title">
+              <span>Graph 2 (G₂)</span>
+              <span id="g2NodeCount" style="font-family:var(--font-mono); font-size:var(--text-xs); opacity:0.7">0 nodes</span>
+            </div>
+            <div class="wl-canvas" id="canvasG2">
+              <svg id="svgG2" width="100%" height="100%"></svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Comparison Info -->
+        <div class="wl-logs" id="logConsole">
+          <div class="wl-log-item is-important">System initialized. Select a preset or create custom graphs to begin the Weisfeiler-Leman test.</div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Control Panel & Color Partitions -->
+      <div class="wl-panel-card">
+        <div class="wl-instruction-box">
+          <h4>How WL Refinement Works</h4>
+          <p style="margin-bottom: var(--space-xs); font-size: var(--text-sm)">
+            1. <strong>Initial Coloring</strong>: Vertices are colored according to their degrees.
+          </p>
+          <p style="margin-bottom: var(--space-xs); font-size: var(--text-sm)">
+            2. <strong>Aggregation</strong>: At each step, a vertex gathers its neighbors' colors as a sorted multiset, appends its own color, and hashes them to generate a new color.
+          </p>
+          <p style="margin-bottom: 0; font-size: var(--text-sm)">
+            3. <strong>Check</strong>: If the multisets of vertex colors of both graphs differ, they are guaranteed <strong>non-isomorphic</strong>.
+          </p>
+        </div>
+
+        <!-- Presets Selector -->
+        <h4 style="margin-bottom: var(--space-xs)">Presets</h4>
+        <div style="margin-bottom: var(--space-md)">
+          <select id="presetSelect" class="btn btn--outline" style="width: 100%; text-align: left; padding: var(--space-xs) var(--space-sm);">
+            <option value="stacked-gon-4">Stacked Gons (n = 4) - Takes 2 steps</option>
+            <option value="stacked-gon-10">Stacked Gons (n = 10) - Takes 5 steps</option>
+            <option value="isomorphic-cycles">Isomorphic Cycles (V = 8)</option>
+            <option value="nonisomorphic-trees">Non-Isomorphic Trees (V = 10)</option>
+            <option value="custom">Custom Editable Graph</option>
+          </select>
+        </div>
+
+        <!-- Controls -->
+        <h4 style="margin-bottom: var(--space-xs)">Refinement Controls</h4>
+        <div style="display:flex; flex-direction:column; gap:var(--space-md); margin-bottom:var(--space-lg)">
+          <div style="display:flex; gap:var(--space-sm); flex-wrap:wrap;">
+            <button class="btn btn--primary" id="btnStep" style="flex:1">Step Forward</button>
+            <button class="btn btn--outline" id="btnPlay" style="flex:1">Auto Play</button>
+            <button class="btn btn--outline" id="btnReset" style="flex:1">Reset</button>
+          </div>
+
+          <!-- Speed Slider -->
+          <div style="display:flex; flex-direction:column; gap:4px">
+            <div style="display:flex; justify-content:space-between; font-size:var(--text-xs); color:var(--text-secondary)">
+              <span>Animation Speed</span>
+              <span id="speedLabel">1000ms</span>
+            </div>
+            <input type="range" class="wl-slider" id="speedSlider" min="200" max="2500" value="1000" step="100">
+          </div>
+        </div>
+
+        <!-- Custom Graph Edit Options (visible when preset is Custom) -->
+        <div id="customEditPanel" style="display:none; border:1px dashed var(--border); padding:var(--space-sm); border-radius:var(--radius); margin-bottom:var(--space-lg)">
+          <h5 style="margin-bottom:var(--space-xs); font-size:var(--text-xs); text-transform:uppercase; color:var(--text-secondary);">Graph Editor Options</h5>
+          <div style="font-size:var(--text-xs); line-height:1.4; color:var(--text-secondary); margin-bottom:var(--space-sm);">
+            • Click empty canvas space to add a node.<br>
+            • Click and drag from one node to another to create an edge.<br>
+            • Click a node/edge and press Backspace/Delete to remove it.<br>
+            • Drag nodes to rearrange.
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="btn btn--outline btn--small" id="btnClearG1" style="flex:1">Clear G₁</button>
+            <button class="btn btn--outline btn--small" id="btnClearG2" style="flex:1">Clear G₂</button>
+          </div>
+        </div>
+
+        <!-- Active Partition Set -->
+        <div class="wl-partitions-container">
+          <div class="wl-partitions-title">
+            <span>Color Partition Groups</span>
+            <span id="iterationLabel" style="font-family:var(--font-mono); font-size:10px; color:var(--text-secondary)">Iteration 0</span>
+          </div>
+          <div class="wl-partitions-list" id="partitionList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Interactive hover tooltip card -->
+  <div class="wl-tooltip" id="wlTooltip"></div>
+
+  <!-- ============================
+       Footer
+       ============================ -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <p class="footer__copyright">© 2026 Riley Link</p>
+      <p class="footer__tagline">Built with ☕ and curiosity</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../js/main.js"></script>
+  <script src="../js/wl-isomorphism.js"></script>
+</body>
+</html>
