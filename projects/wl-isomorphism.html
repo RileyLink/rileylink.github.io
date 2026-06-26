@@ -113,7 +113,7 @@
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: Control Panel & Color Partitions -->
+      <!-- RIGHT COLUMN: Control Panel -->
       <div class="wl-panel-card">
         <div class="wl-instruction-box">
           <h4>How WL Refinement Works</h4>
@@ -140,31 +140,20 @@
           </select>
         </div>
         <!-- Preset Explanation Container -->
-        <div id="presetExplanation" style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.4; margin-bottom: var(--space-md); padding: var(--space-xs) var(--space-sm); background: rgba(255,255,255,0.02); border-radius: var(--radius); border: 1px solid var(--border)">
+        <div id="presetExplanation" style="font-size: var(--text-xs); color: var(--text-secondary); line-height: 1.5; margin-bottom: var(--space-md); padding: var(--space-sm); background: rgba(255,255,255,0.02); border-radius: var(--radius); border: 1px solid var(--border)">
           <!-- Populated by JS -->
         </div>
 
         <!-- Controls -->
         <h4 style="margin-bottom: var(--space-xs)">Refinement Controls</h4>
-        <div style="display:flex; flex-direction:column; gap:var(--space-md); margin-bottom:var(--space-lg)">
-          <div style="display:flex; gap:var(--space-sm); flex-wrap:wrap;">
-            <button class="btn btn--primary" id="btnStep" style="flex:1">Step Forward</button>
-            <button class="btn btn--outline" id="btnPlay" style="flex:1">Auto Play</button>
-            <button class="btn btn--outline" id="btnReset" style="flex:1">Reset</button>
-          </div>
-
-          <!-- Speed Slider -->
-          <div style="display:flex; flex-direction:column; gap:4px">
-            <div style="display:flex; justify-content:space-between; font-size:var(--text-xs); color:var(--text-secondary)">
-              <span>Animation Speed</span>
-              <span id="speedLabel">1000ms</span>
-            </div>
-            <input type="range" class="wl-slider" id="speedSlider" min="200" max="2500" value="1000" step="100">
-          </div>
+        <div style="display:flex; gap:var(--space-sm); flex-wrap:wrap; margin-bottom:var(--space-lg)">
+          <button class="btn btn--primary" id="btnStep" style="flex:1">Step Forward</button>
+          <button class="btn btn--outline" id="btnPlay" style="flex:1">Auto Play</button>
+          <button class="btn btn--outline" id="btnReset" style="flex:1">Reset</button>
         </div>
 
         <!-- Custom Graph Edit Options (visible when preset is Custom) -->
-        <div id="customEditPanel" style="display:none; border:1px dashed var(--border); padding:var(--space-sm); border-radius:var(--radius); margin-bottom:var(--space-lg)">
+        <div id="customEditPanel" style="display:none; border:1px dashed var(--border); padding:var(--space-sm); border-radius:var(--radius);">
           <h5 style="margin-bottom:var(--space-xs); font-size:var(--text-xs); text-transform:uppercase; color:var(--text-secondary);">Graph Editor Options</h5>
           <div style="font-size:var(--text-xs); line-height:1.4; color:var(--text-secondary); margin-bottom:var(--space-sm);">
             • Click empty canvas space to add a node.<br>
@@ -177,17 +166,22 @@
             <button class="btn btn--outline btn--small" id="btnClearG2" style="flex:1">Clear G₂</button>
           </div>
         </div>
+      </div>
+    </div>
 
-        <!-- Active Partition Set -->
-        <div class="wl-partitions-container">
-          <div class="wl-partitions-title">
-            <span>Color Partition Groups</span>
-            <span id="iterationLabel" style="font-family:var(--font-mono); font-size:10px; color:var(--text-secondary)">Iteration 0</span>
-          </div>
-          <div class="wl-partitions-list" id="partitionList">
-            <!-- Populated by JS -->
-          </div>
-        </div>
+    <!-- ============================
+         Color Partition Groups (full-width section below)
+         ============================ -->
+    <div class="wl-partitions-container" style="margin-top: var(--space-xl);">
+      <div class="wl-partitions-title">
+        <span>Color Partition Groups</span>
+        <span id="iterationLabel" style="font-family:var(--font-mono); font-size:10px; color:var(--text-secondary)">Iteration 0</span>
+      </div>
+      <p style="font-size: var(--text-xs); color: var(--text-secondary); margin-bottom: var(--space-sm);">
+        Each group below shows which vertices in G₁ and G₂ share the same color (hash label) at the current iteration. If the group counts diverge between the two graphs, they are proven non-isomorphic.
+      </p>
+      <div class="wl-partitions-list" id="partitionList">
+        <!-- Populated by JS -->
       </div>
     </div>
   </main>

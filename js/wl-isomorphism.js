@@ -18,11 +18,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Explanations for each preset
   const presetExplanations = {
-    "stacked-gon-4": "<strong>Stacked Gons (n = 4)</strong>: Two stacked 7-gons ($G_1$) vs. a stacked 8-gon and a 6-gon ($G_2$). They are non-isomorphic but share the same degree sequences. 1-WL refinement distinguishes them in exactly 2 steps ($n/2$ iterations).",
-    "stacked-gon-10": "<strong>Stacked Gons (n = 10)</strong>: Two stacked 13-gons ($G_1$) vs. a stacked 14-gon and a 12-gon ($G_2$). Larger stacked gons whose color refinement partitions split after exactly 5 iterations ($n/2$ steps).",
-    "isomorphic-cycles": "<strong>Isomorphic Cycles (V = 8)</strong>: Two identical 8-vertex cycles. Since they are isomorphic, their color partitions stabilize immediately on iteration 0 and stay identical forever.",
-    "nonisomorphic-trees": "<strong>Non-Isomorphic Trees (V = 10)</strong>: Two trees with identical degree sequences but different branching layouts. The colors will split at iteration 1, immediately showing they are non-isomorphic.",
-    "custom": "<strong>Custom Editable Graph</strong>: Add vertices by clicking on empty canvas space. Drag-link from one node to another to create edges. Press backspace/delete to remove selected nodes."
+    "stacked-gon-4": "<strong>Stacked Gons (n = 4)</strong>: G&#x2081; consists of two stacked 7-gons while G&#x2082; consists of a stacked 8-gon and a 6-gon. Both have 12 vertices and identical degree sequences (two vertices of degree 3, the rest degree 2), yet they are non-isomorphic. The 1-WL refinement distinguishes them in exactly <em>2 iterations</em> (n/2 steps).",
+    "stacked-gon-10": "<strong>Stacked Gons (n = 10)</strong>: G&#x2081; consists of two stacked 13-gons while G&#x2082; consists of a stacked 14-gon and a 12-gon. Both have 24 vertices and identical degree sequences. The larger cycle means color propagation takes longer &mdash; exactly <em>5 iterations</em> (n/2 steps) to find a partition mismatch.",
+    "isomorphic-cycles": "<strong>Isomorphic Cycles (V = 8)</strong>: Two identical 8-vertex cycle graphs. Since they are truly isomorphic, 1-WL refinement will never find a partition mismatch. All vertices have degree 2, so all colors stabilize immediately and match.",
+    "nonisomorphic-trees": "<strong>Non-Isomorphic Trees (V = 10)</strong>: Two trees with 10 vertices and identical degree sequences (two degree-3 nodes, six degree-2 nodes, two leaves). They differ in where the branches connect along the spine. 1-WL splits the color classes at iteration 1, immediately proving non-isomorphism.",
+    "custom": "<strong>Custom Editable Graph</strong>: Click on empty canvas space to add a vertex. Click and drag from one node to another to create an edge. Select a node and press Backspace or Delete to remove it."
   };
 
   // Premium HSL color scheme palette for different color partitions
@@ -62,8 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const btnStep = document.getElementById("btnStep");
   const btnPlay = document.getElementById("btnPlay");
   const btnReset = document.getElementById("btnReset");
-  const speedSlider = document.getElementById("speedSlider");
-  const speedLabel = document.getElementById("speedLabel");
   
   const wlBanner = document.getElementById("wlBanner");
   const iterationLabel = document.getElementById("iterationLabel");
@@ -474,11 +472,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       vG1.label = hash1;
       vG1.color = getLabelColor(hash1);
-      if (vG1.circle) vG1.circle.setAttribute("fill", vG1.color);
+      if (vG1.circle) vG1.circle.style.fill = vG1.color;
 
       vG2.label = hash2;
       vG2.color = getLabelColor(hash2);
-      if (vG2.circle) vG2.circle.setAttribute("fill", vG2.color);
+      if (vG2.circle) vG2.circle.style.fill = vG2.color;
 
       nextLabelsG1.push(hash1);
       nextLabelsG2.push(hash2);
@@ -557,7 +555,7 @@ document.addEventListener("DOMContentLoaded", () => {
       circle.setAttribute("cy", v.y);
       circle.setAttribute("r", 15);
       circle.setAttribute("class", "wl-node");
-      circle.setAttribute("fill", v.color);
+      circle.style.fill = v.color;
 
       // Physics drag-and-drop actions
       circle.addEventListener("mousedown", (e) => {
@@ -963,14 +961,6 @@ document.addEventListener("DOMContentLoaded", () => {
     loadPreset(e.target.value);
   });
 
-  speedSlider.addEventListener("input", (e) => {
-    autoplaySpeed = parseInt(e.target.value);
-    speedLabel.textContent = `${autoplaySpeed}ms`;
-    if (isAutoPlaying) {
-      stopAutoplay();
-      startAutoplay();
-    }
-  });
 
   btnClearG1.addEventListener("click", () => {
     G1 = { vertices: [], edges: [] };
