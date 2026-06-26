@@ -563,11 +563,15 @@ document.addEventListener("DOMContentLoaded", () => {
     isGameOver = true;
     revealSecretCode(secretCode);
 
-    // Disable solver controls
-    btnSolverPlayPause.setAttribute("disabled", "true");
+    // Reset solver controls to start state
     btnSolverPlayPause.textContent = "Play Solver";
-    btnSolverPlayPause.classList.remove("btn--primary");
-    btnSolverStep.setAttribute("disabled", "true");
+    btnSolverPlayPause.removeAttribute("disabled");
+    btnSolverPlayPause.classList.add("btn--primary");
+    if (currentMode === "knuth") {
+      btnSolverStep.removeAttribute("disabled");
+    } else {
+      btnSolverStep.setAttribute("disabled", "true");
+    }
 
     const totalTime = performance.now() - (solverState ? solverState.startTime : performance.now());
     statTime.textContent = `${totalTime.toFixed(1)} ms`;
@@ -720,7 +724,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Play/Pause/Step & Speed switcher controls
   btnSolverStep.addEventListener("click", () => {
     if (currentMode === "play") return;
-    if (!solverState) {
+    if (!solverState || isGameOver) {
       initSolver();
     }
     if (solverState && solverState.running && solverState.mode === "knuth") {
@@ -730,7 +734,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   btnSolverPlayPause.addEventListener("click", () => {
     if (currentMode === "play") return;
-    if (!solverState) {
+    if (!solverState || isGameOver) {
       initSolver();
     }
     if (autoPlayTimer) {
