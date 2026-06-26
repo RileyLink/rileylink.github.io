@@ -18,11 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Explanations for each preset
   const presetExplanations = {
-    "stacked-gon-4": "<strong>Stacked Gons (n = 4)</strong>: G&#x2081; consists of two stacked 7-gons while G&#x2082; consists of a stacked 8-gon and a 6-gon. Both have 12 vertices and identical degree sequences (two vertices of degree 3, the rest degree 2), yet they are non-isomorphic. The 1-WL refinement distinguishes them in exactly <em>2 iterations</em> (n/2 steps).",
-    "stacked-gon-10": "<strong>Stacked Gons (n = 10)</strong>: G&#x2081; consists of two stacked 13-gons while G&#x2082; consists of a stacked 14-gon and a 12-gon. Both have 24 vertices and identical degree sequences. The larger cycle means color propagation takes longer &mdash; exactly <em>5 iterations</em> (n/2 steps) to find a partition mismatch.",
-    "isomorphic-cycles": "<strong>Isomorphic Cycles (V = 8)</strong>: Two identical 8-vertex cycle graphs. Since they are truly isomorphic, 1-WL refinement will never find a partition mismatch. All vertices have degree 2, so all colors stabilize immediately and match.",
+    "stacked-gon-growing": "<strong>Stacked Gons (Growing Parameter n)</strong>: G&#x2081; consists of two stacked (n+3)-gons while G&#x2082; consists of a stacked (n+4)-gon and (n+2)-gon. Both have 2n+4 vertices and identical degree sequences. Adjust the parameter <em>n</em> using the slider/number input below to see the graphs grow, and run the test to see how WL refinement takes exactly <em>n/2 iterations</em> to distinguish them.",
+    "isomorphic-cycles-growing": "<strong>Isomorphic Cycles (Growing Vertices V)</strong>: Two identical cycle graphs of size V. Since they are isomorphic, the WL refinement partitions stabilize immediately in 1 step, and color classes never mismatch. Adjust the size V to see the graphs grow.",
     "nonisomorphic-trees": "<strong>Non-Isomorphic Trees (V = 10)</strong>: Two trees with 10 vertices and identical degree sequences (two degree-3 nodes, six degree-2 nodes, two leaves). They differ in where the branches connect along the spine. 1-WL splits the color classes at iteration 1, immediately proving non-isomorphism.",
-    "custom": "<strong>Custom Editable Graph</strong>: Click on empty canvas space to add a vertex. Click and drag from one node to another to create an edge. Select a node and press Backspace or Delete to remove it."
+    "custom": "<strong>Custom Editable Graph</strong>: Click empty space to add a node. Click a node to select it (pulses red), then click another node in the same graph to add/remove an edge. Press Backspace or Delete to delete a selected node. Drag nodes to position them."
   };
 
   // Premium HSL color scheme palette for different color partitions
@@ -83,98 +82,72 @@ document.addEventListener("DOMContentLoaded", () => {
   
   const wlTooltip = document.getElementById("wlTooltip");
 
+  // Growing Mode Elements
+  const growingControls = document.getElementById("growingControls");
+  const inputRangeN = document.getElementById("inputRangeN");
+  const inputNumberN = document.getElementById("inputNumberN");
+  const growingParamLabel = document.getElementById("growingParamLabel");
+  const growingVerticesCount = document.getElementById("growingVerticesCount");
+
   // Interaction variables for Custom editor
   let editMode = false; // True when 'custom' preset is active
   let selectedNode = null; // Node currently clicked
   let selectedGraphId = null; // "G1" or "G2"
-  let edgeDrawingStartNode = null; // Node from which click-drag edge starts
+  
+  // Custom graph click-to-connect state
+  let activeConnectSource = null; // Node currently selected for connecting
+  let activeConnectGraphId = null; // "G1" or "G2"
+  let dragStartPos = { x: 0, y: 0 };
+  let hasMovedSignificant = false; // Track if user is dragging or just clicking
+  let previewLineG1 = null;
+  let previewLineG2 = null;
 
-  // Simple Physics Force Layout Engine
-  let animFrameId = null;
   const width = 450;
   const height = 400;
 
-  function runPhysicsLoop() {
-    updatePhysics(G1);
-    updatePhysics(G2);
-    updateSVGPositions(G1, "G1");
-    updateSVGPositions(G2, "G2");
-    animFrameId = requestAnimationFrame(runPhysicsLoop);
-  }
-
-  function updatePhysics(graph) {
-    const k_spring = 0.04;
-    const l_rest = 75;
-    const c_repulsion = 1200;
-    const k_gravity = 0.015;
-    const cx = width / 2;
-    const cy = height / 2;
-
-    const nodes = graph.vertices;
-    const edges = graph.edges;
-
-    // Reset forces
-    nodes.forEach(n => {
-      n.fx = 0;
-      n.fy = 0;
-    });
-
-    // 1. Repulsion between all pairs
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        const dx = nodes[j].x - nodes[i].x;
-        const dy = nodes[j].y - nodes[i].y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        if (dist < 220) {
-          const force = c_repulsion / (dist * dist);
-          const fx = (dx / dist) * force;
-          const fy = (dy / dist) * force;
-          
-          nodes[i].fx -= fx;
-          nodes[i].fy -= fy;
-          nodes[j].fx += fx;
-          nodes[j].fy += fy;
-        }
+  function updatePreviewLine(mx, my) {
+    const svgEl = activeConnectGraphId === "G1" ? svgG1 : svgG2;
+    let previewLine = activeConnectGraphId === "G1" ? previewLineG1 : previewLineG2;
+    
+    if (!previewLine) {
+      previewLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      previewLine.setAttribute("class", "wl-preview-line");
+      if (activeConnectGraphId === "G1") {
+        previewLineG1 = previewLine;
+      } else {
+        previewLineG2 = previewLine;
       }
     }
-
-    // 2. Attraction along edges
-    edges.forEach(e => {
-      const u = nodes.find(n => n.id === e.source);
-      const v = nodes.find(n => n.id === e.target);
-      if (u && v) {
-        const dx = v.x - u.x;
-        const dy = v.y - u.y;
-        const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        const force = k_spring * (dist - l_rest);
-        const fx = (dx / dist) * force;
-        const fy = (dy / dist) * force;
-        
-        u.fx += fx;
-        u.fy += fy;
-        v.fx -= fx;
-        v.fy -= fy;
+    
+    if (activeConnectSource) {
+      previewLine.setAttribute("x1", activeConnectSource.x);
+      previewLine.setAttribute("y1", activeConnectSource.y);
+      previewLine.setAttribute("x2", mx);
+      previewLine.setAttribute("y2", my);
+      if (!previewLine.parentNode) {
+        svgEl.appendChild(previewLine);
       }
-    });
+    } else {
+      if (previewLine.parentNode) {
+        previewLine.parentNode.removeChild(previewLine);
+      }
+    }
+  }
 
-    // 3. Gravity pulling toward center + update positions
-    nodes.forEach(n => {
-      if (n.isDragging) return; // Keep stationary while dragging
-
-      n.fx += (cx - n.x) * k_gravity;
-      n.fy += (cy - n.y) * k_gravity;
-
-      // Damp velocities
-      n.vx = (n.vx + n.fx) * 0.82;
-      n.vy = (n.vy + n.fy) * 0.82;
-
-      n.x += n.vx;
-      n.y += n.vy;
-
-      // Boundaries clamp
-      n.x = Math.max(25, Math.min(width - 25, n.x));
-      n.y = Math.max(25, Math.min(height - 25, n.y));
-    });
+  function clearConnectSource() {
+    if (activeConnectSource && activeConnectSource.circle) {
+      activeConnectSource.circle.classList.remove("is-connect-source");
+      activeConnectSource.circle.classList.remove("is-selected");
+    }
+    activeConnectSource = null;
+    activeConnectGraphId = null;
+    
+    if (previewLineG1 && previewLineG1.parentNode) {
+      previewLineG1.parentNode.removeChild(previewLineG1);
+    }
+    if (previewLineG2 && previewLineG2.parentNode) {
+      previewLineG2.parentNode.removeChild(previewLineG2);
+    }
   }
 
   // ───────────────────────────────
@@ -225,7 +198,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function loadPreset(presetName) {
-    cancelAnimationFrame(animFrameId);
     stopAutoplay();
     currentIteration = 0;
     iterationLabel.textContent = `Iteration ${currentIteration}`;
@@ -234,8 +206,10 @@ document.addEventListener("DOMContentLoaded", () => {
     
     selectedNode = null;
     selectedGraphId = null;
-    edgeDrawingStartNode = null;
+    clearConnectSource();
+    
     customEditPanel.style.display = "none";
+    growingControls.style.display = "none";
     editMode = false;
     isTerminated = false;
     
@@ -247,21 +221,36 @@ document.addEventListener("DOMContentLoaded", () => {
       presetExplanation.innerHTML = presetExplanations[presetName] || "";
     }
 
-    if (presetName === "stacked-gon-4") {
-      G1 = createStackedGonPreset(4, 1); // 2 stacked 7-gons (V=12)
-      G2 = createStackedGonPreset(4, 2); // Stacked 8-gon & 6-gon (V=12)
-      appendLog("Loaded Stacked Gons (n=4, 12 vertices) preset.", true);
-      appendLog("Distinguishing them requires exactly 2 iterations of 1-WL refinement.");
-    } else if (presetName === "stacked-gon-10") {
-      G1 = createStackedGonPreset(10, 1); // 2 stacked 13-gons (V=24)
-      G2 = createStackedGonPreset(10, 2); // Stacked 14-gon & 12-gon (V=24)
-      appendLog("Loaded Stacked Gons (n=10, 24 vertices) preset.", true);
-      appendLog("Distinguishing them requires exactly 5 iterations of 1-WL refinement.");
-    } else if (presetName === "isomorphic-cycles") {
-      G1 = createIsomorphicCycles(8, true);
-      G2 = createIsomorphicCycles(8, false);
-      appendLog("Loaded Isomorphic 8-Cycle preset.", true);
-      appendLog("Both graphs are isomorphic; the refinement partitions will remain identical.");
+    if (presetName === "stacked-gon-growing") {
+      growingControls.style.display = "block";
+      growingParamLabel.textContent = "Parameter n:";
+      inputRangeN.min = 3;
+      inputRangeN.max = 25;
+      inputNumberN.min = 3;
+      inputNumberN.max = 25;
+      const val = parseInt(inputNumberN.value) || 4;
+      inputRangeN.value = val;
+      inputNumberN.value = val;
+      updateGrowingCount();
+
+      G1 = createStackedGonPreset(val, 1);
+      G2 = createStackedGonPreset(val, 2);
+      appendLog(`Loaded Stacked Gons (n=${val}, ${2 * val + 4} vertices) preset. Adjust n below to watch the graphs grow.`, true);
+    } else if (presetName === "isomorphic-cycles-growing") {
+      growingControls.style.display = "block";
+      growingParamLabel.textContent = "Vertices V:";
+      inputRangeN.min = 3;
+      inputRangeN.max = 60;
+      inputNumberN.min = 3;
+      inputNumberN.max = 60;
+      const val = parseInt(inputNumberN.value) || 8;
+      inputRangeN.value = val;
+      inputNumberN.value = val;
+      updateGrowingCount();
+
+      G1 = createIsomorphicCycles(val, true);
+      G2 = createIsomorphicCycles(val, false);
+      appendLog(`Loaded Isomorphic Cycles (V=${val}) preset. Adjust V below to watch the graphs grow.`, true);
     } else if (presetName === "nonisomorphic-trees") {
       G1 = createNonIsomorphicTree(1);
       G2 = createNonIsomorphicTree(2);
@@ -272,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
       G2 = { vertices: [], edges: [] };
       editMode = true;
       customEditPanel.style.display = "block";
-      appendLog("Loaded Custom graph layout. Click to add nodes; drag-link to add edges.", true);
+      appendLog("Loaded Custom graph layout. Click empty space to add a node; click a node to select it, then click another node to draw/remove an edge.", true);
     }
 
     g1NodeCount.textContent = `${G1.vertices.length} nodes`;
@@ -286,9 +275,11 @@ document.addEventListener("DOMContentLoaded", () => {
     createSVGNodes(G1, svgG1, "G1");
     createSVGNodes(G2, svgG2, "G2");
     
+    updateSVGPositions(G1, "G1");
+    updateSVGPositions(G2, "G2");
+    
     // Draw initial color partitioning table
     updatePartitionList();
-    runPhysicsLoop();
   }
 
   function computeInitialDegrees(graph) {
@@ -315,15 +306,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     for (let i = 0; i < V; i++) {
       let angle = (2 * Math.PI * i) / V - Math.PI / 2;
-      // If shuffleLayout is active, slightly offset angles so they don't look exactly identical
+      // Rotate Graph 1 slightly relative to Graph 2 so they don't overlay exactly
       if (shuffleLayout) {
-        angle += Math.PI / 6;
+        angle += Math.PI / V;
       }
       vertices.push({
         id: i,
         label: 0,
-        x: cx + R * Math.cos(angle) + (Math.random() - 0.5) * 20,
-        y: cy + R * Math.sin(angle) + (Math.random() - 0.5) * 20,
+        x: cx + R * Math.cos(angle),
+        y: cy + R * Math.sin(angle),
         vx: 0,
         vy: 0,
         isDragging: false
@@ -339,41 +330,49 @@ document.addEventListener("DOMContentLoaded", () => {
     const cx = width / 2;
     const cy = height / 2;
 
-    // Both trees have 10 nodes, with degrees sequence: 3, 3, 2, 2, 2, 2, 2, 2, 1, 1 (degree checks won't distinguish them)
+    const startX = 50;
+    const endX = 400;
+    const ySpine = cy + 40;
+    const yBranch = cy - 60;
+
     for (let i = 0; i < 10; i++) {
+      let x, y;
+      if (i < 8) {
+        // Spine nodes: 0 to 7
+        x = startX + i * ((endX - startX) / 7);
+        y = ySpine;
+      } else if (i === 8) {
+        // Branch 1
+        const spineAttachedIndex = type === 1 ? 1 : 2;
+        x = startX + spineAttachedIndex * ((endX - startX) / 7);
+        y = yBranch;
+      } else if (i === 9) {
+        // Branch 2
+        const spineAttachedIndex = type === 1 ? 6 : 5;
+        x = startX + spineAttachedIndex * ((endX - startX) / 7);
+        y = yBranch;
+      }
+
       vertices.push({
         id: i,
         label: 0,
-        x: cx + (Math.random() - 0.5) * 160,
-        y: cy + (Math.random() - 0.5) * 160,
+        x: x,
+        y: y,
         vx: 0,
         vy: 0,
         isDragging: false
       });
     }
 
+    // Spine edges
+    for (let i = 0; i < 7; i++) {
+      edges.push({ source: i, target: i + 1 });
+    }
+
     if (type === 1) {
-      // Tree 1 construction
-      edges.push({ source: 0, target: 1 });
-      edges.push({ source: 1, target: 2 });
-      edges.push({ source: 2, target: 3 });
-      edges.push({ source: 3, target: 4 });
-      edges.push({ source: 4, target: 5 });
-      edges.push({ source: 5, target: 6 });
-      edges.push({ source: 6, target: 7 });
-      // Branch chords
       edges.push({ source: 1, target: 8 });
       edges.push({ source: 6, target: 9 });
     } else {
-      // Tree 2 construction (different branching points)
-      edges.push({ source: 0, target: 1 });
-      edges.push({ source: 1, target: 2 });
-      edges.push({ source: 2, target: 3 });
-      edges.push({ source: 3, target: 4 });
-      edges.push({ source: 4, target: 5 });
-      edges.push({ source: 5, target: 6 });
-      edges.push({ source: 6, target: 7 });
-      // Different chords
       edges.push({ source: 2, target: 8 });
       edges.push({ source: 5, target: 9 });
     }
@@ -557,13 +556,14 @@ document.addEventListener("DOMContentLoaded", () => {
       circle.setAttribute("class", "wl-node");
       circle.style.fill = v.color;
 
-      // Physics drag-and-drop actions
+      // Click and Drag event triggers
       circle.addEventListener("mousedown", (e) => {
         e.stopPropagation();
         v.isDragging = true;
         selectedNode = v;
         selectedGraphId = graphId;
-        edgeDrawingStartNode = v; // Setup clicked connection point
+        dragStartPos = { x: e.clientX, y: e.clientY };
+        hasMovedSignificant = false;
       });
 
       // Hover overlay aggregation tooltip
@@ -623,6 +623,12 @@ document.addEventListener("DOMContentLoaded", () => {
           v.circle.classList.add("is-selected");
         } else {
           v.circle.classList.remove("is-selected");
+        }
+
+        if (activeConnectSource && activeConnectSource.id === v.id && activeConnectGraphId === graphId) {
+          v.circle.classList.add("is-connect-source");
+        } else {
+          v.circle.classList.remove("is-connect-source");
         }
       }
     });
@@ -738,49 +744,69 @@ document.addEventListener("DOMContentLoaded", () => {
     wlTooltip.style.display = "none";
   }
 
-  // Drag physics events
+  // Drag and click-to-connect mouse handlers
   document.addEventListener("mousemove", (e) => {
     if (selectedNode && selectedNode.isDragging) {
       const bounds = selectedGraphId === "G1" ? canvasG1El.getBoundingClientRect() : canvasG2El.getBoundingClientRect();
-      selectedNode.x = e.clientX - bounds.left;
-      selectedNode.y = e.clientY - bounds.top;
+      const nx = e.clientX - bounds.left;
+      const ny = e.clientY - bounds.top;
       
-      // Clamp bounds
-      selectedNode.x = Math.max(25, Math.min(width - 25, selectedNode.x));
-      selectedNode.y = Math.max(25, Math.min(height - 25, selectedNode.y));
+      const dx = e.clientX - dragStartPos.x;
+      const dy = e.clientY - dragStartPos.y;
+      if (Math.sqrt(dx*dx + dy*dy) > 5) {
+        hasMovedSignificant = true;
+      }
+      
+      selectedNode.x = Math.max(15, Math.min(width - 15, nx));
+      selectedNode.y = Math.max(15, Math.min(height - 15, ny));
+      
+      // Update coordinates dynamically (no physics loop)
+      updateSVGPositions(selectedGraphId === "G1" ? G1 : G2, selectedGraphId);
+    }
+    
+    // Update active connect preview line
+    if (editMode && activeConnectSource) {
+      const bounds = activeConnectGraphId === "G1" ? canvasG1El.getBoundingClientRect() : canvasG2El.getBoundingClientRect();
+      const mx = e.clientX - bounds.left;
+      const my = e.clientY - bounds.top;
+      updatePreviewLine(mx, my);
     }
   });
 
   document.addEventListener("mouseup", (e) => {
     if (selectedNode) {
       selectedNode.isDragging = false;
+      const targetGraphId = selectedGraphId;
       
-      // If we are in custom edit mode, handle mouseup edge creation
-      if (editMode && edgeDrawingStartNode) {
-        const targetGraphId = selectedGraphId;
-        const bounds = targetGraphId === "G1" ? canvasG1El.getBoundingClientRect() : canvasG2El.getBoundingClientRect();
-        const mx = e.clientX - bounds.left;
-        const my = e.clientY - bounds.top;
-        
-        // Find if user mouseup landed on another node
-        const graph = targetGraphId === "G1" ? G1 : G2;
-        const targetNode = graph.vertices.find(n => {
-          if (n.id === edgeDrawingStartNode.id) return false;
-          const dx = n.x - mx;
-          const dy = n.y - my;
-          return Math.sqrt(dx*dx + dy*dy) < 25; // Landed nearby
-        });
-
-        if (targetNode) {
-          // Verify edge doesn't already exist
-          const exists = graph.edges.some(edge => 
-            (edge.source === edgeDrawingStartNode.id && edge.target === targetNode.id) ||
-            (edge.source === targetNode.id && edge.target === edgeDrawingStartNode.id)
-          );
-
-          if (!exists) {
-            graph.edges.push({ source: edgeDrawingStartNode.id, target: targetNode.id });
-            appendLog(`Created edge between ${edgeDrawingStartNode.id} and ${targetNode.id} in ${targetGraphId}.`);
+      // Handle click logic (minimal movement)
+      if (editMode && !hasMovedSignificant) {
+        if (activeConnectSource && activeConnectGraphId === targetGraphId) {
+          if (activeConnectSource.id === selectedNode.id) {
+            // Clicked same node again -> toggle off
+            clearConnectSource();
+          } else {
+            // Clicked a different node in the same graph -> connect them
+            const graph = targetGraphId === "G1" ? G1 : G2;
+            const sourceNode = activeConnectSource;
+            const targetNode = selectedNode;
+            
+            // Check if edge already exists
+            const exists = graph.edges.some(edge => 
+              (edge.source === sourceNode.id && edge.target === targetNode.id) ||
+              (edge.source === targetNode.id && edge.target === sourceNode.id)
+            );
+            
+            if (!exists) {
+              graph.edges.push({ source: sourceNode.id, target: targetNode.id });
+              appendLog(`Created edge between ${sourceNode.id} and ${targetNode.id} in ${targetGraphId}.`);
+            } else {
+              // Toggle edge: delete if already exists
+              graph.edges = graph.edges.filter(edge => 
+                !((edge.source === sourceNode.id && edge.target === targetNode.id) ||
+                  (edge.source === targetNode.id && edge.target === sourceNode.id))
+              );
+              appendLog(`Removed edge between ${sourceNode.id} and ${targetNode.id} in ${targetGraphId}.`);
+            }
             
             // Recompute counts and degrees
             g1NodeCount.textContent = `${G1.vertices.length} nodes`;
@@ -791,20 +817,31 @@ document.addEventListener("DOMContentLoaded", () => {
             
             // Recreate DOM nodes with new edge
             createSVGNodes(graph, targetGraphId === "G1" ? svgG1 : svgG2, targetGraphId);
+            clearConnectSource();
           }
+        } else {
+          // Select as source
+          activeConnectSource = selectedNode;
+          activeConnectGraphId = targetGraphId;
+          updateSVGPositions(targetGraphId === "G1" ? G1 : G2, targetGraphId);
+          appendLog(`Selected Node ${activeConnectSource.id} (G${targetGraphId === "G1" ? "1" : "2"}). Click another node to connect/disconnect them.`);
         }
       }
       
       selectedNode = null;
       selectedGraphId = null;
-      edgeDrawingStartNode = null;
+    } else {
+      // Clicked outside on background/empty space -> clear selection
+      if (editMode && e.target && (e.target.tagName === "svg" || e.target.id === "wlLayout" || e.target.className === "wl-canvas")) {
+        clearConnectSource();
+      }
     }
   });
 
-  // Custom node placement clicks
+  // Custom node placement clicks (only on empty background)
   canvasG1El.addEventListener("click", (e) => {
     if (!editMode) return;
-    if (e.target !== svgG1 && e.target.tagName === "circle") return; // didn't click background space
+    if (e.target !== svgG1) return; // Must click empty SVG background
     
     // Add node
     const bounds = canvasG1El.getBoundingClientRect();
@@ -827,11 +864,13 @@ document.addEventListener("DOMContentLoaded", () => {
     computeInitialDegrees(G1);
     updatePartitionList();
     createSVGNodes(G1, svgG1, "G1");
+    updateSVGPositions(G1, "G1");
+    clearConnectSource();
   });
 
   canvasG2El.addEventListener("click", (e) => {
     if (!editMode) return;
-    if (e.target !== svgG2 && e.target.tagName === "circle") return;
+    if (e.target !== svgG2) return; // Must click empty SVG background
     
     // Add node
     const bounds = canvasG2El.getBoundingClientRect();
@@ -854,6 +893,8 @@ document.addEventListener("DOMContentLoaded", () => {
     computeInitialDegrees(G2);
     updatePartitionList();
     createSVGNodes(G2, svgG2, "G2");
+    updateSVGPositions(G2, "G2");
+    clearConnectSource();
   });
 
   // Keyboard deletes for custom editor
@@ -941,15 +982,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   btnPlay.addEventListener("click", () => {
-    if (isTerminated) {
-      appendLog("WL Test has already finished. Please click 'Reset' or choose a new preset to run again.", true);
-      return;
-    }
     if (isAutoPlaying) {
       stopAutoplay();
-    } else {
-      startAutoplay();
+      return;
     }
+    // If the test already ended, auto-reset first then start playing
+    if (isTerminated) {
+      loadPreset(presetSelect.value);
+    }
+    startAutoplay();
   });
 
   btnReset.addEventListener("click", () => {
@@ -962,12 +1003,73 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 
+  function updateGrowingCount() {
+    const val = parseInt(inputNumberN.value) || 3;
+    const preset = presetSelect.value;
+    if (preset === "stacked-gon-growing") {
+      const vCount = 2 * val + 4;
+      growingVerticesCount.textContent = `Total vertices: ${vCount}`;
+    } else if (preset === "isomorphic-cycles-growing") {
+      growingVerticesCount.textContent = `Total vertices: ${val}`;
+    }
+  }
+
+  function handleGrowingParamChange(val) {
+    inputRangeN.value = val;
+    inputNumberN.value = val;
+    updateGrowingCount();
+    
+    const preset = presetSelect.value;
+    if (preset === "stacked-gon-growing") {
+      G1 = createStackedGonPreset(val, 1);
+      G2 = createStackedGonPreset(val, 2);
+      appendLog(`Regenerated Stacked Gons with n = ${val} (${2 * val + 4} vertices).`, true);
+    } else if (preset === "isomorphic-cycles-growing") {
+      G1 = createIsomorphicCycles(val, true);
+      G2 = createIsomorphicCycles(val, false);
+      appendLog(`Regenerated Isomorphic Cycles with V = ${val} vertices.`, true);
+    }
+    
+    // Reset iteration state
+    currentIteration = 0;
+    iterationLabel.textContent = `Iteration ${currentIteration}`;
+    hideBanner();
+    isTerminated = false;
+    colorMap = {};
+    usedColorsCount = 0;
+    
+    g1NodeCount.textContent = `${G1.vertices.length} nodes`;
+    g2NodeCount.textContent = `${G2.vertices.length} nodes`;
+    computeInitialDegrees(G1);
+    computeInitialDegrees(G2);
+    createSVGNodes(G1, svgG1, "G1");
+    createSVGNodes(G2, svgG2, "G2");
+    updateSVGPositions(G1, "G1");
+    updateSVGPositions(G2, "G2");
+    updatePartitionList();
+  }
+
+  inputRangeN.addEventListener("input", (e) => {
+    handleGrowingParamChange(parseInt(e.target.value));
+  });
+
+  inputNumberN.addEventListener("change", (e) => {
+    let val = parseInt(e.target.value) || 3;
+    const min = parseInt(e.target.min);
+    const max = parseInt(e.target.max);
+    if (val < min) val = min;
+    if (val > max) val = max;
+    handleGrowingParamChange(val);
+  });
+
   btnClearG1.addEventListener("click", () => {
     G1 = { vertices: [], edges: [] };
     g1NodeCount.textContent = "0 nodes";
     computeInitialDegrees(G1);
     updatePartitionList();
     createSVGNodes(G1, svgG1, "G1");
+    updateSVGPositions(G1, "G1");
+    clearConnectSource();
   });
 
   btnClearG2.addEventListener("click", () => {
@@ -976,8 +1078,10 @@ document.addEventListener("DOMContentLoaded", () => {
     computeInitialDegrees(G2);
     updatePartitionList();
     createSVGNodes(G2, svgG2, "G2");
+    updateSVGPositions(G2, "G2");
+    clearConnectSource();
   });
 
   // Initialize page load
-  loadPreset("stacked-gon-4");
+  loadPreset("stacked-gon-growing");
 });

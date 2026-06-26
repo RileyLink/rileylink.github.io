@@ -133,6 +133,36 @@
   stroke-width: 4px !important;
 }
 
+.wl-node.is-connect-source {
+  stroke: #ff4757 !important;
+  stroke-width: 4px !important;
+  animation: wl-pulse 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes wl-pulse {
+  0% {
+    r: 15px;
+    filter: drop-shadow(0 0 1px #ff4757);
+  }
+  100% {
+    r: 18px;
+    filter: drop-shadow(0 0 8px #ff4757);
+  }
+}
+
+.wl-preview-line {
+  stroke: #ff4757;
+  stroke-width: 2px;
+  stroke-dasharray: 6,4;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.wl-range {
+  accent-color: #5c6bc0;
+  cursor: pointer;
+}
+
 .wl-edge {
   stroke: rgba(255, 255, 255, 0.2);
   stroke-width: 2px;
