@@ -7,191 +7,7 @@
    Blog Navigation (reused across blog pages)
    ------------------------------------------ */
 
-.navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  background: rgba(250, 250, 249, 0.82);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #e5e5e5;
-  height: 64px;
-  transition: background 0.3s ease, border-color 0.3s ease;
-}
-
-[data-theme="dark"] .navbar {
-  background: rgba(15, 15, 26, 0.82);
-  border-bottom-color: #2a2a3e;
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 2rem;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.nav-logo {
-  font-family: 'Inter', sans-serif;
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: #1a1a1a;
-  text-decoration: none;
-  letter-spacing: -0.02em;
-  transition: color 0.3s ease;
-}
-
-[data-theme="dark"] .nav-logo {
-  color: #e8e8e8;
-}
-
-.nav-logo:hover {
-  color: #B31B1B;
-}
-
-.nav-menu {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.nav-link {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.9rem;
-  font-weight: 450;
-  color: #6b7280;
-  text-decoration: none;
-  padding: 0.5rem 0.85rem;
-  border-radius: 8px;
-  transition: color 0.3s ease, background 0.3s ease;
-}
-
-[data-theme="dark"] .nav-link {
-  color: #9ca3af;
-}
-
-.nav-link:hover,
-.nav-link.active {
-  color: #B31B1B;
-}
-
-.nav-link.active {
-  background: rgba(179, 27, 27, 0.06);
-}
-
-[data-theme="dark"] .nav-link:hover,
-[data-theme="dark"] .nav-link.active {
-  color: #B31B1B;
-}
-
-[data-theme="dark"] .nav-link.active {
-  background: rgba(179, 27, 27, 0.1);
-}
-
-/* Theme toggle in blog nav */
-.navbar .theme-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  color: #6b7280;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: color 0.3s ease, background 0.3s ease;
-}
-
-.navbar .theme-toggle:hover {
-  color: #B31B1B;
-  background: rgba(179, 27, 27, 0.06);
-}
-
-[data-theme="dark"] .navbar .theme-toggle {
-  color: #9ca3af;
-}
-
-[data-theme="dark"] .navbar .theme-toggle:hover {
-  color: #B31B1B;
-  background: rgba(179, 27, 27, 0.1);
-}
-
-.navbar .icon-sun { display: none; }
-.navbar .icon-moon { display: block; }
-[data-theme="dark"] .navbar .icon-sun { display: block; }
-[data-theme="dark"] .navbar .icon-moon { display: none; }
-
-/* Mobile nav toggle */
-.nav-toggle {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.nav-toggle span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: #1a1a1a;
-  border-radius: 2px;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
-
-[data-theme="dark"] .nav-toggle span {
-  background: #e8e8e8;
-}
-
-@media (max-width: 768px) {
-  .nav-toggle {
-    display: flex;
-  }
-
-  .nav-menu {
-    position: fixed;
-    top: 64px;
-    left: 0;
-    right: 0;
-    background: rgba(250, 250, 249, 0.98);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    flex-direction: column;
-    padding: 1.5rem 2rem;
-    border-bottom: 1px solid #e5e5e5;
-    transform: translateY(-100%);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-  }
-
-  .nav-menu.active {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: all;
-  }
-
-  [data-theme="dark"] .nav-menu {
-    background: rgba(15, 15, 26, 0.98);
-    border-bottom-color: #2a2a3e;
-  }
-
-  .nav-link {
-    font-size: 1.05rem;
-    padding: 0.75rem 1rem;
-    width: 100%;
-  }
-}
+/* Blog Navigation: Styles now inherited from main.css */
 
 /* Blog Footer */
 .footer {
@@ -477,7 +293,7 @@
 
 .article-wrapper {
   display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(0, 720px) minmax(180px, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 720px) minmax(0, 1fr);
   gap: 2rem;
   max-width: 1280px;
   margin: 0 auto;
@@ -768,6 +584,10 @@
 /* KaTeX Inline Math */
 .article-body .katex {
   font-size: 1em;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  vertical-align: middle;
 }
 
 /* Tables */
