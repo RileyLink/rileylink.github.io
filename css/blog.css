@@ -1316,3 +1316,72 @@ body {
   margin-top: 0.5rem;
 }
 
+/* Collapsible Code Details */
+.code-details {
+  margin: 1.2rem 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background-color: var(--bg-code);
+  overflow: hidden;
+  transition: border-color 0.3s ease;
+}
+
+[data-theme="dark"] .code-details {
+  border-color: #2a2a3e;
+}
+
+.code-details[open] {
+  border-color: var(--accent);
+}
+
+.code-details summary {
+  padding: 0.8rem 1.2rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+  background-color: var(--bg-code);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.code-details summary:hover {
+  color: var(--text);
+  background-color: rgba(179, 27, 27, 0.05); /* Cornell Red subtle overlay */
+}
+
+/* Remove default marker and add custom one */
+.code-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.code-details summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.code-details summary::before {
+  content: "▶";
+  font-size: 0.7rem;
+  color: var(--accent);
+  transition: transform 0.2s ease;
+}
+
+.code-details[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.code-details .code-block-wrapper {
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--border);
+  border-radius: 0;
+}
+
+[data-theme="dark"] .code-details .code-block-wrapper {
+  border-top-color: #2a2a3e;
+}
+
