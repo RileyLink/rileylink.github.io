@@ -115,30 +115,39 @@
 $$ y_1=mx_1+b \\y_2=mx_2+b \\ \vdots \\ y_k=mx_k+b$$
 <p>This gives us k equations and 2 unknowns, the slope and intercept of our final line. Hence this gives us the following solution:</p>
 $$\overrightarrow{y}=\begin{bmatrix}
-                      x_1 &amp; 1 \\
-                      x_2 &amp; 1 \\
-                      \vdots &amp; \vdots \\
-                      x_k &amp; 1
+                      x_1 & 1 \\
+                      x_2 & 1 \\
+                      \vdots & \vdots \\
+                      x_k & 1
                       \end{bmatrix}
                       \begin{bmatrix}
                       m\\
                       b
                       \end{bmatrix}.$$
-<p>Since we have more equations than variables it is an overdetermined system so there is obviously no solution or once again we would be done instantly. However, since there is no solution, the best we can do is to find some $[m,b]\in\mathbb{R}^2$ such that $$y=mx+b.$$4</p>
+<p>Since we have more equations than variables it is an overdetermined system so there is obviously no solution or once again we would be done instantly. However, since there is no solution, the best we can do is to find some $[m,b]\in\mathbb{R}^2$ such that $$\left\lvert\overrightarrow{y}-\begin{bmatrix}
+                      x_1 & 1 \\
+                      x_2 & 1 \\
+                      \vdots & \vdots \\
+                      x_k & 1
+                      \end{bmatrix}
+                      \begin{bmatrix}
+                      m\\
+                      b
+                      \end{bmatrix}\right\rvert$$</p>
 <p>is minimized.</p>
 <br>
 <h2 id="final-formula">Final Formula <a href="#final-formula" class="anchor-link">#</a></h2>
 <p>Skipping past most of the linear algebra proofs, ones that include very high level ideas of vector spaces and projections, here is the final formula needed to find a best fit for the data.</p>
 <p>Let $A=\begin{bmatrix}
-                      x_1 &amp; 1 \\
-                      \vdots &amp; \vdots \\
-                      x_k &amp; 1
+                      x_1 & 1 \\
+                      \vdots & \vdots \\
+                      x_k & 1
                       \end{bmatrix}$ and $A^*=\begin{bmatrix}
-                      x_1 &amp; \cdots &amp; x_k \\
-                      1 &amp; \cdots &amp; 1
+                      x_1 & \cdots & x_k \\
+                      1 & \cdots & 1
                       \end{bmatrix}$ where $A^*$ is the adjoint of $A$. Hence, $A^{*}A=\begin{bmatrix}
-                      \sum x_i^2 &amp; \sum x_i \\
-                      \sum x_i &amp; k 
+                      \sum x_i^2 & \sum x_i \\
+                      \sum x_i & k 
                       \end{bmatrix}$. So, $$\begin{bmatrix}
                       m\\
                       b
@@ -222,7 +231,7 @@ $$\overrightarrow{y}=\begin{bmatrix}
 <br>
 $$\chi^2=\frac{1}{N} \sum_{i=1}^N \frac{(f(x_i)-y_i)^2}{\delta y_i^2}$$
 <br>
-<p>where we have data points $f(x)$2 with associated uncertainties $f(x)$3, and $f(x)$4 is the function we are fitting evaluated at $f(x)$5.</p>
+<p>where we have data points $(x_1, y_1) ... (x_N, y_N)$ with associated uncertainties $\delta y_i$, and $f(x_i)$ is the function we are fitting evaluated at $x_i$.</p>
 <div class="code-block-wrapper">
   <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
   <pre><code class="language-python">#Import the required packages
@@ -305,28 +314,28 @@ plt.show()  #show the graph</code></pre>
 <h2 id="parabola">Parabola <a href="#parabola" class="anchor-link">#</a></h2>
 <p>As stated above, linear regression is not only used for linear models as many think it is. It simply uses linear algebra to accomplish fitting this best fit and can easily do polynomials of a higher degree. Hence, to find the best fit parabola we start with a similar set-up. We start with the same type of ordered-pair data points of the form: $(x_1,y_1),(x_2,y_2),\dots ,(x_k,y_k).$ However, the system of equations simply adds one extra term to each equation and has the form:</p>
 <p>$$ y_1=a_2x_1^2+a_1x_1+a_0 \\ y_2=a_2x_2^2+a_1x_2+a_0 \\ \vdots \\ y_k=a_2x_k^2+a_1x_k+a_0.$$ Hence, $$\overrightarrow{y}=\begin{bmatrix}
-                      x_1^2 &amp;x_1&amp; 1 \\
-                      \vdots &amp; \vdots &amp;\vdots \\
-                      x_k^2 &amp;x_k&amp; 1
+                      x_1^2 &x_1& 1 \\
+                      \vdots & \vdots &\vdots \\
+                      x_k^2 &x_k& 1
                       \end{bmatrix}
                       \begin{bmatrix}
                       a_2\\
                       a_1 \\
                       a_0
                       \end{bmatrix}.$$ So, $$A=\begin{bmatrix}
-                      x_1^2 &amp;x_1&amp; 1 \\
-                      \vdots &amp; \vdots &amp;\vdots \\
-                      x_k^2 &amp;x_k&amp; 1
+                      x_1^2 &x_1& 1 \\
+                      \vdots & \vdots &\vdots \\
+                      x_k^2 &x_k& 1
                       \end{bmatrix}$$ and $$A^* = \begin{bmatrix}
-                      x_1^2 &amp;\cdots&amp; x_k^2 \\
-                      x_1 &amp; \cdots &amp;x_k \\
-                      1 &amp;\cdots&amp; 1
+                      x_1^2 &\cdots& x_k^2 \\
+                      x_1 & \cdots &x_k \\
+                      1 &\cdots& 1
                       \end{bmatrix}.$$</p>
 <p>Hence, $$A^* A=
                       \begin{bmatrix}
-                      \sum x_k^4 &amp;\sum x_k^3&amp; \sum x_k^2 \\
-                      \sum x_k^3 &amp;\sum x_k^2 &amp; \sum x_k \\
-                      \sum x_k^2 &amp;\sum x_k &amp;k
+                      \sum x_k^4 &\sum x_k^3& \sum x_k^2 \\
+                      \sum x_k^3 &\sum x_k^2 & \sum x_k \\
+                      \sum x_k^2 &\sum x_k &k
                       \end{bmatrix}.$$</p>
 <p>From there, solving for the best fit is found using the same formula above. So, linear regression is really able to be used for any $f(x)$ equation, all it takes to modify it is to rewrite your system of equations and find the unknowns. This means that as an equation gets more complex with more unknowns, the computational power required to solve this will increase. You could even do this for non-polynomial functions by turning these other functions into their taylor series and finding the fit this way. So, we are able to fit a parabola to a set a data points using the same type of linear algebra algorithm.</p>
 <h3 id="the-data-1">The Data <a href="#the-data-1" class="anchor-link">#</a></h3>
