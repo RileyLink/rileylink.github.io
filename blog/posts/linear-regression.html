@@ -75,13 +75,13 @@
     <div class="toc-mobile-content" id="toc-mobile-content">
       <nav>
         <ul>
-          <li class="toc-h3"><a href="#the-set-up">The Set-Up</a></li>
-          <li class="toc-h3"><a href="#the-problem">The Problem</a></li>
-          <li class="toc-h3"><a href="#final-formula">Final Formula</a></li>
-          <li class="toc-h3"><a href="#the-code">The Code</a></li>
-          <li class="toc-h3"><a href="#the-data">The Data</a></li>
+          <li class="toc-h2"><a href="#the-set-up">The Set-Up</a></li>
+          <li class="toc-h2"><a href="#the-problem">The Problem</a></li>
+          <li class="toc-h2"><a href="#final-formula">Final Formula</a></li>
+          <li class="toc-h2"><a href="#the-code">The Code</a></li>
+          <li class="toc-h2"><a href="#the-data">The Data</a></li>
           <li class="toc-h2"><a href="#parabola">Parabola</a></li>
-          <li class="toc-h3"><a href="#the-data">The Data</a></li>
+          <li class="toc-h3"><a href="#the-data-1">The Data</a></li>
           <li class="toc-h2"><a href="#conclusion">Conclusion</a></li>
         </ul>
       </nav>
@@ -107,53 +107,122 @@
       </header>
 
       <div class="article-body">
-<p>While being poorly named, linear regression is the method used to fit observed data to some function <!--MATH<em>IL</em>0--> that governs the phenomena. This is most often used to model linear trends using equations of the form, <!--MATH<em>DP</em>1--> However, the reason it is named <strong>linear</strong> regression, is not because of its use to model linear equations, but because of its use of linear algebra. In this project, linear regression is walked though and shown step by step how it works to solve the problem of fitting data.</p>
-<h3 id="the-set-up">The Set-Up <a href="#the-set-up" class="anchor-link">#</a></h3>
-<p>Let some phenomena be governed by the equation <!--MATH<em>IL</em>2-->. Then, we are able to physically collect data of the phenomena in the form of ordered pairs: <!--MATH<em>DP</em>3--> In a theoretical case, <!--MATH<em>IL</em>4--> but this obviously never happens due to uncertainty and error in measurements. Therefore, we need some way to measure the error between our data and the function that governs the phenomena. This is given by, <!--MATH<em>DP</em>5--> Hence, we want to minimize this error so that our function matches the data as closley as possible. However, we do not always want to minimize this error because with a high uncertainty in the data the error can be very low even while the function is not a good fit. Along with that, we do not know what <!--MATH<em>IL</em>6--> is, or else we would already be done. So, this is nothing more than a linear algebra problem. In this case we will show how to solve for a linear function <!--MATH<em>IL</em>7--> but this same method is used to solve for best fit parabolas, and higher polynomial functions which will be shown later.</p>
-<h3 id="the-problem">The Problem <a href="#the-problem" class="anchor-link">#</a></h3>
-<p>Given some data <!--MATH<em>IL</em>8--> we want to find some function <!--MATH<em>IL</em>9--> tbat best fits the data. So, we can make a system of equations that each hit one data point <!--MATH<em>IL</em>10-->.</p>
+<p>While being poorly named, linear regression is the method used to fit observed data to some function $f(x)$ that governs the phenomena. This is most often used to model linear trends using equations of the form, $$y=mx+b.$$ However, the reason it is named <strong>linear</strong> regression, is not because of its use to model linear equations, but because of its use of linear algebra. In this project, linear regression is walked though and shown step by step how it works to solve the problem of fitting data.</p>
+<h2 id="the-set-up">The Set-Up <a href="#the-set-up" class="anchor-link">#</a></h2>
+<p>Let some phenomena be governed by the equation $f(x)$. Then, we are able to physically collect data of the phenomena in the form of ordered pairs: $$(x_1,y_1),(x_2,y_2),\dots ,(x_k,y_k).$$ In a theoretical case, $f(x_i)=y_i$ but this obviously never happens due to uncertainty and error in measurements. Therefore, we need some way to measure the error between our data and the function that governs the phenomena. This is given by, $$\sum_{j=1}^k \frac{|f(x_i)-y_i|}{k}.$$ Hence, we want to minimize this error so that our function matches the data as closley as possible. However, we do not always want to minimize this error because with a high uncertainty in the data the error can be very low even while the function is not a good fit. Along with that, we do not know what $f(x)$ is, or else we would already be done. So, this is nothing more than a linear algebra problem. In this case we will show how to solve for a linear function $f(x)$ but this same method is used to solve for best fit parabolas, and higher polynomial functions which will be shown later.</p>
+<h2 id="the-problem">The Problem <a href="#the-problem" class="anchor-link">#</a></h2>
+<p>Given some data $(x_1,y_1),\dots ,(x_k,y_k)$ we want to find some function $y=mx+b$ tbat best fits the data. So, we can make a system of equations that each hit one data point $x_i$.</p>
 $$ y_1=mx_1+b \\y_2=mx_2+b \\ \vdots \\ y_k=mx_k+b$$
 <p>This gives us k equations and 2 unknowns, the slope and intercept of our final line. Hence this gives us the following solution:</p>
 $$\overrightarrow{y}=\begin{bmatrix}
-                      x_1 & 1 \\
-                      x_2 & 1 \\
-                      \vdots & \vdots \\
-                      x_k & 1
+                      x_1 &amp; 1 \\
+                      x_2 &amp; 1 \\
+                      \vdots &amp; \vdots \\
+                      x_k &amp; 1
                       \end{bmatrix}
                       \begin{bmatrix}
                       m\\
                       b
                       \end{bmatrix}.$$
-<p>Since we have more equations than variables it is an overdetermined system so there is obviously no solution or once again we would be done instantly. However, since there is no solution, the best we can do is to find some <!--MATH<em>IL</em>13--> such that <!--MATH<em>DP</em>14--></p>
+<p>Since we have more equations than variables it is an overdetermined system so there is obviously no solution or once again we would be done instantly. However, since there is no solution, the best we can do is to find some $[m,b]\in\mathbb{R}^2$ such that $$y=mx+b.$$4</p>
 <p>is minimized.</p>
 <br>
-<h3 id="final-formula">Final Formula <a href="#final-formula" class="anchor-link">#</a></h3>
+<h2 id="final-formula">Final Formula <a href="#final-formula" class="anchor-link">#</a></h2>
 <p>Skipping past most of the linear algebra proofs, ones that include very high level ideas of vector spaces and projections, here is the final formula needed to find a best fit for the data.</p>
-<p>Let <!--MATH<em>IL</em>15--> and <!--MATH<em>IL</em>16--> where <!--MATH<em>IL</em>17--> is the adjoint of <!--MATH<em>IL</em>18-->. Hence, <!--MATH<em>IL</em>19-->. So, <!--MATH<em>DP</em>20--></p>
+<p>Let $A=\begin{bmatrix}
+                      x_1 &amp; 1 \\
+                      \vdots &amp; \vdots \\
+                      x_k &amp; 1
+                      \end{bmatrix}$ and $A^*=\begin{bmatrix}
+                      x_1 &amp; \cdots &amp; x_k \\
+                      1 &amp; \cdots &amp; 1
+                      \end{bmatrix}$ where $A^*$ is the adjoint of $A$. Hence, $A^{*}A=\begin{bmatrix}
+                      \sum x_i^2 &amp; \sum x_i \\
+                      \sum x_i &amp; k 
+                      \end{bmatrix}$. So, $$\begin{bmatrix}
+                      m\\
+                      b
+                      \end{bmatrix}=\left(A^* A\right)^{-1}A^* \overrightarrow{y}$$</p>
 <p>Also note that this will almost always be invertible for a high enough k value. The proof behind this is not too hard but will once again be left out to avoid confusion. However, just keep in mind that unless the determinant is equal to 0, meaning it is not invertible, this formula will work.</p>
 <br>
-<h3 id="the-code">The Code <a href="#the-code" class="anchor-link">#</a></h3>
+<h2 id="the-code">The Code <a href="#the-code" class="anchor-link">#</a></h2>
 <p>In the folowing cell is the commented code used to match basic data sets to their best fits. It uses these formulas to solve for the slope and intercept of the linear equations or the coefficients in the higher degree polynomials. The line is then printed along with error bars on the data. It is easily seen that this creates very accurate best fit lines are this is the standard algorithm used to determine the best fit lines.</p>
-<h3 id="the-data">The Data <a href="#the-data" class="anchor-link">#</a></h3>
+<h2 id="the-data">The Data <a href="#the-data" class="anchor-link">#</a></h2>
 <p>As an example, let's say we did an experiment where you stretched a rubber band to 6 different extensions, 5 times each.</p>
 <br>
 <p>So, we have measurements that look like:</p>
 <br>
-<p>| Extension (cm) | Force Trial 1 (N) | Trial 2 (N) |  Trial 3 (N) |  Trial 4 (N) |  Trial 5 (N) |</p>
-<p>| --- | --- | --- | --- | --- | --- |</p>
-<p>| 1.0 |  1.03  | 1.147|  0.934 | 1.049 | 0.924|</p>
-<p>| 2.0 | 1.91 |  2.178 | 2.127 | 2.005  |1.963|</p>
-<p>| 3.0 | 3.065 | 3.107 | 3.099 | 3.135 | 3.089|</p>
-<p>| 4.0 | 3.98  | 3.983 | 4.003 | 4.07  | 4.055|</p>
-<p>| 5.0 | 5.041  |4.892 | 4.949|  5.055  |4.955|</p>
-<p>| 6.0 | 5.896  |6.066 | 5.89 |  6.136 | 6.08|</p>
+<div class="table-wrapper">
+<table>
+  <thead>
+    <tr>
+      <th>Extension (cm)</th>
+      <th>Force Trial 1 (N)</th>
+      <th>Trial 2 (N)</th>
+      <th>Trial 3 (N)</th>
+      <th>Trial 4 (N)</th>
+      <th>Trial 5 (N)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>1.0</td>
+      <td>1.03</td>
+      <td>1.147</td>
+      <td>0.934</td>
+      <td>1.049</td>
+      <td>0.924</td>
+    </tr>
+    <tr>
+      <td>2.0</td>
+      <td>1.91</td>
+      <td>2.178</td>
+      <td>2.127</td>
+      <td>2.005</td>
+      <td>1.963</td>
+    </tr>
+    <tr>
+      <td>3.0</td>
+      <td>3.065</td>
+      <td>3.107</td>
+      <td>3.099</td>
+      <td>3.135</td>
+      <td>3.089</td>
+    </tr>
+    <tr>
+      <td>4.0</td>
+      <td>3.98</td>
+      <td>3.983</td>
+      <td>4.003</td>
+      <td>4.07</td>
+      <td>4.055</td>
+    </tr>
+    <tr>
+      <td>5.0</td>
+      <td>5.041</td>
+      <td>4.892</td>
+      <td>4.949</td>
+      <td>5.055</td>
+      <td>4.955</td>
+    </tr>
+    <tr>
+      <td>6.0</td>
+      <td>5.896</td>
+      <td>6.066</td>
+      <td>5.89</td>
+      <td>6.136</td>
+      <td>6.08</td>
+    </tr>
+  </tbody>
+</table>
+</div>
 <br>
 <br>
 <p>We want to figure out how well Hooke's law describes the rubber band for the data that we took.  In order to do that, we are going to plot the data and fit a line to the points using the Linear Regression Algorithm described above. Next, there are many ways to assess how well a curve fits data, so the method that we will use here is called Chi-Squared,</p>
 <br>
 $$\chi^2=\frac{1}{N} \sum_{i=1}^N \frac{(f(x_i)-y_i)^2}{\delta y_i^2}$$
 <br>
-<p>where we have data points <!--MATH<em>IL</em>22--> with associated uncertainties <!--MATH<em>IL</em>23-->, and <!--MATH<em>IL</em>24--> is the function we are fitting evaluated at <!--MATH<em>IL</em>25-->.</p>
+<p>where we have data points $f(x)$2 with associated uncertainties $f(x)$3, and $f(x)$4 is the function we are fitting evaluated at $f(x)$5.</p>
 <div class="code-block-wrapper">
   <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
   <pre><code class="language-python">#Import the required packages
@@ -234,11 +303,33 @@ plt.show()  #show the graph</code></pre>
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
 <h2 id="parabola">Parabola <a href="#parabola" class="anchor-link">#</a></h2>
-<p>As stated above, linear regression is not only used for linear models as many think it is. It simply uses linear algebra to accomplish fitting this best fit and can easily do polynomials of a higher degree. Hence, to find the best fit parabola we start with a similar set-up. We start with the same type of ordered-pair data points of the form: <!--MATH<em>IL</em>0--> However, the system of equations simply adds one extra term to each equation and has the form:</p>
-<p><!--MATH<em>DP</em>1--> Hence, <!--MATH<em>DP</em>2--> So, <!--MATH<em>DP</em>3--> and <!--MATH<em>DP</em>4--></p>
-<p>Hence, <!--MATH<em>DP</em>5--></p>
-<p>From there, solving for the best fit is found using the same formula above. So, linear regression is really able to be used for any <!--MATH<em>IL</em>6--> equation, all it takes to modify it is to rewrite your system of equations and find the unknowns. This means that as an equation gets more complex with more unknowns, the computational power required to solve this will increase. You could even do this for non-polynomial functions by turning these other functions into their taylor series and finding the fit this way. So, we are able to fit a parabola to a set a data points using the same type of linear algebra algorithm.</p>
-<h3 id="the-data">The Data <a href="#the-data" class="anchor-link">#</a></h3>
+<p>As stated above, linear regression is not only used for linear models as many think it is. It simply uses linear algebra to accomplish fitting this best fit and can easily do polynomials of a higher degree. Hence, to find the best fit parabola we start with a similar set-up. We start with the same type of ordered-pair data points of the form: $(x_1,y_1),(x_2,y_2),\dots ,(x_k,y_k).$ However, the system of equations simply adds one extra term to each equation and has the form:</p>
+<p>$$ y_1=a_2x_1^2+a_1x_1+a_0 \\ y_2=a_2x_2^2+a_1x_2+a_0 \\ \vdots \\ y_k=a_2x_k^2+a_1x_k+a_0.$$ Hence, $$\overrightarrow{y}=\begin{bmatrix}
+                      x_1^2 &amp;x_1&amp; 1 \\
+                      \vdots &amp; \vdots &amp;\vdots \\
+                      x_k^2 &amp;x_k&amp; 1
+                      \end{bmatrix}
+                      \begin{bmatrix}
+                      a_2\\
+                      a_1 \\
+                      a_0
+                      \end{bmatrix}.$$ So, $$A=\begin{bmatrix}
+                      x_1^2 &amp;x_1&amp; 1 \\
+                      \vdots &amp; \vdots &amp;\vdots \\
+                      x_k^2 &amp;x_k&amp; 1
+                      \end{bmatrix}$$ and $$A^* = \begin{bmatrix}
+                      x_1^2 &amp;\cdots&amp; x_k^2 \\
+                      x_1 &amp; \cdots &amp;x_k \\
+                      1 &amp;\cdots&amp; 1
+                      \end{bmatrix}.$$</p>
+<p>Hence, $$A^* A=
+                      \begin{bmatrix}
+                      \sum x_k^4 &amp;\sum x_k^3&amp; \sum x_k^2 \\
+                      \sum x_k^3 &amp;\sum x_k^2 &amp; \sum x_k \\
+                      \sum x_k^2 &amp;\sum x_k &amp;k
+                      \end{bmatrix}.$$</p>
+<p>From there, solving for the best fit is found using the same formula above. So, linear regression is really able to be used for any $f(x)$ equation, all it takes to modify it is to rewrite your system of equations and find the unknowns. This means that as an equation gets more complex with more unknowns, the computational power required to solve this will increase. You could even do this for non-polynomial functions by turning these other functions into their taylor series and finding the fit this way. So, we are able to fit a parabola to a set a data points using the same type of linear algebra algorithm.</p>
+<h3 id="the-data-1">The Data <a href="#the-data-1" class="anchor-link">#</a></h3>
 <p>Shown below is the code fitting a parabola to a fake dataset of projectile motion. I simply the projectile motion code off the internet to generate some fake motion data. It simply defines a projectile being launched and then adds noise to the data to represent a real world dataset. From there, the best fit function was modified to be used for calculating a parabola. This shows once again that this is a super powerful tool as it is able to create a best fit line with a very small chi-squared.</p>
 <div class="code-block-wrapper">
   <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
@@ -352,13 +443,13 @@ plt.show()</code></pre>
       <div class="toc-title">On This Page</div>
       <nav>
         <ul>
-          <li class="toc-h3"><a href="#the-set-up">The Set-Up</a></li>
-          <li class="toc-h3"><a href="#the-problem">The Problem</a></li>
-          <li class="toc-h3"><a href="#final-formula">Final Formula</a></li>
-          <li class="toc-h3"><a href="#the-code">The Code</a></li>
-          <li class="toc-h3"><a href="#the-data">The Data</a></li>
+          <li class="toc-h2"><a href="#the-set-up">The Set-Up</a></li>
+          <li class="toc-h2"><a href="#the-problem">The Problem</a></li>
+          <li class="toc-h2"><a href="#final-formula">Final Formula</a></li>
+          <li class="toc-h2"><a href="#the-code">The Code</a></li>
+          <li class="toc-h2"><a href="#the-data">The Data</a></li>
           <li class="toc-h2"><a href="#parabola">Parabola</a></li>
-          <li class="toc-h3"><a href="#the-data">The Data</a></li>
+          <li class="toc-h3"><a href="#the-data-1">The Data</a></li>
           <li class="toc-h2"><a href="#conclusion">Conclusion</a></li>
         </ul>
       </nav>
