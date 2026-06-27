@@ -8,6 +8,9 @@
    ------------------------------------------ */
 
 /* Blog Navigation: Styles now inherited from main.css */
+body {
+  padding-top: var(--nav-height);
+}
 
 /* Blog Footer */
 .footer {
@@ -68,7 +71,7 @@
 
 .blog-hero {
   text-align: center;
-  padding: 6rem 2rem 3rem;
+  padding: 3rem 2rem 3rem;
   position: relative;
 }
 
@@ -1165,7 +1168,7 @@
 
 @media (max-width: 768px) {
   .blog-hero {
-    padding: 5rem 1.5rem 2rem;
+    padding: 2.5rem 1.5rem 2rem;
   }
 
   .blog-hero h1 {
