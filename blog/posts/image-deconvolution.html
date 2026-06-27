@@ -796,16 +796,6 @@ print(str(end - start)+" seconds elapsed.")</code></pre>
 # print(str(end - start)+" seconds elapsed.")</code></pre>
   </div>
 </details>
-<div class="code-output-title">Training Curves (Blurred Validation)</div>
-<div class="code-output-image">
-  <img src="../images/deconvolution/accuracy_loss_blurred.png" alt="Training Curves (Blurred Validation)" />
-  <div class="image-caption">Figure: Training and validation accuracy and loss for classification on blurred validation images</div>
-</div>
-<div class="code-output-title">Sample Predictions (Blurred Validation)</div>
-<div class="code-output-image">
-  <img src="../images/deconvolution/predictions_blurred.png" alt="Sample Predictions (Blurred Validation)" />
-  <div class="image-caption">Figure: Sample predictions on blurred validation images</div>
-</div>
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -870,20 +860,10 @@ end = time.time()
 print(str(end - start)+" seconds elapsed.")</code></pre>
   </div>
 </details>
-<div class="code-output-title">Training Curves (Deconvolved Validation)</div>
-<div class="code-output-image">
-  <img src="../images/deconvolution/accuracy_loss_unblurred.png" alt="Training Curves (Deconvolved Validation)" />
-  <div class="image-caption">Figure: Training and validation accuracy and loss for classification on deconvolved validation images</div>
-</div>
-<div class="code-output-title">Sample Predictions (Deconvolved Validation)</div>
-<div class="code-output-image">
-  <img src="../images/deconvolution/predictions_unblurred.png" alt="Sample Predictions (Deconvolved Validation)" />
-  <div class="image-caption">Figure: Sample predictions on deconvolved validation images</div>
-</div>
 <h2 id="results">Results <a href="#results" class="anchor-link">#</a></h2>
 <p>Shown above are the results of the model on the two data sets of blurred and unblurred photos. Along with that, random photos are picked and shown above along with the prediction by the model, just for reference. Now, due to the time commitment it takes to train the model and then evaluate it, the graphs for the accuracy and loss are shown below:</p>
-<p><figure><img src="../images/deconvolution/Physics%20Blurred%20Images.PNG" alt="Physics%20Blurred%20Images.PNG" /><figcaption>Physics%20Blurred%20Images.PNG</figcaption></figure></p>
-<p><figure><img src="../images/deconvolution/Physics%20Unblurred%20Images.PNG" alt="Physics%20Unblurred%20Images.PNG" /><figcaption>Physics%20Unblurred%20Images.PNG</figcaption></figure></p>
+<p><figure><img src="../images/deconvolution/accuracy_loss_blurred.png" alt="Training Curves - Blurred Images" /><figcaption>Training Curves - Blurred Images</figcaption></figure></p>
+<p><figure><img src="../images/deconvolution/accuracy_loss_unblurred.png" alt="Training Curves - Deconvolved Images" /><figcaption>Training Curves - Deconvolved Images</figcaption></figure></p>
 <p>First, in the accuracy graphs we see that the training accuracy is almost to 100% because the model was trained on normal photos of cats and dogs rather than the blurred/unblurred ones the model was tested on. So obviously we will see a large difference between the validation and training accuracy. Next, loss is calculated using binary cross-entropy, measuring the discrepancy between predicted probabilities and actual labels, while accuracy measures the percentage of correct classifications. Although they are mathematically different, they share an inverse relationship: as the model trains, the loss decreases and the accuracy increases. Finally, we see that early stopping occurs in both the blurred and unblurred trials at epoch 9 (out of 10 maximum epochs). The early stopping callback monitors validation loss and stops training once the validation loss stabilizes, which effectively prevents the model from overfitting to the training data.</p>
 <p><br></p>
 <p><br> Comparing the two sets of graphs, between the model being tested on the blurred vs. unblurred photos we see that the model performed better on the unblurred photos as expected. This makes logical sense as it is able to recognize whether the photo is a dog or cat easier when it is unblurred. However, it increased the validation accuracy from 74.9% (~75%) on blurred images to 82.7% (~83%) on deconvolved images when we unblurred the photos using the Richardson-Lucy algorithm. While this is better, meaning the unblurring algorithm has real effects on the image, it is still far off from the training accuracy on normal images. So, while this is exciting to see that the unblurring can be used in other fields to increase performance, it did not improve it by a significant amount.</p>
@@ -894,7 +874,7 @@ print(str(end - start)+" seconds elapsed.")</code></pre>
 <li>Stack Overflow, <a href="https://stackoverflow.com/" target="_blank" rel="noopener">https://stackoverflow.com/</a>.</li>
 <li>“Scipy Documentation.” SciPy Documentation - SciPy v1.10.1 Manual, <a href="https://docs.scipy.org/doc/scipy/index.html" target="_blank" rel="noopener">https://docs.scipy.org/doc/scipy/index.html</a>.</li>
 <li>Bouchard, Ellen. “Image Deconvolution: What It Is and How to Use It for Microscopy.” Biodock, Biodock, 29 Sept. 2021, <a href="https://blog.biodock.ai/image-deconvolution/" target="_blank" rel="noopener">https://blog.biodock.ai/image-deconvolution/</a>.</li>
-<li>Wallace, Wes. “Algorithms for Deconvolution Microscopy.” Digital Image Processing - Algorithms for Deconvolution Microscopy | Olympus LS, <a href="https://www.olympus-lifescience.com/en/microscope-resource/primer/digitalimaging/deconvolution/deconalgorithms/#:~:text=The%20most%20commonly%20utilized%20algorithms,a%20three%2Ddimensional%20image%20stack" target="_blank" rel="noopener">https://www.olympus-lifescience.com/en/microscope-resource/primer/digitalimaging/deconvolution/deconalgorithms/#:~:text=The%20most%20commonly%20utilized%20algorithms,a%20three%2Ddimensional%20image%20stack</a>.</li>
+<li>Wallace, Wes. “Algorithms for Deconvolution Microscopy.” Digital Image Processing - Algorithms for Deconvolution Microscopy | Olympus LS, <a href="https://www.olympus-lifescience.com/en/microscope-resource/primer/digitalimaging/deconvolution/deconalgorithms/#:~:text=The%20most%20commonly%20utilized%20algorithms,a%20three%2Ddimensional%20image%20stack." target="_blank" rel="noopener">Olympus Life Science Primer</a></li>
 <li>“Wiener Deconvolution.” Wikipedia, Wikimedia Foundation, <a href="https://en.wikipedia.org/wiki/Wiener_deconvolution" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Wiener_deconvolution</a>.</li>
 <li>“Blind Deconvolution.” Wikipedia, Wikimedia Foundation, <a href="https://en.wikipedia.org/wiki/Blind_deconvolution" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Blind_deconvolution</a>.</li>
 <li>“Richardson–Lucy Deconvolution.” Wikipedia, Wikimedia Foundation, <a href="https://en.wikipedia.org/wiki/Richardson%E2%80%93Lucy_deconvolution" target="_blank" rel="noopener">https://en.wikipedia.org/wiki/Richardson%E2%80%93Lucy_deconvolution</a>.</li>
