@@ -76,9 +76,9 @@
   <section class="section section--alt" style="padding-top: calc(var(--nav-height) + var(--space-3xl)); padding-bottom: var(--space-xl);">
     <div class="container text-center">
       <div class="fade-in visible">
-        <h1 class="section-title" style="margin-bottom: var(--space-xs);">Projects & Publications</h1>
+        <h1 class="section-title" style="margin-bottom: var(--space-lg);">Projects & Publications</h1>
         <p style="font-family: var(--font-serif); font-size: var(--text-md); color: var(--text-secondary); max-width: 600px; margin: 0 auto; line-height: 1.6;">
-          A collection of my academic publications, open-source software tools, interactive visualizers, and creative work.
+          A collection of things I have done.
         </p>
       </div>
     </div>
@@ -86,48 +86,60 @@
 
 
   <!-- ============================
-       Projects Grid Section
+       Publications Section
        ============================ -->
-  <section class="section" style="padding-top: 0;">
+  <section class="section" style="padding-top: var(--space-xl); padding-bottom: var(--space-lg);">
     <div class="container">
-      <div class="projects__grid stagger fade-in visible">
-        <!-- Project 1 — SIURO Publication -->
-        <article class="project-card">
+      <h2 class="section-title" style="margin-bottom: var(--space-lg);">Publications</h2>
+      <div style="margin-top: var(--space-md);">
+        <!-- Featured Publication Card (takes full width or is centered) -->
+        <article class="project-card" style="max-width: 800px; margin: 0 auto;">
           <div class="project-card__header">
-            <span class="project-card__tag">Publication</span>
-            <h3 class="project-card__title">A Framework for Approximating Perturbed Optimal Control</h3>
+            <span class="project-card__tag" style="background: rgba(179,27,27,0.1); color: var(--accent);">Featured Publication</span>
+            <h3 class="project-card__title" style="font-size: var(--text-xl);">A Framework for Approximating Perturbed Optimal Control</h3>
             <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
               Published in <strong>SIAM Undergraduate Research Online (SIURO)</strong> | DOI: 10.1137/24S1686000
             </div>
           </div>
-          <p class="project-card__excerpt" style="margin-top: var(--space-md);">
+          <p class="project-card__excerpt" style="margin-top: var(--space-md); line-height: 1.6;">
             Co-authored during undergraduate research, this paper establishes a mathematical and computational framework for approximating perturbed optimal control problems.
           </p>
-          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
+          <div class="project-card__links" style="margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--border); display: flex; gap: var(--space-sm);">
             <a href="https://doi.org/10.1137/24S1686000" class="btn btn--outline btn--small" target="_blank" rel="noopener">Journal Paper</a>
             <a href="https://arxiv.org/abs/2408.09546" class="btn btn--text btn--small" target="_blank" rel="noopener">arXiv Preprint</a>
           </div>
         </article>
+      </div>
+    </div>
+  </section>
 
-        <!-- Project 2 — Short Films -->
+
+  <!-- ============================
+       Projects Section
+       ============================ -->
+  <section class="section" style="padding-top: var(--space-lg); padding-bottom: var(--space-2xl);">
+    <div class="container">
+      <h2 class="section-title" style="margin-bottom: var(--space-lg);">Projects</h2>
+      <div class="projects__grid stagger fade-in visible" style="margin-top: var(--space-md);">
+        <!-- Weisfeiler-Leman Visualizer -->
         <article class="project-card">
           <div class="project-card__header">
-            <span class="project-card__tag">Creative</span>
-            <h3 class="project-card__title">Short Films</h3>
+            <span class="project-card__tag">Theory & Algorithms</span>
+            <h3 class="project-card__title">Weisfeiler-Leman Graph Isomorphism Visualizer</h3>
             <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
-              Undergraduate film coursework & personal projects
+              Iterative color refinement visualization demo
             </div>
           </div>
           <p class="project-card__excerpt" style="margin-top: var(--space-md);">
-            I enjoyed writing and directing the short film <em>Perspective</em>. Additionally, I made a short film about my decision to go to Cornell for my PhD.
+            An interactive tool visualizing the 1-Weisfeiler-Leman (1-WL) graph isomorphism test in real time. Watch color propagation split vertex partitions step-by-step to distinguish non-isomorphic graphs (like stacked gons).
           </p>
           <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
-            <a href="https://youtu.be/efpOr8c10rQ?si=nKeXlarpa1ql4bwd" class="btn btn--outline btn--small" target="_blank" rel="noopener">Perspective Film</a>
-            <a href="https://youtu.be/ytDEEJb6lKc?si=9VBfFbbxD4cyU41t" class="btn btn--text btn--small" target="_blank" rel="noopener">Cornell Decision</a>
+            <a href="projects/wl-isomorphism.html" class="btn btn--outline btn--small">Run Visualizer</a>
+            <a href="https://github.com/RileyLink/Weisfeiler-Leman-Graph-Isomorphism-Test" class="btn btn--text btn--small" target="_blank" rel="noopener">GitHub Repo</a>
           </div>
         </article>
 
-        <!-- Project 3 — Mastermind Solver -->
+        <!-- Mastermind Solver -->
         <article class="project-card">
           <div class="project-card__header">
             <span class="project-card__tag">Software & Theory</span>
@@ -145,21 +157,21 @@
           </div>
         </article>
 
-        <!-- Project 4 — Weisfeiler-Leman Graph Isomorphism Test -->
+        <!-- Short Films -->
         <article class="project-card">
           <div class="project-card__header">
-            <span class="project-card__tag">Graph Theory & Algorithms</span>
-            <h3 class="project-card__title">Weisfeiler-Leman Graph Isomorphism Visualizer</h3>
+            <span class="project-card__tag">Creative</span>
+            <h3 class="project-card__title">Short Films</h3>
             <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
-              Iterative color refinement visualization demo
+              Undergraduate film coursework & personal projects
             </div>
           </div>
           <p class="project-card__excerpt" style="margin-top: var(--space-md);">
-            An interactive tool visualizing the 1-Weisfeiler-Leman (1-WL) graph isomorphism test in real time. Watch color propagation split vertex partitions step-by-step to distinguish non-isomorphic graphs (like stacked gons).
+            I enjoyed writing and directing the short film <em>Perspective</em>. Additionally, I made a short film about my decision to go to Cornell for my PhD.
           </p>
           <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
-            <a href="projects/wl-isomorphism.html" class="btn btn--outline btn--small">Run Visualizer</a>
-            <a href="https://github.com/RileyLink/Weisfeiler-Leman-Graph-Isomorphism-Test" class="btn btn--text btn--small" target="_blank" rel="noopener">GitHub Repo</a>
+            <a href="https://youtu.be/efpOr8c10rQ?si=nKeXlarpa1ql4bwd" class="btn btn--outline btn--small" target="_blank" rel="noopener">Perspective Film</a>
+            <a href="https://youtu.be/ytDEEJb6lKc?si=9VBfFbbxD4cyU41t" class="btn btn--text btn--small" target="_blank" rel="noopener">Cornell Decision</a>
           </div>
         </article>
       </div>
