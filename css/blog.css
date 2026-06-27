@@ -573,7 +573,7 @@
 }
 
 .article-body p {
-  margin: 0 0 1.5rem;
+  margin: 0 0 1rem;
 }
 
 .article-body strong {
@@ -592,8 +592,8 @@
   line-height: 1.3;
   letter-spacing: -0.02em;
   color: #1a1a1a;
-  margin: 3rem 0 1rem;
-  padding-top: 1rem;
+  margin: 1.75rem 0 0.75rem;
+  padding-top: 0.5rem;
   position: relative;
 }
 
@@ -603,7 +603,7 @@
   font-weight: 600;
   line-height: 1.35;
   color: #1a1a1a;
-  margin: 2.5rem 0 0.8rem;
+  margin: 1.5rem 0 0.6rem;
 }
 
 .article-body h4 {
@@ -611,7 +611,7 @@
   font-size: 1.1rem;
   font-weight: 600;
   color: #1a1a1a;
-  margin: 2rem 0 0.6rem;
+  margin: 1.25rem 0 0.5rem;
 }
 
 .article-body h2 .anchor-link,
@@ -640,7 +640,7 @@
 /* Blockquotes */
 .article-body blockquote {
   border-left: 3px solid #B31B1B;
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   padding: 0.8rem 1.5rem;
   font-style: italic;
   color: #6b7280;
@@ -674,7 +674,7 @@
 
 /* Code Blocks */
 .article-body pre {
-  margin: 1.5rem 0;
+  margin: 1rem 0;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
@@ -755,7 +755,7 @@
 
 /* KaTeX Display Math */
 .article-body .katex-display {
-  margin: 1.8rem 0;
+  margin: 1rem 0;
   overflow-x: auto;
   overflow-y: hidden;
   padding: 0.5rem 0;
@@ -831,7 +831,7 @@
 .article-body .table-wrapper {
   width: 100%;
   overflow-x: auto;
-  margin: 1.5rem 0 2rem;
+  margin: 1rem 0 1.25rem;
   border: 1px solid #e5e5e5;
   border-radius: 8px;
 }

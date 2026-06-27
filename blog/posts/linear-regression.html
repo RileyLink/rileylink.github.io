@@ -135,7 +135,6 @@ $$\overrightarrow{y}=\begin{bmatrix}
                       b
                       \end{bmatrix}\right\rvert$$</p>
 <p>is minimized.</p>
-<br>
 <h2 id="final-formula">Final Formula <a href="#final-formula" class="anchor-link">#</a></h2>
 <p>Skipping past most of the linear algebra proofs, ones that include very high level ideas of vector spaces and projections, here is the final formula needed to find a best fit for the data.</p>
 <p>Let $A=\begin{bmatrix}
@@ -153,14 +152,11 @@ $$\overrightarrow{y}=\begin{bmatrix}
                       b
                       \end{bmatrix}=\left(A^* A\right)^{-1}A^* \overrightarrow{y}$$</p>
 <p>Also note that this will almost always be invertible for a high enough k value. The proof behind this is not too hard but will once again be left out to avoid confusion. However, just keep in mind that unless the determinant is equal to 0, meaning it is not invertible, this formula will work.</p>
-<br>
 <h2 id="the-code">The Code <a href="#the-code" class="anchor-link">#</a></h2>
 <p>In the folowing cell is the commented code used to match basic data sets to their best fits. It uses these formulas to solve for the slope and intercept of the linear equations or the coefficients in the higher degree polynomials. The line is then printed along with error bars on the data. It is easily seen that this creates very accurate best fit lines are this is the standard algorithm used to determine the best fit lines.</p>
 <h2 id="the-data">The Data <a href="#the-data" class="anchor-link">#</a></h2>
 <p>As an example, let's say we did an experiment where you stretched a rubber band to 6 different extensions, 5 times each.</p>
-<br>
 <p>So, we have measurements that look like:</p>
-<br>
 <div class="table-wrapper">
 <table>
   <thead>
@@ -225,12 +221,8 @@ $$\overrightarrow{y}=\begin{bmatrix}
   </tbody>
 </table>
 </div>
-<br>
-<br>
 <p>We want to figure out how well Hooke's law describes the rubber band for the data that we took.  In order to do that, we are going to plot the data and fit a line to the points using the Linear Regression Algorithm described above. Next, there are many ways to assess how well a curve fits data, so the method that we will use here is called Chi-Squared,</p>
-<br>
 $$\chi^2=\frac{1}{N} \sum_{i=1}^N \frac{(f(x_i)-y_i)^2}{\delta y_i^2}$$
-<br>
 <p>where we have data points $(x_1, y_1) ... (x_N, y_N)$ with associated uncertainties $\delta y_i$, and $f(x_i)$ is the function we are fitting evaluated at $x_i$.</p>
 <div class="code-block-wrapper">
   <button class="copy-code-btn" onclick="copyCode(this)">Copy</button>
