@@ -92,10 +92,10 @@
     <div class="container">
       <h2 class="section-title" style="margin-bottom: var(--space-lg);">Publications</h2>
       <div style="margin-top: var(--space-md);">
-        <!-- Featured Publication Card (takes full width or is centered) -->
+        <!-- Publication Card (takes full width or is centered) -->
         <article class="project-card" style="max-width: 800px; margin: 0 auto;">
           <div class="project-card__header">
-            <span class="project-card__tag" style="background: rgba(179,27,27,0.1); color: var(--accent);">Featured Publication</span>
+            <span class="project-card__tag">Publication</span>
             <h3 class="project-card__title" style="font-size: var(--text-xl);">A Framework for Approximating Perturbed Optimal Control</h3>
             <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
               Published in <strong>SIAM Undergraduate Research Online (SIURO)</strong> | DOI: 10.1137/24S1686000
@@ -104,7 +104,7 @@
           <p class="project-card__excerpt" style="margin-top: var(--space-md); line-height: 1.6;">
             Co-authored during undergraduate research, this paper establishes a mathematical and computational framework for approximating perturbed optimal control problems.
           </p>
-          <div class="project-card__links" style="margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--border); display: flex; gap: var(--space-sm);">
+          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
             <a href="https://doi.org/10.1137/24S1686000" class="btn btn--outline btn--small" target="_blank" rel="noopener">Journal Paper</a>
             <a href="https://arxiv.org/abs/2408.09546" class="btn btn--text btn--small" target="_blank" rel="noopener">arXiv Preprint</a>
           </div>
@@ -157,10 +157,21 @@
           </div>
         </article>
 
-        <!-- Short Films -->
-        <article class="project-card">
-          <div class="project-card__header">
-            <span class="project-card__tag">Creative</span>
+        <!-- Short Films (Cinematic Arts Theme) -->
+        <article class="project-card" style="position: relative; overflow: hidden; background: linear-gradient(135deg, #181528, #0c0a16); border: 1px solid rgba(138, 75, 243, 0.2); box-shadow: 0 0 15px rgba(138, 75, 243, 0.05);">
+          <!-- Sprocket holes repeating pattern top and bottom -->
+          <div style="position: absolute; top: 0; left: 0; right: 0; height: 6px; background-image: radial-gradient(circle, var(--border) 2px, transparent 2px); background-size: 10px 10px; opacity: 0.3;"></div>
+          <div style="position: absolute; bottom: 0; left: 0; right: 0; height: 6px; background-image: radial-gradient(circle, var(--border) 2px, transparent 2px); background-size: 10px 10px; opacity: 0.3;"></div>
+          
+          <!-- Low-opacity Clapperboard icon watermark -->
+          <div style="position: absolute; right: 15px; top: 15px; opacity: 0.08; color: var(--text);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18 4l2 3h-3l-2-3h-2l2 3h-3l-2-3H8l2 3H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4zm2 14H4V9h16v9z"/>
+            </svg>
+          </div>
+
+          <div class="project-card__header" style="padding-top: var(--space-xs);">
+            <span class="project-card__tag" style="background: rgba(138, 75, 243, 0.15); color: #a27bf5; border: 1px solid rgba(138, 75, 243, 0.2);">🎬 Cinema</span>
             <h3 class="project-card__title">Short Films</h3>
             <div class="project-card__meta" style="font-size: var(--text-sm); color: var(--text-secondary); margin-top: var(--space-xs);">
               Undergraduate film coursework & personal projects
@@ -169,9 +180,9 @@
           <p class="project-card__excerpt" style="margin-top: var(--space-md);">
             I enjoyed writing and directing the short film <em>Perspective</em>. Additionally, I made a short film about my decision to go to Cornell for my PhD.
           </p>
-          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg);">
+          <div class="project-card__links" style="margin-top: auto; padding-top: var(--space-lg); z-index: 1; position: relative;">
             <a href="https://youtu.be/efpOr8c10rQ?si=nKeXlarpa1ql4bwd" class="btn btn--outline btn--small" target="_blank" rel="noopener">Perspective Film</a>
-            <a href="https://youtu.be/ytDEEJb6lKc?si=9VBfFbbxD4cyU41t" class="btn btn--text btn--small" target="_blank" rel="noopener">Cornell Decision</a>
+            <a href="https://youtu.be/ytDEEJb6lKc?si=9VBfFbbxD4cyU41t" class="btn btn--outline btn--small" target="_blank" rel="noopener">Cornell Decision</a>
           </div>
         </article>
       </div>
