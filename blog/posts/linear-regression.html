@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Linear Regression in Computational Physics — Riley Link</title>
+  <meta name="description" content="Implementing step-by-step linear regression to fit experimental data using matrix-based solutions and extending to higher-order polynomials.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/blog.css">
+
+  <!-- KaTeX -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/contrib/auto-render.min.js"></script>
+
+  <!-- Prism.js -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-tomorrow.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-python.min.js"></script>
+</head>
+<body>
+
+  <!-- Reading Progress Bar -->
+  <div class="reading-progress" id="reading-progress"></div>
+
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-container">
+      <a href="../../index.html" class="nav-logo">Riley Link</a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-menu" id="nav-menu">
+        <li><a href="../../index.html#about" class="nav-link">About</a></li>
+        <li><a href="../index.html" class="nav-link active">Blog</a></li>
+        <li><a href="../../projects.html" class="nav-link">Projects</a></li>
+        <li><a href="../../index.html#resume" class="nav-link">Resume</a></li>
+        <li><a href="../../index.html#contact" class="nav-link">Contact</a></li>
+        <li>
+          <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
+            <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+          </button>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Mobile TOC Toggle -->
+  <div class="article-wrapper" style="display:block; max-width:720px; margin:0 auto; padding: 2rem 2rem 0;">
+    <button class="toc-mobile-toggle" id="toc-mobile-toggle">
+      Table of Contents <span class="toggle-icon">▾</span>
+    </button>
+    <div class="toc-mobile-content" id="toc-mobile-content">
+      <nav>
+        <ul>
+          <li><a href="#parabola">Parabola</a></li>
+          <li><a href="#conclusion">Conclusion</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Article Layout -->
+  <div class="article-wrapper">
+    <div class="article-spacer"></div>
+
+    <!-- Main Article -->
+    <article>
+      <header class="article-header">
+        <a href="../index.html" class="back-to-blog">← Back to blog</a>
+        <h1>Linear Regression in Computational Physics</h1>
+        <div class="article-meta">
+          <span class="meta-category">Computational Physics</span>
+          <span class="meta-dot"></span>
+          <span class="meta-date">December 05, 2024</span>
+          <span class="meta-dot"></span>
+          <span class="meta-readtime">8 min read</span>
+        </div>
+      </header>
+
+      <div class="article-body">
+<h1>Linear Regression</h1>
+<p>While being poorly named, linear regression is the method used to fit observed data to some function $f(x)$ that governs the phenomena. This is most often used to model linear trends using equations of the form, $$y=mx+b.$$ However, the reason it is named <strong>linear</strong> regression, is not because of its use to model linear equations, but because of its use of linear algebra. In this project, linear regression is walked though and shown step by step how it works to solve the problem of fitting data.</p>
+<h3>The Set-Up</h3>
+<p>Let some phenomena be governed by the equation $f(x)$. Then, we are able to physically collect data of the phenomena in the form of ordered pairs: $$(x<em>1,y</em>1),(x<em>2,y</em>2),\dots ,(x<em>k,y</em>k).$$ In a theoretical case, $f(x<em>i)=y</em>i$ but this obviously never happens due to uncertainty and error in measurements. Therefore, we need some way to measure the error between our data and the function that governs the phenomena. This is given by, $$\sum<em>{j=1}^k \frac{|f(x</em>i)-y_i|}{k}.$$ Hence, we want to minimize this error so that our function matches the data as closley as possible. However, we do not always want to minimize this error because with a high uncertainty in the data the error can be very low even while the function is not a good fit. Along with that, we do not know what $f(x)$ is, or else we would already be done. So, this is nothing more than a linear algebra problem. In this case we will show how to solve for a linear function $f(x)$ but this same method is used to solve for best fit parabolas, and higher polynomial functions which will be shown later.</p>
+<h3>The Problem</h3>
+<p>Given some data $(x<em>1,y</em>1),\dots ,(x<em>k,y</em>k)$ we want to find some function $y=mx+b$ tbat best fits the data. So, we can make a system of equations that each hit one data point $x_i$.</p>
+$$ y_1=mx_1+b \\y_2=mx_2+b \\ \vdots \\ y_k=mx_k+b$$
+<p>This gives us k equations and 2 unknowns, the slope and intercept of our final line. Hence this gives us the following solution:</p>
+<p>$$\overrightarrow{y}=\begin{bmatrix}</p>
+<p>x_1 & 1 \\</p>
+<p>x_2 & 1 \\</p>
+<p>\vdots & \vdots \\</p>
+<p>x_k & 1</p>
+<p>\end{bmatrix}</p>
+<p>\begin{bmatrix}</p>
+<p>m\\</p>
+<p>b</p>
+<p>\end{bmatrix}.$$</p>
+<p>Since we have more equations than variables it is an overdetermined system so there is obviously no solution or once again we would be done instantly. However, since there is no solution, the best we can do is to find some $[m,b]\in\mathbb{R}^2$ such that $$\left\lvert\overrightarrow{y}-\begin{bmatrix}</p>
+<p>x_1 & 1 \\</p>
+<p>x_2 & 1 \\</p>
+<p>\vdots & \vdots \\</p>
+<p>x_k & 1</p>
+<p>\end{bmatrix}</p>
+<p>\begin{bmatrix}</p>
+<p>m\\</p>
+<p>b</p>
+<p>\end{bmatrix}\right\rvert$$</p>
+<p>is minimized.</p>
+<br>
+<h3>Final Formula</h3>
+<p>Skipping past most of the linear algebra proofs, ones that include very high level ideas of vector spaces and projections, here is the final formula needed to find a best fit for the data.</p>
+<p>Let $A=\begin{bmatrix}</p>
+<p>x_1 & 1 \\</p>
+<p>\vdots & \vdots \\</p>
+<p>x_k & 1</p>
+<p>\end{bmatrix}$ and $A^*=\begin{bmatrix}</p>
+<p>x<em>1 & \cdots & x</em>k \\</p>
+<p>1 & \cdots & 1</p>
+<p>\end{bmatrix}$ where $A^<em>$ is the adjoint of $A$. Hence, $A^{</em>}A=\begin{bmatrix}</p>
+<p>\sum x<em>i^2 & \sum x</em>i \\</p>
+<p>\sum x_i & k</p>
+<p>\end{bmatrix}$. So, $$\begin{bmatrix}</p>
+<p>m\\</p>
+<p>b</p>
+<p>\end{bmatrix}=\left(A^<em> A\right)^{-1}A^</em> \overrightarrow{y}$$</p>
+<p>Also note that this will almost always be invertible for a high enough k value. The proof behind this is not too hard but will once again be left out to avoid confusion. However, just keep in mind that unless the determinant is equal to 0, meaning it is not invertible, this formula will work.</p>
+<br>
+<h3>The Code</h3>
+<p>In the folowing cell is the commented code used to match basic data sets to their best fits. It uses these formulas to solve for the slope and intercept of the linear equations or the coefficients in the higher degree polynomials. The line is then printed along with error bars on the data. It is easily seen that this creates very accurate best fit lines are this is the standard algorithm used to determine the best fit lines.</p>
+<h3>The Data</h3>
+<p>As an example, let's say we did an experiment where you stretched a rubber band to 6 different extensions, 5 times each.</p>
+<br>
+<p>So, we have measurements that look like:</p>
+<br>
+<p>| Extension (cm) | Force Trial 1 (N) | Trial 2 (N) |  Trial 3 (N) |  Trial 4 (N) |  Trial 5 (N) |</p>
+<p>| --- | --- | --- | --- | --- | --- |</p>
+<p>| 1.0 |  1.03  | 1.147|  0.934 | 1.049 | 0.924|</p>
+<p>| 2.0 | 1.91 |  2.178 | 2.127 | 2.005  |1.963|</p>
+<p>| 3.0 | 3.065 | 3.107 | 3.099 | 3.135 | 3.089|</p>
+<p>| 4.0 | 3.98  | 3.983 | 4.003 | 4.07  | 4.055|</p>
+<p>| 5.0 | 5.041  |4.892 | 4.949|  5.055  |4.955|</p>
+<p>| 6.0 | 5.896  |6.066 | 5.89 |  6.136 | 6.08|</p>
+<br>
+<br>
+<p>We want to figure out how well Hooke's law describes the rubber band for the data that we took.  In order to do that, we are going to plot the data and fit a line to the points using the Linear Regression Algorithm described above. Next, there are many ways to assess how well a curve fits data, so the method that we will use here is called Chi-Squared,</p>
+<br>
+$$\chi^2=\frac{1}{N} \sum_{i=1}^N \frac{(f(x_i)-y_i)^2}{\delta y_i^2}$$
+<br>
+<p>where we have data points $(x<em>1, y</em>1) ... (x<em>N, y</em>N)$ with associated uncertainties $\delta y<em>i$, and $f(x</em>i)$ is the function we are fitting evaluated at $x_i$.</p>
+<pre><code class="language-python">#Import the required packages
+import numpy as np
+import matplotlib.pyplot as plt
+
+#Our recorded data
+x=[1.0,2.0,3.0,4.0,5.0,6.0]
+y=[[1.03  , 1.147,  0.934 , 1.049 , 0.924], 
+   [1.81,2.178,2.127,2.005,1.963],
+   [3.265,3.107,3.499,3.135,2.889],
+   [3.7,3.983,4.003,4.07,4.055],
+   [5.041,4.892,4.949,5.055,4.955],
+   [5.896,6.366,5.89,6.136,6.08]]
+#Convert the data to numpy arrays
+x=np.array(x)
+y=np.array(y)
+
+#Define a function that calculates the best fit 
+def BestFitLine(x,y):
+    #First we are creating our matrix A, which as shown above has a column of 1's
+    ones=np.ones(x.shape)
+    x1=np.vstack([x,ones])
+    x1=np.transpose(x1)   #Transpose x so that is has two columns
+    y_row,y_col=y.shape  #Extract the shape of y
+    #We must now sum y to get the average of each extension measurement across the 5 trials
+    y_=[]   #Our new y array that has the average values
+    for i in range(y_row):  
+        suum=0
+        for j in range(y_col):
+            suum+=y[i][j]
+        avg=suum/y_col
+        y_.append(avg) #Appends each extensions average to the new array
+    
+    #Using the Linear Regression Algorithm [m,b]=(A*A)^-1 A*y
+    A=x1  #Define our A matrix
+    ATr=np.transpose(A)   #Define our A* matrix
+    AIn=np.linalg.inv(np.matmul(ATr,A))  #Find the inverse of A*A
+    Ay=np.matmul(ATr,y_)               #Multiply the adjoint to our new y_ 
+    mb=np.matmul(AIn,Ay)          #Finally multiply again to solve for our mb matrix
+    
+    #Calculating uncertaintys and Chi-Squared
+    dy=np.std(y, axis=1)/np.sqrt(y_col) #This formula gives the uncertainty by calculating the std and dividing by the square-root of the number of trials
+    def f(x):  #Define our lines
+        return mb[0]*x+mb[1]
+    #Calculating Chi Square
+    chisquare=0
+    for i in range(y_row): 
+        chisquare+=((f(x[i])-y_[i])**2)/(dy[i]**2)
+    chisquare=chisquare*(1/y_row)
+    
+    #returning the slope, intercept, uncertaintys, and chi-square and overage y values
+    return mb[0],mb[1],dy,chisquare, y_
+
+#Call the function
+slope,intercept,dy,chisquare, y_=BestFitLine(x,y)
+
+#Create the graph of the best fit line
+x1 = np.linspace(1,7,100)
+y1 = slope*x1+intercept
+plt.plot(x1, y1, '-r')
+
+#Plot the points along with error bars
+plt.errorbar(x,y_, dy, fmt='.')
+plt.title("Extension of a Spring Best Fit") #Title of the graph
+plt.xlabel('Extension (cm)')        #x axis label
+plt.ylabel('Force (N)')        #y axis label
+
+#Define the legend labels
+s='y='+str(slope)+'x+'+str(intercept)
+ss='$\u03C7^2$='+str(chisquare)
+plt.legend([s,ss], loc=0, frameon=True)
+plt.grid()
+plt.show()  #show the graph</code></pre>
+<h2 id="parabola">Parabola <a href="#parabola" class="anchor-link">#</a></h2>
+<p>As stated above, linear regression is not only used for linear models as many think it is. It simply uses linear algebra to accomplish fitting this best fit and can easily do polynomials of a higher degree. Hence, to find the best fit parabola we start with a similar set-up. We start with the same type of ordered-pair data points of the form: $(x<em>1,y</em>1),(x<em>2,y</em>2),\dots ,(x<em>k,y</em>k).$ However, the system of equations simply adds one extra term to each equation and has the form:</p>
+<p>$$ y<em>1=a</em>2x<em>1^2+a</em>1x<em>1+a</em>0 \\ y<em>2=a</em>2x<em>2^2+a</em>1x<em>2+a</em>0 \\ \vdots \\ y<em>k=a</em>2x<em>k^2+a</em>1x<em>k+a</em>0.$$ Hence, $$\overrightarrow{y}=\begin{bmatrix}</p>
+<p>x<em>1^2 &x</em>1& 1 \\</p>
+<p>\vdots & \vdots &\vdots \\</p>
+<p>x<em>k^2 &x</em>k& 1</p>
+<p>\end{bmatrix}</p>
+<p>\begin{bmatrix}</p>
+<p>a_2\\</p>
+<p>a_1 \\</p>
+<p>a_0</p>
+<p>\end{bmatrix}.$$ So, $$A=\begin{bmatrix}</p>
+<p>x<em>1^2 &x</em>1& 1 \\</p>
+<p>\vdots & \vdots &\vdots \\</p>
+<p>x<em>k^2 &x</em>k& 1</p>
+<p>\end{bmatrix}$$ and $$A^* = \begin{bmatrix}</p>
+<p>x<em>1^2 &\cdots& x</em>k^2 \\</p>
+<p>x<em>1 & \cdots &x</em>k \\</p>
+<p>1 &\cdots& 1</p>
+<p>\end{bmatrix}.$$</p>
+<p>Hence, $$A^* A=</p>
+<p>\begin{bmatrix}</p>
+<p>\sum x<em>k^4 &\sum x</em>k^3& \sum x_k^2 \\</p>
+<p>\sum x<em>k^3 &\sum x</em>k^2 & \sum x_k \\</p>
+<p>\sum x<em>k^2 &\sum x</em>k &k</p>
+<p>\end{bmatrix}.$$</p>
+<p>From there, solving for the best fit is found using the same formula above. So, linear regression is really able to be used for any $f(x)$ equation, all it takes to modify it is to rewrite your system of equations and find the unknowns. This means that as an equation gets more complex with more unknowns, the computational power required to solve this will increase. You could even do this for non-polynomial functions by turning these other functions into their taylor series and finding the fit this way. So, we are able to fit a parabola to a set a data points using the same type of linear algebra algorithm.</p>
+<h3>The Data</h3>
+<p>Shown below is the code fitting a parabola to a fake dataset of projectile motion. I simply the projectile motion code off the internet to generate some fake motion data. It simply defines a projectile being launched and then adds noise to the data to represent a real world dataset. From there, the best fit function was modified to be used for calculating a parabola. This shows once again that this is a super powerful tool as it is able to create a best fit line with a very small chi-squared.</p>
+<pre><code class="language-python">#Import the required packages
+import numpy as np
+import matplotlib.pyplot as plt
+
+import numpy as np
+
+# Code pulled from the internet
+# Define the initial conditions and constants
+v0 = 10.0     # initial velocity (m/s)
+theta = np.pi/4    # angle of launch (radians)
+g = 9.81      # acceleration due to gravity (m/s^2)
+t_max = 2*v0*np.sin(theta)/g  # time of flight (s)
+n_points = 20     # number of data points
+noise_scale = 30   # scale of noise (m)
+n_trials = 10   # number of trials
+
+# Generate the x values (horizontal distance)
+x = np.linspace(0, v0*np.sin(theta)*t_max, n_points)
+
+# Generate the y values (vertical distance) for each trial with some noise
+y_exact = v0*np.sin(theta)*x - 0.5*g*x**2  # exact y values
+noise = np.random.normal(scale=noise_scale, size=(n_trials, len(y_exact)))  # noise
+y = np.zeros((n_trials, len(y_exact)))
+for i in range(n_trials):
+    y[i,:] = y_exact + noise[i,:]  # y values with noise added for each trial
+
+#Convert the data to numpy arrays
+x=np.array(x)
+y=np.array(y)
+y=np.transpose(y)
+
+#Define a function that calculates the best fit 
+def BestFitParabola(x,y):
+    #First we are creating our matrix A, which as shown above has a column of 1's
+    ones=np.ones(x.shape)
+    x1=np.vstack([x,ones])
+    x1=np.vstack([x**2,x1])
+    x1=np.transpose(x1)  #Transpose x so that is has two columns
+    y_row,y_col=y.shape  #Extract the shape of y
+    #We must now sum y to get the average of each extension measurement across the 5 trials
+    y_=[]   #Our new y array that has the average values
+    for i in range(y_row):  
+        suum=0
+        for j in range(y_col):
+            suum+=y[i][j]
+        avg=suum/y_col
+        y_.append(avg) #Appends each extensions average to the new array
+    
+    #Using the Linear Regression Algorithm [m,b]=(A*A)^-1 A*y
+    A=x1  #Define our A matrix
+    ATr=np.transpose(A)   #Define our A* matrix
+    AIn=np.linalg.inv(np.matmul(ATr,A))  #Find the inverse of A*A
+    Ay=np.matmul(ATr,y_)               #Multiply the adjoint to our new y_ 
+    mb=np.matmul(AIn,Ay)          #Finally multiply again to solve for our mb matrix
+    
+    #Calculating uncertaintys and Chi-Squared
+    dy=np.std(y, axis=1)/np.sqrt(y_col) #This formula gives the uncertainty by calculating the std and dividing by the square-root of the number of trials
+    def f(x):  #Define our lines
+        return mb[0]*x**2+mb[1]*x+mb[2]
+    #Calculating Chi Square
+    chisquare=0
+    for i in range(y_row): 
+        chisquare+=((f(x[i])-y_[i])**2)/(dy[i]**2)
+    chisquare=chisquare*(1/y_row)
+    #returning the a2,a1,a0, uncertaintys, and chi-square and average y values
+    return mb[0],mb[1],mb[2],dy,chisquare, y_
+
+#Call the best fit function
+a2,a1,a0,dy,chisquare, y_=BestFitParabola(x,y)
+
+#Create the graph of the best fit line
+x1 = np.linspace(0,10,100)
+y1 = a2*x1**2+a1*x1+a0
+plt.plot(x1, y1, '-r')
+
+#Plot the points along with error bars
+plt.errorbar(x,y_, dy, fmt='.')
+plt.title("Projectile Motion Best Fit")  #Title
+plt.xlabel('Horizontal Distance Traveled (m)')  #x axis
+plt.ylabel('Vertical Distance Traveled (m)')   #y axis
+
+#Define the legend labels
+s='y='+str(a2)+'x^2+'+str(a1)+'x+'+str(a0)
+ss='$\u03C7^2$='+str(chisquare)
+plt.legend([s,ss], loc=0, frameon=True)
+plt.grid()
+plt.show()</code></pre>
+<h2 id="conclusion">Conclusion <a href="#conclusion" class="anchor-link">#</a></h2>
+<p>Overall, I believe this mini-project has helped me realize how we can apply these mathematical concepts to real world problems. As a math major I often just see the math and not how we can apply it to physical problems and phenomena. So, seeing how I can apply this linear algebra to real world problems by fitting any sort of equation to real world data is super exciting! This idea can be expanded even further as it truly could be expanded to any type of function! So, having this information can allow us to accurately estimate any real world function.</p>
+      </div>
+    </article>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">© 2026 Riley Link</p>
+      <div class="footer-links">
+        <a href="https://github.com/RileyLink" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://scholar.google.com/" class="footer-link" target="_blank" rel="noopener noreferrer">Scholar</a>
+        <a href="https://www.linkedin.com/in/riley-link" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JS -->
+  <script src="../../js/main.js"></script>
+
+  <!-- Initialize KaTeX Auto-Render -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      renderMathInElement(document.body, {
+        delimiters: [
+          {left: "$$", right: "$$", display: true},
+          {left: "$", right: "$", display: false}
+        ]
+      });
+    });
+  </script>
+</body>
+</html>
