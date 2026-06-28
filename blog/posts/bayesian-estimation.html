@@ -213,18 +213,18 @@ $$x_k = \theta_k = \begin{bmatrix} \theta_1 \\ \theta_2 \end{bmatrix}$$</p>
 $$x_k = I \cdot x_{k-1} + \mathbf{0}$$
 This gives us:</p>
 <ul>
-<li><strong>State Transition Matrix $A$:</strong> $A = I = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}$. This is coded as <code>A = np.eye(2)</code>.</li>
+<li><strong>State Transition Matrix $A$:</strong> $A = I = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$. This is coded as <code>A = np.eye(2)</code>.</li>
 <li><strong>Process Noise $w_k$:</strong> The process noise is zero, $w_k = \mathbf{0}$.</li>
-<li><strong>Process Noise Covariance $Q$:</strong> $Q = \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 0 \end{bmatrix}$. This tells the filter the parameters are constant and do not "drift."</li>
+<li><strong>Process Noise Covariance $Q$:</strong> $Q = \begin{bmatrix} 0 & 0 \\ 0 & 0 \end{bmatrix}$. This tells the filter the parameters are constant and do not "drift."</li>
 </ul>
 <h3 id="observation-model">Observation Model ($C_k$, $R$) <a class="anchor-link" href="#observation-model">#</a></h3><p>The "observation" $y_k$ is the scalar output from the original system. We must relate this observation to our state vector $x_k$.</p>
 <p>The original system is:
 $$y_k = 0.8y_{k-1} + 0.1y_{k-2} + w_k$$
 We can rewrite this in terms of our unknown state $x_k = [\theta_1, \theta_2]^T$:
-$$y_k = \begin{bmatrix} y_{k-1} &amp; y_{k-2} \end{bmatrix} \begin{bmatrix} \theta_1 \\ \theta_2 \end{bmatrix} + w_k$$
+$$y_k = \begin{bmatrix} y_{k-1} & y_{k-2} \end{bmatrix} \begin{bmatrix} \theta_1 \\ \theta_2 \end{bmatrix} + w_k$$
 This perfectly matches the filter's observation equation $y_k = C_k x_k + v_k$.</p>
 <ul>
-<li><strong>Observation Matrix $C_k$:</strong> $C_k = \begin{bmatrix} y_{k-1} &amp; y_{k-2} \end{bmatrix}$. This is a <em>time-varying</em> matrix because it depends on the previous observations. This is coded as <code>def C(k): ...</code>.</li>
+<li><strong>Observation Matrix $C_k$:</strong> $C_k = \begin{bmatrix} y_{k-1} & y_{k-2} \end{bmatrix}$. This is a <em>time-varying</em> matrix because it depends on the previous observations. This is coded as <code>def C(k): ...</code>.</li>
 <li><strong>Measurement Noise $v_k$:</strong> The filter's measurement noise $v_k$ is simply the original system's noise, $w_k$.</li>
 <li><strong>Measurement Noise Covariance $R$:</strong> Since $w_k \sim \mathcal{N}(0, 1)$, the covariance $R$ is the scalar $R = 1$. This is coded as <code>R = 1</code>.</li>
 </ul>
@@ -760,8 +760,8 @@ def calculate_pdf_based_matrices(N, A, G, w, C, f, v):
     B = np.zeros((N,N))
     for i in range(N):
         for j in range(N):
-            P[i,j] = norm.pdf(S[j],A(k)*S[i],1)            # True P(x_k+1 = j | x_k = i) ~ N(0.9x_k,1 ; x_k+1)
-            B[i,j] = norm.pdf(S[j],f(S[i]),1)        # True P(y_k = j | x_k = i) ~ N(sin(x_k),1 ; y_k)
+            P[i,j] = norm.pdf(S[j],A(k)*S[i],1)            # True P(x_k+1 = j \mid x_k = i) ~ N(0.9x_k,1 ; x_k+1)
+            B[i,j] = norm.pdf(S[j],f(S[i]),1)        # True P(y_k = j \mid x_k = i) ~ N(sin(x_k),1 ; y_k)
 
     # Normalize rows to sum to 1
     P /= P.sum(axis=1, keepdims=True)
@@ -1224,7 +1224,7 @@ $$</p>
     beta  = np.zeros((N, K+1))
     gamma_i = np.zeros((N, K+1))
     gamma = np.zeros((N, N, K))
-    b_k = np.zeros((N, K+1))   # P(y_k | x_k = j)
+    b_k = np.zeros((N, K+1))   # P(y_k \mid x_k = j)
 
     # Compute emission probabilities using current sigma_sq and current q
     if sigma_sq &lt;= 0: sigma_sq = 1e-8
@@ -1488,9 +1488,9 @@ $$</p>
 $$
 P_{\text{true}} =
 \begin{pmatrix}
-0.8 &amp; 0.1 &amp; 0.1 \\
-0.1 &amp; 0.8 &amp; 0.1 \\
-0.1 &amp; 0.1 &amp; 0.8
+0.8 & 0.1 & 0.1 \\
+0.1 & 0.8 & 0.1 \\
+0.1 & 0.1 & 0.8
 \end{pmatrix},
 $$</p>
 <p>state–dependent means</p>
@@ -1645,7 +1645,7 @@ plt.show()
 
     
     alpha = np.zeros((N,K+1))
-    b_k = np.zeros((N, K+1))      # P(y_k | x_k = j)
+    b_k = np.zeros((N, K+1))      # P(y_k \mid x_k = j)
     # Assume uniform initial state probability
     pi_0 = np.ones(N) / N
 
@@ -1813,40 +1813,40 @@ Maximum Log-Likelihood Value from EM: -10236.603409415206
 <h2 id="question-4">Question 4 <a class="anchor-link" href="#question-4">#</a></h2><p>Consider the model
 $$y_k = A \sin(0.01k + \phi) + x_k + w_k$$
 Suppose $x_k$ is a 2 state Markov chain with state levels 1 and 2. Assume
-$w_k ∼ \mathcal{N}(0, 1)$.
+$w_k \sim \mathcal{N}(0, 1)$.
 You only observe $y_1$, $y_2$, . . .. Derive the EM algorithm to estimate
 amplitude A, phase $\phi$ and the transition matrix of the Markov chain. You should compute and plot the log likelihood at each iteration and check that it is
 increasing.</p>
 
 
 <h3 id="e-step">E-Step <a class="anchor-link" href="#e-step">#</a></h3><p>First we can define our model in terms of the noise's distribution.
-\begin{align*}
-    y_k &amp;= A \sin(0.01k + \phi) + x_k + w_k \\
-    P(x_k | x_{k-1}) &amp;= P \text{ matrix} \\
-    P(y_k | x_k) &amp;= P_W(y_k - x_k - A \sin(0.01k + \phi)) \sim \mathcal{N}(x_k + A \sin(0.01k + \phi), 1)
-\end{align*}</p>
+$$\begin{aligned}
+    y_k &= A \sin(0.01k + \phi) + x_k + w_k \\
+    P(x_k \mid x_{k-1}) &= P \text{ matrix} \\
+    P(y_k \mid x_k) &= P_W(y_k - x_k - A \sin(0.01k + \phi)) \sim \mathcal{N}(x_k + A \sin(0.01k + \phi), 1)
+\end{aligned}$$</p>
 <p>Then, we need to compute the Log-Likelihood function.
-\begin{align*}
-    \ln p(Y_N, x_N | \theta) &amp;= \ln \prod_{k=1}^N P(y_k | x_k) P(x_k | x_{k-1}) \\
-    &amp;= \sum_{k=1}^N \ln p(y_k | x_k) + \sum_{k=1}^N \ln P(x_k | x_{k-1}) \\
-    &amp;= \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i) \ln P(y_k | x_k = i) + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i, x_{k+1} = j) \ln P(x_{k+1} = j | x_k = i) \\
-    &amp;= \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i) \left( \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right) \\
-    &amp;\quad + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i, x_{k+1} = j) \ln P_{ij}
-\end{align*}</p>
+$$\begin{aligned}
+    \ln p(Y_N, x_N \mid \theta) &= \ln \prod_{k=1}^N P(y_k \mid x_k) P(x_k \mid x_{k-1}) \\
+    &= \sum_{k=1}^N \ln p(y_k \mid x_k) + \sum_{k=1}^N \ln P(x_k \mid x_{k-1}) \\
+    &= \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i) \ln P(y_k \mid x_k = i) + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i, x_{k+1} = j) \ln P(x_{k+1} = j \mid x_k = i) \\
+    &= \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i) \left( \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right) \\
+    &\quad + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i, x_{k+1} = j) \ln P_{ij}
+\end{aligned}$$</p>
 <p>Next, we should calculate the Q-function using conditional expectations.
-\begin{align*}
-    Q(\theta | \theta^{(I)}) &amp;= E \left[ \ln p(Y_N, x_N | \theta) \mid Y_N, \theta^{(I)} \right] \qquad \theta = [P_{ij}, A, \phi] \\
-    &amp;= \sum_{i=1}^2 \sum_{k=1}^N E \left[ \mathbb{I}(x_k = i) \left( \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right) \Bigg| Y_N, \theta^{(I)} \right] \\
-    &amp;\quad + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N E \left[ \mathbb{I}(x_k = i, x_{k+1} = j) \ln P_{ij} \mid Y_N, \theta^{(I)} \right]
-\end{align*}</p>
+$$\begin{aligned}
+    Q(\theta \mid \theta^{(I)}) &= E \left[ \ln p(Y_N, x_N \mid \theta) \mid Y_N, \theta^{(I)} \right] \qquad \theta = [P_{ij}, A, \phi] \\
+    &= \sum_{i=1}^2 \sum_{k=1}^N E \left[ \mathbb{I}(x_k = i) \left( \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right) \Bigg\vert Y_N, \theta^{(I)} \right] \\
+    &\quad + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N E \left[ \mathbb{I}(x_k = i, x_{k+1} = j) \ln P_{ij} \mid Y_N, \theta^{(I)} \right]
+\end{aligned}$$</p>
 <p>Note, we can write this in terms of a smoother $\gamma$:
-\begin{align*}
-    E[\mathbb{I}(x_k = i) | Y_N, \theta^{(I)}] &amp;= P(x_k = i | Y_N, \theta^{(I)}) = \gamma_k^{\theta^{(I)}}(i) \\
-    E[\mathbb{I}(x_k = i, x_{k+1} = j) | Y_N, \theta^{(I)}] &amp;= P(x_k = i, x_{k+1} = j | Y_N, \theta^{(I)}) = \gamma_k^{\theta^{(I)}}(i, j)
-\end{align*}</p>
+$$\begin{aligned}
+    E[\mathbb{I}(x_k = i) \mid Y_N, \theta^{(I)}] &= P(x_k = i \mid Y_N, \theta^{(I)}) = \gamma_k^{\theta^{(I)}}(i) \\
+    E[\mathbb{I}(x_k = i, x_{k+1} = j) \mid Y_N, \theta^{(I)}] &= P(x_k = i, x_{k+1} = j \mid Y_N, \theta^{(I)}) = \gamma_k^{\theta^{(I)}}(i, j)
+\end{aligned}$$</p>
 <p>Thus, our final result for our auxilary function is:
 $$
-Q(\theta | \theta^{(I)}) = \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{\theta^{(I)}}(i) \left[ \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right] + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{\theta^{(I)}}(i, j) \ln P_{ij}
+Q(\theta \mid \theta^{(I)}) = \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{\theta^{(I)}}(i) \left[ \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right] + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{\theta^{(I)}}(i, j) \ln P_{ij}
 $$</p>
 
 
@@ -1864,17 +1864,17 @@ P^{(I+1)}_{ij}
 $$</p>
 <p>Then take the derivative w.r.t $A$:
 $$
-\frac{\partial Q(\theta | \theta^{(I)})}{\partial A} = 0
+\frac{\partial Q(\theta \mid \theta^{(I)})}{\partial A} = 0
 $$
 Recall that the term dependent on $A$ inside the Q-function is proportional to the squared error. Using the Chain Rule:
-\begin{align*}
-    \frac{\partial Q}{\partial A} &amp;= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \frac{\partial}{\partial A} \left[ -\frac{1}{2} (y_k - i - A \sin(0.01k + \phi))^2 \right] \\
-    &amp;= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i - A \sin(0.01k + \phi)) \cdot \sin(0.01k + \phi) = 0
-\end{align*}
+$$\begin{aligned}
+    \frac{\partial Q}{\partial A} &= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \frac{\partial}{\partial A} \left[ -\frac{1}{2} (y_k - i - A \sin(0.01k + \phi))^2 \right] \\
+    &= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i - A \sin(0.01k + \phi)) \cdot \sin(0.01k + \phi) = 0
+\end{aligned}$$
 Rearranging to isolate $A$:
-\begin{align*}
-    \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i) \sin(0.01k + \phi) &amp;= A \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \sin^2(0.01k + \phi)
-\end{align*}
+$$\begin{aligned}
+    \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i) \sin(0.01k + \phi) &= A \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \sin^2(0.01k + \phi)
+\end{aligned}$$
 Thus, the update for $A$ is:
 $$
 \hat{A} = \frac{\sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i) \sin(0.01k + \phi)}{\sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \sin^2(0.01k + \phi)}
@@ -1882,11 +1882,11 @@ $$
 Note that this update for A depends on $\phi$. Thus, we will be using a step EM algorithm where we update our parameters one at a time.</p>
 <p>Next take the derivative w.r.t $\phi$:
 $$
-\frac{\partial Q(\theta | \theta^{(I)})}{\partial \phi} = 0
+\frac{\partial Q(\theta \mid \theta^{(I)})}{\partial \phi} = 0
 $$</p>
-<p>\begin{align*}
-    \frac{\partial Q}{\partial \phi} &amp;= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i - A \sin(0.01k + \phi)) \cdot (A \cos(0.01k + \phi)) = 0
-\end{align*}</p>
+<p>$$\begin{aligned}
+    \frac{\partial Q}{\partial \phi} &= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i - A \sin(0.01k + \phi)) \cdot (A \cos(0.01k + \phi)) = 0
+\end{aligned}$$</p>
 <p>This results in a transcendental equation:
 $$
 \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \left[ (y_k - i) \cos(0.01k + \phi) - A \sin(0.01k + \phi)\cos(0.01k + \phi) \right] = 0
@@ -1967,7 +1967,7 @@ def plot_em_convergence(P_est, A_est, phi_est, P_true, A_true, phi_true):
   </div>
 </details>
 
-<p>Next, we must redefine our smoother function to change our emission probabilties (P(y_k | x_k=j)) to match our new problem.</p>
+<p>Next, we must redefine our smoother function to change our emission probabilties (P(y_k \mid x_k=j)) to match our new problem.</p>
 
 <details class="code-details">
   <summary>View Source Code</summary>
@@ -1993,7 +1993,7 @@ def plot_em_convergence(P_est, A_est, phi_est, P_true, A_true, phi_true):
     beta  = np.zeros((N, K+1))
     gamma_i = np.zeros((N, K+1))
     gamma = np.zeros((N, N, K))
-    b_k = np.zeros((N, K+1))   # P(y_k | x_k = j)
+    b_k = np.zeros((N, K+1))   # P(y_k \mid x_k = j)
 
     # Compute emission probabilities using current A,phi  #### MAIN DIFFERENCE
     sigma_sq = 1
@@ -2130,9 +2130,9 @@ def plot_em_convergence(P_est, A_est, phi_est, P_true, A_true, phi_true):
 </details>
 
 <h3 id="running-the-em-algorithm-for-question-4">Running the EM Algorithm for Question 4 <a class="anchor-link" href="#running-the-em-algorithm-for-question-4">#</a></h3><p>Below we run an EM algorithm on the arbitarily chosen system,</p>
-<p>\begin{align*}
-P &amp;= \begin{bmatrix} 0.8 &amp; 0.2 \\ 0.2 &amp; 0.8\end{bmatrix} \quad &amp;&amp;A=2 \quad &amp;&amp;&amp;\phi=2.34
-\end{align*}
+<p>$$\begin{aligned}
+P &= \begin{bmatrix} 0.8 & 0.2 \\ 0.2 & 0.8\end{bmatrix} \quad &&A=2 \quad &&&\phi=2.34
+\end{aligned}$$
 where $P$ is the transition matrix for our two state signal $x_k$ and our observations come from,
 $$y_k= A\sin(0.01k+\phi)+x_k+w_k.$$</p>
 <p>Note, we use a large $K$ here, that is run the trajectorys for a longer time, to allow our $P$ matrix to more accurately account for jumps between states. Additionally, this helps in the convergence of $A$ and $\phi$ as more data in our $\gamma$ smoother generally helps with prediction.</p>
