@@ -499,7 +499,7 @@ for k in range(K):
 $$
 p(x_{k+1} \mid x_k), \qquad p(y_k \mid x_k).
 $$</p>
-<p>$\textbf{Particle propagation:}$ Sample $L$ particles
+<p><strong>Particle propagation:</strong> Sample $L$ particles
 $$
 \tilde{x}_k^{(i)} \sim p(x_k \mid x_{k-1}^{(i)}),
 $$
@@ -507,18 +507,18 @@ and augment the particles with a new step. This is done easily in the code as ju
 $$
 \tilde{x}_{0:k}^{(i)} = \left( x_{0:k-1}^{(i)}, \tilde{x}_k^{(i)} \right).
 $$</p>
-<p>$\textbf{Importance weight update:}$ Since this is a bootstrap filter we get that the importance weight update is just multiplying by the likelihood!
+<p><strong>Importance weight update:</strong> Since this is a bootstrap filter we get that the importance weight update is just multiplying by the likelihood!
 $$
 w_k(\tilde{x}_{0:k}^{(i)}) \propto 
 \frac{p(y_k \mid \tilde{x}_k^{(i)}) \, p(\tilde{x}_k^{(i)} \mid x_{k-1}^{(i)})}
      {p(\tilde{x}_k^{(i)} \mid x_{k-1}^{(i)})} \, w_{k-1}(x_{0:k-1}^{(i)}) 
 = p(y_k \mid \tilde{x}_k^{(i)}) \, w_{k-1}(x_{0:k-1}^{(i)}).
 $$</p>
-<p>$\textbf{Normalized weight:}$ We want the weights normalized so that we can sample new particles from the weight distribution
+<p><strong>Normalized weight:</strong> We want the weights normalized so that we can sample new particles from the weight distribution
 $$
 \tilde{\omega}_k^{(i)} = \frac{w_k(\tilde{x}_{0:k}^{(i)})}{\sum_{j=1}^N w_k(\tilde{x}_{0:k}^{(j)})}.
 $$</p>
-<p>$\textbf{Selection step:}$ We use an Effective Sample Size (ESS) method to determine when to resample. The ESS is defined as
+<p><strong>Selection step:</strong> We use an Effective Sample Size (ESS) method to determine when to resample. The ESS is defined as
 $$
 \text{ESS}_k = \frac{1}{\sum_{i=1}^N (\tilde{\omega}_k^{(i)})^2}.
 $$
@@ -530,8 +530,8 @@ and then set
 $$
 x_k^{(i)} = \tilde{x}_k^{(I^{(i)})}, \qquad i = 1, \dots, N.
 $$</p>
-<p>$\textbf{Estimation:}$ Finally, we calculate the MAP estimate as,</p>
-<p>$$\hat{x}_k^{MAP} = x_k^{(i^*)} \quad\quad\quad i^{\star} = \argmax_i w_k^{(i)}</p>
+<p><strong>Estimation:</strong> Finally, we calculate the MAP estimate as,</p>
+<p>$$\hat{x}_k^{MAP} = x_k^{(i^*)} \quad\quad\quad i^{\star} = \operatorname*{argmax}_i w_k^{(i)}$$</p>
 
 
 <h3 id="particle-filter-functions">Particle Filter Functions <a class="anchor-link" href="#particle-filter-functions">#</a></h3>
@@ -1099,8 +1099,8 @@ plot_Q2_EKF(x_particles_simple, x_true_simple, y_simple, x_MAP_simple, resample_
 </div>
 
 <p>Below is our final graph of question 2. The main thing we want to point out is that overall, none of these filtering methods worked well on this nonlinear system. After testing many functions, we have determined the issue is with the use of an oscillatory $\sin$ function. As you can see, our filters track well with our observations in yellow. However, since $\sin$ is so oscillatory, along with the fact its on a scale similar to the noise, our observations often are nowhere near the true values.</p>
-<p>$\textbf{Thus, for most other linear or nonlinear systems tested, these implementations worked extremely well. Here, for sin, they do not.}$
-$\textbf{We believe this to be because of the oscillatory nature of sin and the fact the observations are often far apart from the true underlying state.}$</p>
+<p><strong>Thus, for most other linear or nonlinear systems tested, these implementations worked extremely well. Here, for sin, they do not.</strong>
+<strong>We believe this to be because of the oscillatory nature of sin and the fact the observations are often far apart from the true underlying state.</strong></p>
 
 <details class="code-details">
   <summary>View Source Code</summary>
@@ -2335,33 +2335,109 @@ phi_est:
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ---- TOC Active Section Tracking ----
-    const tocLinks = document.querySelectorAll('.toc-sidebar nav a, .toc-mobile-content nav a');
-    const sections = [];
-    tocLinks.forEach(link => {
-      const id = link.getAttribute('href').slice(1);
-      const el = document.getElementById(id);
-      if (el) sections.push({ id, el, link });
-    });
-
-    function updateActiveTOC() {
-      let current = '';
-      for (const s of sections) {
-        const rect = s.el.getBoundingClientRect();
-        if (rect.top <= 120) current = s.id;
-      }
+    // ---- Collapsible TOC Builder & Scroll Active Tracking ----
+    document.addEventListener('DOMContentLoaded', function() {
+      const tocLists = document.querySelectorAll('.toc-sidebar nav > ul, .toc-mobile-content nav > ul');
+      
+      tocLists.forEach(ul => {
+        const lis = Array.from(ul.children);
+        ul.innerHTML = '';
+        
+        let currentGroup = null;
+        let currentSublist = null;
+        
+        lis.forEach(li => {
+          if (li.classList.contains('toc-h2')) {
+            currentGroup = document.createElement('li');
+            currentGroup.className = 'toc-group';
+            
+            const wrapper = document.createElement('div');
+            wrapper.className = 'toc-h2-wrapper';
+            
+            const toggle = document.createElement('button');
+            toggle.className = 'toc-toggle-btn';
+            toggle.innerHTML = '▸'; // Collapsed by default
+            toggle.setAttribute('aria-label', 'Toggle section');
+            
+            const link = li.querySelector('a');
+            wrapper.appendChild(toggle);
+            wrapper.appendChild(link);
+            currentGroup.appendChild(wrapper);
+            
+            currentSublist = document.createElement('ul');
+            currentSublist.className = 'toc-sublist collapsed';
+            currentGroup.appendChild(currentSublist);
+            
+            ul.appendChild(currentGroup);
+            
+            toggle.addEventListener('click', (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              const isCollapsed = currentSublist.classList.toggle('collapsed');
+              toggle.innerHTML = isCollapsed ? '▸' : '▾';
+            });
+            
+            wrapper.addEventListener('click', (e) => {
+              if (e.target !== link) {
+                const isCollapsed = currentSublist.classList.toggle('collapsed');
+                toggle.innerHTML = isCollapsed ? '▸' : '▾';
+              }
+            });
+            
+          } else if (li.classList.contains('toc-h3') && currentSublist) {
+            currentSublist.appendChild(li);
+          } else {
+            ul.appendChild(li);
+          }
+        });
+        
+        // Hide toggle buttons for groups with no sub-items
+        ul.querySelectorAll('.toc-group').forEach(group => {
+          const sublist = group.querySelector('.toc-sublist');
+          const toggle = group.querySelector('.toc-toggle-btn');
+          if (sublist && sublist.children.length === 0) {
+            toggle.style.visibility = 'hidden';
+            sublist.remove();
+          }
+        });
+      });
+      
+      // Set up scroll active section tracking
+      const tocLinks = document.querySelectorAll('.toc-sidebar nav a, .toc-mobile-content nav a');
+      const sections = [];
       tocLinks.forEach(link => {
         const id = link.getAttribute('href').slice(1);
-        if (id === current) {
-          link.classList.add('active');
-        } else {
-          link.classList.remove('active');
-        }
+        const el = document.getElementById(id);
+        if (el) sections.push({ id, el, link });
       });
-    }
 
-    window.addEventListener('scroll', updateActiveTOC);
-    updateActiveTOC();
+      function updateActiveTOC() {
+        let current = '';
+        for (const s of sections) {
+          const rect = s.el.getBoundingClientRect();
+          if (rect.top <= 120) current = s.id;
+        }
+        tocLinks.forEach(link => {
+          const id = link.getAttribute('href').slice(1);
+          if (id === current) {
+            link.classList.add('active');
+            
+            // Auto-expand parent sublist if it's collapsed
+            const sublist = link.closest('.toc-sublist');
+            if (sublist && sublist.classList.contains('collapsed')) {
+              sublist.classList.remove('collapsed');
+              const toggle = sublist.previousElementSibling.querySelector('.toc-toggle-btn');
+              if (toggle) toggle.innerHTML = '▾';
+            }
+          } else {
+            link.classList.remove('active');
+          }
+        });
+      }
+
+      window.addEventListener('scroll', updateActiveTOC);
+      updateActiveTOC();
+    });
 
     // ---- Mobile TOC Toggle ----
     const tocToggle = document.getElementById('toc-mobile-toggle');
