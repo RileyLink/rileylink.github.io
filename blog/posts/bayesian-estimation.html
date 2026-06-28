@@ -2335,7 +2335,7 @@ phi_est:
       window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
-    // ---- Collapsible TOC Builder & Scroll Active Tracking ----
+        // ---- Collapsible TOC Builder & Scroll Active Tracking ----
     document.addEventListener('DOMContentLoaded', function() {
       const tocLists = document.querySelectorAll('.toc-sidebar nav > ul, .toc-mobile-content nav > ul');
       
@@ -2356,7 +2356,7 @@ phi_est:
             
             const toggle = document.createElement('button');
             toggle.className = 'toc-toggle-btn';
-            toggle.innerHTML = '▸'; // Collapsed by default
+            toggle.innerHTML = '▾'; // Expanded by default
             toggle.setAttribute('aria-label', 'Toggle section');
             
             const link = li.querySelector('a');
@@ -2365,22 +2365,31 @@ phi_est:
             currentGroup.appendChild(wrapper);
             
             currentSublist = document.createElement('ul');
-            currentSublist.className = 'toc-sublist collapsed';
+            currentSublist.className = 'toc-sublist'; // Expanded by default
             currentGroup.appendChild(currentSublist);
             
             ul.appendChild(currentGroup);
             
+            // Fix scope issue: find sublist and toggle relative to clicked element
             toggle.addEventListener('click', (e) => {
               e.stopPropagation();
               e.preventDefault();
-              const isCollapsed = currentSublist.classList.toggle('collapsed');
-              toggle.innerHTML = isCollapsed ? '▸' : '▾';
+              const targetGroup = toggle.closest('.toc-group');
+              const sublist = targetGroup ? targetGroup.querySelector('.toc-sublist') : null;
+              if (sublist) {
+                const isCollapsed = sublist.classList.toggle('collapsed');
+                toggle.innerHTML = isCollapsed ? '▸' : '▾';
+              }
             });
             
             wrapper.addEventListener('click', (e) => {
               if (e.target !== link) {
-                const isCollapsed = currentSublist.classList.toggle('collapsed');
-                toggle.innerHTML = isCollapsed ? '▸' : '▾';
+                const targetGroup = wrapper.closest('.toc-group');
+                const sublist = targetGroup ? targetGroup.querySelector('.toc-sublist') : null;
+                if (sublist) {
+                  const isCollapsed = sublist.classList.toggle('collapsed');
+                  toggle.innerHTML = isCollapsed ? '▸' : '▾';
+                }
               }
             });
             
@@ -2422,11 +2431,12 @@ phi_est:
           if (id === current) {
             link.classList.add('active');
             
-            // Auto-expand parent sublist if it's collapsed
+            // Auto-expand parent sublist if it's collapsed (only on scroll transition)
             const sublist = link.closest('.toc-sublist');
             if (sublist && sublist.classList.contains('collapsed')) {
               sublist.classList.remove('collapsed');
-              const toggle = sublist.previousElementSibling.querySelector('.toc-toggle-btn');
+              const group = sublist.closest('.toc-group');
+              const toggle = group ? group.querySelector('.toc-toggle-btn') : null;
               if (toggle) toggle.innerHTML = '▾';
             }
           } else {
@@ -2439,7 +2449,7 @@ phi_est:
       updateActiveTOC();
     });
 
-    // ---- Mobile TOC Toggle ----
+// ---- Mobile TOC Toggle ----
     const tocToggle = document.getElementById('toc-mobile-toggle');
     const tocMobileContent = document.getElementById('toc-mobile-content');
     if (tocToggle && tocMobileContent) {

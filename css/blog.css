@@ -761,21 +761,23 @@ body {
 .toc-h2-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
   padding: 0.25rem 0;
 }
 
 .toc-toggle-btn {
-  background: transparent;
-  border: none;
-  color: #9ca3af;
-  font-size: 0.75rem;
-  cursor: pointer;
-  padding: 2px 6px;
+  width: 20px;
+  height: 20px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease, transform 0.2s ease;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: #9ca3af;
+  font-size: 0.7rem;
+  padding: 0;
+  margin-right: 4px;
+  transition: color 0.2s ease;
   user-select: none;
 }
 
@@ -813,10 +815,10 @@ body {
 
 .toc-sublist {
   list-style: none;
-  padding-left: 0;
+  padding-left: 16px;
   margin: 0;
   border-left: 1px solid #e5e5e5;
-  margin-left: 14px; /* aligns with toggle button */
+  margin-left: 9px; /* aligns with H2 toggle line */
   transition: max-height 0.3s ease, opacity 0.3s ease;
 }
 
