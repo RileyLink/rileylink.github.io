@@ -143,6 +143,8 @@
 
       <div class="article-body">
 
+
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -150,24 +152,28 @@
     <pre><code class="language-python">import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
-from scipy.optimize import brentq, fsolve, minimize, root_scalar</code></pre>
+from scipy.optimize import brentq, fsolve, minimize, root_scalar
+</code></pre>
   </div>
 </details>
-<h2 id="question-1">Question 1 <a href="#question-1" class="anchor-link">#</a></h2>
-<p>Consider the stochastic system: $$y_k = 0.8y_{k-1} + 0.1y_{k-2} + w_k, \quad w_k \sim \mathcal{N}(0, 1)$$ Given the observation sequence $\{y_k\}$, show how a Kalman filter can be used to estimate the parameters $\theta_1 = 0.8$ and $\theta_2 = 0.1$. You should also simulate the Kalman filter for this case.</p>
-<h3 id="2-simulating-the-system-data">2. Simulating the System Data <a href="#2-simulating-the-system-data" class="anchor-link">#</a></h3>
-<p>Before we can filter, we must generate an observation sequence $\{y_k\}$. We simulate the system defined by the problem statement for $T$ timesteps.</p>
-<p>The true system is:</p>
-<p>$$y_k = \theta_1 y_{k-1} + \theta_2 y_{k-2} + w_k$$</p>
-<p>where the true parameters are $\theta_1 = 0.8$ and $\theta_2 = 0.1$, and the process noise is $w_k \sim \mathcal{N}(0, 1)$.</p>
-<p></p>
+
+<h2 id="question-1">Question 1 <a class="anchor-link" href="#question-1">#</a></h2><p>Consider the stochastic system:
+$$y_k = 0.8y_{k-1} + 0.1y_{k-2} + w_k, \quad w_k \sim \mathcal{N}(0, 1)$$
+Given the observation sequence $\{y_k\}$, show how a Kalman filter can be used to estimate the parameters $\theta_1 = 0.8$ and $\theta_2 = 0.1$. You should also simulate the Kalman filter for this case.</p>
+
+
+<h3 id="2-simulating-the-system-data">2. Simulating the System Data <a class="anchor-link" href="#2-simulating-the-system-data">#</a></h3><p>Before we can filter, we must generate an observation sequence $\{y_k\}$. We simulate the system defined by the problem statement for $T$ timesteps.</p>
+<p>The true system is:
+$$y_k = \theta_1 y_{k-1} + \theta_2 y_{k-2} + w_k$$
+where the true parameters are $\theta_1 = 0.8$ and $\theta_2 = 0.1$, and the process noise is $w_k \sim \mathcal{N}(0, 1)$.</p>
 <p>We will generate a sequence $y_0, y_1, \ldots, y_{T-1}$ by iterating this equation. In our simulation code, the <code>observe</code> function will act as this data generator. For this simulation:</p>
 <ul>
-  <li>The "true state" is the constant vector $\theta_{\text{true}} = [0.8, 0.1]^T$.</li>
-  <li>The dynamic "C matrix" for the simulation is $C_k = [y_{k-1}, y_{k-2}]$.</li>
-  <li>The "measurement noise" for the simulation is $v_k = w_k \sim \mathcal{N}(0, 1)$.</li>
-  <li>Thus, the simulation computes $y_k = C_k \theta_{\text{true}} + v_k$ at each step, using the previously generated $y$ values.</li>
+<li>The "true state" is the constant vector $\theta_{\text{true}} = [0.8, 0.1]^T$.</li>
+<li>The dynamic "C matrix" for the simulation is $C_k = [y_{k-1}, y_{k-2}]$.</li>
+<li>The "measurement noise" for the simulation is $v_k = w_k \sim \mathcal{N}(0, 1)$.</li>
+<li>Thus, the simulation computes $y_k = C_k \theta_{\text{true}} + v_k$ at each step, using the previously generated $y$ values.</li>
 </ul>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -191,26 +197,38 @@ def observe(C, x, R, k):
     else:
         v = np.random.multivariate_normal(np.zeros(R.shape[0]), R)
         y = (C(k) @ x + v).reshape(-1)
-        return y.item() if y.size == 1 else y</code></pre>
+        return y.item() if y.size == 1 else y
+</code></pre>
   </div>
 </details>
-<h3 id="3-formulating-the-kalman-filter-for-parameter-estimation">3. Formulating the Kalman Filter for Parameter Estimation <a href="#3-formulating-the-kalman-filter-for-parameter-estimation" class="anchor-link">#</a></h3>
-<p>To estimate the parameters $\theta_1$ and $\theta_2$, we must re-frame the problem into the standard state-space form required by the Kalman filter.</p>
-<p>The standard Kalman filter model is: $$x_k = A x_{k-1} + w_{k-1} \quad (\text{State Equation})$$ $$y_k = C_k x_k + v_k \quad (\text{Observation Equation})$$</p>
+
+<h3 id="3-formulating-the-kalman-filter-for-parameter-estimation">3. Formulating the Kalman Filter for Parameter Estimation <a class="anchor-link" href="#3-formulating-the-kalman-filter-for-parameter-estimation">#</a></h3><p>To estimate the parameters $\theta_1$ and $\theta_2$, we must re-frame the problem into the standard state-space form required by the Kalman filter.</p>
+<p>The standard Kalman filter model is:
+$$x_k = A x_{k-1} + w_{k-1} \quad (\text{State Equation})$$
+$$y_k = C_k x_k + v_k \quad (\text{Observation Equation})$$</p>
 <p>We define our filter components as follows:</p>
-<p>This gives us:</p>
+<h3 id="state-vector">State Vector ($x_k$) <a class="anchor-link" href="#state-vector">#</a></h3><p>The "state" we want to estimate is the vector of the unknown, <em>constant</em> parameters.
+$$x_k = \theta_k = \begin{bmatrix} \theta_1 \\ \theta_2 \end{bmatrix}$$</p>
+<h3 id="state-dynamics">State Dynamics <a class="anchor-link" href="#state-dynamics">#</a></h3><p>Since the parameters $\theta_1$ and $\theta_2$ are constants, our model for their dynamics is static: the state at time $k$ is the same as the state at time $k-1$.
+$$x_k = I \cdot x_{k-1} + \mathbf{0}$$
+This gives us:</p>
 <ul>
-  <li><strong>State Transition Matrix $A$:</strong> $A = I = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix}$. This is coded as <code>A = np.eye(2)</code>.</li>
-  <li><strong>Process Noise $w_k$:</strong> The process noise is zero, $w_k = \mathbf{0}$.</li>
-  <li><strong>Process Noise Covariance $Q$:</strong> $Q = \begin{bmatrix} 0 & 0 \\ 0 & 0 \end{bmatrix}$. This tells the filter the parameters are constant and do not "drift."</li>
+<li><strong>State Transition Matrix $A$:</strong> $A = I = \begin{bmatrix} 1 &amp; 0 \\ 0 &amp; 1 \end{bmatrix}$. This is coded as <code>A = np.eye(2)</code>.</li>
+<li><strong>Process Noise $w_k$:</strong> The process noise is zero, $w_k = \mathbf{0}$.</li>
+<li><strong>Process Noise Covariance $Q$:</strong> $Q = \begin{bmatrix} 0 &amp; 0 \\ 0 &amp; 0 \end{bmatrix}$. This tells the filter the parameters are constant and do not "drift."</li>
 </ul>
-<p>The original system is: $$y_k = 0.8y_{k-1} + 0.1y_{k-2} + w_k$$ We can rewrite this in terms of our unknown state $x_k = [\theta_1, \theta_2]^T$: $$y_k = \begin{bmatrix} y_{k-1} & y_{k-2} \end{bmatrix} \begin{bmatrix} \theta_1 \\ \theta_2 \end{bmatrix} + w_k$$</p>
-<p>This perfectly matches the filter's observation equation $y_k = C_k x_k + v_k$.</p>
+<h3 id="observation-model">Observation Model ($C_k$, $R$) <a class="anchor-link" href="#observation-model">#</a></h3><p>The "observation" $y_k$ is the scalar output from the original system. We must relate this observation to our state vector $x_k$.</p>
+<p>The original system is:
+$$y_k = 0.8y_{k-1} + 0.1y_{k-2} + w_k$$
+We can rewrite this in terms of our unknown state $x_k = [\theta_1, \theta_2]^T$:
+$$y_k = \begin{bmatrix} y_{k-1} &amp; y_{k-2} \end{bmatrix} \begin{bmatrix} \theta_1 \\ \theta_2 \end{bmatrix} + w_k$$
+This perfectly matches the filter's observation equation $y_k = C_k x_k + v_k$.</p>
 <ul>
-  <li><strong>Observation Matrix $C_k$:</strong> $C_k = \begin{bmatrix} y_{k-1} & y_{k-2} \end{bmatrix}$. This is a <em>time-varying</em> matrix because it depends on the previous observations. This is coded as <code>def C(k): ...</code>.</li>
-  <li><strong>Measurement Noise $v_k$:</strong> The filter's measurement noise $v_k$ is simply the original system's noise, $w_k$.</li>
-  <li><strong>Measurement Noise Covariance $R$:</strong> Since $w_k \sim \mathcal{N}(0, 1)$, the covariance $R$ is the scalar $R = 1$. This is coded as <code>R = 1</code>.</li>
+<li><strong>Observation Matrix $C_k$:</strong> $C_k = \begin{bmatrix} y_{k-1} &amp; y_{k-2} \end{bmatrix}$. This is a <em>time-varying</em> matrix because it depends on the previous observations. This is coded as <code>def C(k): ...</code>.</li>
+<li><strong>Measurement Noise $v_k$:</strong> The filter's measurement noise $v_k$ is simply the original system's noise, $w_k$.</li>
+<li><strong>Measurement Noise Covariance $R$:</strong> Since $w_k \sim \mathcal{N}(0, 1)$, the covariance $R$ is the scalar $R = 1$. This is coded as <code>R = 1</code>.</li>
 </ul>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -262,7 +280,8 @@ def observe(C, x, R, k):
         x_pred = x_filt
         Sigma_pred = Sigma_filt
 
-    return x_est, Sigma_est</code></pre>
+    return x_est, Sigma_est
+</code></pre>
   </div>
 </details>
 <details class="code-details">
@@ -296,23 +315,22 @@ x_est, Sigma_est = KalmanFilter(y_obs, A, C, Q, R, x0, Sigma0)
 </code></pre>
   </div>
 </details>
-<h3 id="4-analysis-of-simulation-results">4. Analysis of Simulation Results <a href="#4-analysis-of-simulation-results" class="anchor-link">#</a></h3>
-<p>The plots generated from the simulation clearly demonstrate the Kalman filter's effectiveness in this parameter estimation problem.</p>
-<h3 id="estimate-convergence">Estimate Convergence <a href="#estimate-convergence" class="anchor-link">#</a></h3>
-<p>The first plot, "Kalman Filter Parameter Estimation," shows the estimated values $\hat{\theta}_1$ and $\hat{\theta}_2$ as a function of the time step $k$.</p>
+
+<h3 id="4-analysis-of-simulation-results">4. Analysis of Simulation Results <a class="anchor-link" href="#4-analysis-of-simulation-results">#</a></h3><p>The plots generated from the simulation clearly demonstrate the Kalman filter's effectiveness in this parameter estimation problem.</p>
+<h3 id="estimate-convergence">Estimate Convergence <a class="anchor-link" href="#estimate-convergence">#</a></h3><p>The first plot, "Kalman Filter Parameter Estimation," shows the estimated values $\hat{\theta}_1$ and $\hat{\theta}_2$ as a function of the time step $k$.</p>
 <ul>
-  <li>Both estimates begin at their initial (uninformed) guess of $0$.</li>
-  <li>As the filter processes more observations ($y_k$), the estimates quickly move toward their respective true values.</li>
-  <li>Despite the noisy data, the estimates <strong>stabilize very close to the true values</strong> ($\theta_1 = 0.8$ and $\theta_2 = 0.1$) after only about <strong>200 time steps</strong>.</li>
+<li>Both estimates begin at their initial (uninformed) guess of $0$.</li>
+<li>As the filter processes more observations ($y_k$), the estimates quickly move toward their respective true values.</li>
+<li>Despite the noisy data, the estimates <strong>stabilize very close to the true values</strong> ($\theta_1 = 0.8$ and $\theta_2 = 0.1$) after only about <strong>200 time steps</strong>.</li>
 </ul>
-<h3 id="variance-reduction">Variance Reduction <a href="#variance-reduction" class="anchor-link">#</a></h3>
-<p>The second plot, "Parameter Estimate Variance (Log Scale)," shows the filter's internal uncertainty about its estimates (specifically, the diagonal elements of the covariance matrix $\Sigma_k$).</p>
+<h3 id="variance-reduction">Variance Reduction <a class="anchor-link" href="#variance-reduction">#</a></h3><p>The second plot, "Parameter Estimate Variance (Log Scale)," shows the filter's internal uncertainty about its estimates (specifically, the diagonal elements of the covariance matrix $\Sigma_k$).</p>
 <ul>
-  <li>The plot uses a <strong>logarithmic scale</strong> for the y-axis.</li>
-  <li>The variance starts very high (our initial <code>Sigma0 = 100</code>), reflecting our initial uncertainty.</li>
-  <li>The variance then <strong>decreases exponentially fast</strong>, which appears as a near-straight line on this log-scale plot.</li>
-  <li>This rapid, exponential decrease in uncertainty is precisely why the parameter estimates in the first plot can converge and "lock on" to the true values so quickly. The filter becomes highly confident in its estimates after just a few hundred iterations.</li>
+<li>The plot uses a <strong>logarithmic scale</strong> for the y-axis.</li>
+<li>The variance starts very high (our initial <code>Sigma0 = 100</code>), reflecting our initial uncertainty.</li>
+<li>The variance then <strong>decreases exponentially fast</strong>, which appears as a near-straight line on this log-scale plot.</li>
+<li>This rapid, exponential decrease in uncertainty is precisely why the parameter estimates in the first plot can converge and "lock on" to the true values so quickly. The filter becomes highly confident in its estimates after just a few hundred iterations.</li>
 </ul>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -355,7 +373,8 @@ plt.legend()
 plt.grid(True)
 
 # Show the plots
-plt.show()</code></pre>
+plt.show()
+</code></pre>
   </div>
 </details>
 <div class="code-output-image">
@@ -366,16 +385,18 @@ plt.show()</code></pre>
   <img src="../images/ece7230/plot_2.png" alt="Plot Output" />
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
-<h2 id="question-2">Question 2 <a href="#question-2" class="anchor-link">#</a></h2>
-<p>Illustrate using simulation how the particle filter can be used to estimate the state of the following system:</p>
-$$
+
+<h2 id="question-2">Question 2 <a class="anchor-link" href="#question-2">#</a></h2><p>Illustrate using simulation how the particle filter can be used to estimate the state of the following system:</p>
+<p>$$
 x_{k+1} = 0.9 x_k + w_k,
 \qquad
 y_k = \sin(x_k) + v_k,
-$$
+$$</p>
 <p>where $w_k$ and $v_k$ are i.i.d. $\mathcal{N}(0,1)$ processes.</p>
-<h3 id="define-propagation-of-the-system">Define Propagation of the System <a href="#define-propagation-of-the-system" class="anchor-link">#</a></h3>
-<p>First, we define a prop_step function which will simulate one step of our system for $L$ particles.</p>
+
+
+<h3 id="define-propagation-of-the-system">Define Propagation of the System <a class="anchor-link" href="#define-propagation-of-the-system">#</a></h3><p>First, we define a prop_step function which will simulate one step of our system for $L$ particles.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -427,7 +448,8 @@ $$
     vk = v(k,L)          # shape (L,)
     y_next = Ck * f(x_next) + vk  # shape (L,)
 
-    return x_next, y_next</code></pre>
+    return x_next, y_next
+</code></pre>
   </div>
 </details>
 <details class="code-details">
@@ -468,24 +490,52 @@ x_true[0] = np.random.normal(0,1) # Initial random state
 for k in range(K):
     x_next, y_next = prop_step(k, x_true[k], 1, A, G, w, C, f, v)
     x_true[k+1] = x_next.item()
-    y[k+1] = y_next.item()</code></pre>
+    y[k+1] = y_next.item()
+</code></pre>
   </div>
 </details>
-<h3 id="run-a-bootstrap-particle-filter">Run a Bootstrap Particle Filter <a href="#run-a-bootstrap-particle-filter" class="anchor-link">#</a></h3>
-<p>Suppose the model is defined by $$ p(x_{k+1} \mid x_k), \qquad p(y_k \mid x_k). $$</p>
-<p>$\textbf{Particle propagation:}$ Sample $L$ particles $$ \tilde{x}_k^{(i)} \sim p(x_k \mid x_{k-1}^{(i)}), $$</p>
-<p>and augment the particles with a new step. This is done easily in the code as just appending the new observation. $$ \tilde{x}_{0:k}^{(i)} = \left( x_{0:k-1}^{(i)}, \tilde{x}_k^{(i)} \right). $$</p>
-<p>$\textbf{Importance weight update:}$ Since this is a bootstrap filter we get that the importance weight update is just multiplying by the likelihood! $$ w_k(\tilde{x}_{0:k}^{(i)}) \propto  \frac{p(y_k \mid \tilde{x}_k^{(i)}) \, p(\tilde{x}_k^{(i)} \mid x_{k-1}^{(i)})}      {p(\tilde{x}_k^{(i)} \mid x_{k-1}^{(i)})} \, w_{k-1}(x_{0:k-1}^{(i)})  = p(y_k \mid \tilde{x}_k^{(i)}) \, w_{k-1}(x_{0:k-1}^{(i)}). $$</p>
-<p>$\textbf{Normalized weight:}$ We want the weights normalized so that we can sample new particles from the weight distribution $$ \tilde{\omega}_k^{(i)} = \frac{w_k(\tilde{x}_{0:k}^{(i)})}{\sum_{j=1}^N w_k(\tilde{x}_{0:k}^{(j)})}. $$</p>
-<p>$\textbf{Selection step:}$ We use an Effective Sample Size (ESS) method to determine when to resample. The ESS is defined as $$ \text{ESS}_k = \frac{1}{\sum_{i=1}^N (\tilde{\omega}_k^{(i)})^2}. $$</p>
-<p>If $\text{ESS}_k$ falls below a threshold (e.g., $N/2$), we perform resampling:</p>
+
+<h3 id="run-a-bootstrap-particle-filter">Run a Bootstrap Particle Filter <a class="anchor-link" href="#run-a-bootstrap-particle-filter">#</a></h3><p>Suppose the model is defined by
 $$
+p(x_{k+1} \mid x_k), \qquad p(y_k \mid x_k).
+$$</p>
+<p>$\textbf{Particle propagation:}$ Sample $L$ particles
+$$
+\tilde{x}_k^{(i)} \sim p(x_k \mid x_{k-1}^{(i)}),
+$$
+and augment the particles with a new step. This is done easily in the code as just appending the new observation.
+$$
+\tilde{x}_{0:k}^{(i)} = \left( x_{0:k-1}^{(i)}, \tilde{x}_k^{(i)} \right).
+$$</p>
+<p>$\textbf{Importance weight update:}$ Since this is a bootstrap filter we get that the importance weight update is just multiplying by the likelihood!
+$$
+w_k(\tilde{x}_{0:k}^{(i)}) \propto 
+\frac{p(y_k \mid \tilde{x}_k^{(i)}) \, p(\tilde{x}_k^{(i)} \mid x_{k-1}^{(i)})}
+     {p(\tilde{x}_k^{(i)} \mid x_{k-1}^{(i)})} \, w_{k-1}(x_{0:k-1}^{(i)}) 
+= p(y_k \mid \tilde{x}_k^{(i)}) \, w_{k-1}(x_{0:k-1}^{(i)}).
+$$</p>
+<p>$\textbf{Normalized weight:}$ We want the weights normalized so that we can sample new particles from the weight distribution
+$$
+\tilde{\omega}_k^{(i)} = \frac{w_k(\tilde{x}_{0:k}^{(i)})}{\sum_{j=1}^N w_k(\tilde{x}_{0:k}^{(j)})}.
+$$</p>
+<p>$\textbf{Selection step:}$ We use an Effective Sample Size (ESS) method to determine when to resample. The ESS is defined as
+$$
+\text{ESS}_k = \frac{1}{\sum_{i=1}^N (\tilde{\omega}_k^{(i)})^2}.
+$$
+If $\text{ESS}_k$ falls below a threshold (e.g., $N/2$), we perform resampling:</p>
+<p>$$
 I^{(i)} \sim \tilde{\omega}_k^{(i)}, \qquad i = 1, \dots, N,
 $$
-<p>and then set $$ x_k^{(i)} = \tilde{x}_k^{(I^{(i)})}, \qquad i = 1, \dots, N. $$</p>
+and then set
+$$
+x_k^{(i)} = \tilde{x}_k^{(I^{(i)})}, \qquad i = 1, \dots, N.
+$$</p>
 <p>$\textbf{Estimation:}$ Finally, we calculate the MAP estimate as,</p>
 <p>$$\hat{x}_k^{MAP} = x_k^{(i^*)} \quad\quad\quad i^{\star} = \argmax_i w_k^{(i)}</p>
-<h3 id="particle-filter-functions">Particle Filter Functions <a href="#particle-filter-functions" class="anchor-link">#</a></h3>
+
+
+<h3 id="particle-filter-functions">Particle Filter Functions <a class="anchor-link" href="#particle-filter-functions">#</a></h3>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -539,10 +589,13 @@ $$
 
             resample_times[k] = 1
 
-    return x_particles, x_MAP, resample_times</code></pre>
+    return x_particles, x_MAP, resample_times
+</code></pre>
   </div>
 </details>
+
 <p>Finally we can create a general plotting function for our particles. Note that in all the graphs, the vertical dotted black lines indicate when we have resampled our bootstrap particle filter.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -582,11 +635,18 @@ $$
     plt.title(title)
     plt.legend()
     plt.grid(True)
-    plt.show()</code></pre>
+    plt.show()
+</code></pre>
   </div>
 </details>
-<p>Note, we first run a particle filter on the simpler, linear model where, $$ y_k = x_k+v_k $$</p>
-<p>Here, we see our filter work extremely well, verfiying that we have coded this correctly.</p>
+
+<h3 id="particle-filter-simulation">Particle Filter Simulation: <a class="anchor-link" href="#particle-filter-simulation">#</a></h3><p>We run a particle filter on the below simulation of $L$ particles and $K$ times steps.</p>
+<p>Note, we first run a particle filter on the simpler, linear model where,
+$$
+y_k = x_k+v_k
+$$
+Here, we see our filter work extremely well, verfiying that we have coded this correctly.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -595,15 +655,23 @@ $$
 x_particles_simple, x_MAP_simple, resample_times_simple = particle_filter(y_simple, L, K, A, G, w, C, f_simple, v)
 
 # Plot Particles
-plot_particles(x_particles_simple, x_true_simple, x_MAP_simple ,resample_times_simple, title=&quot;Simple Particle Filter (y_k = x_k+v_k)&quot;)</code></pre>
+plot_particles(x_particles_simple, x_true_simple, x_MAP_simple ,resample_times_simple, title=&quot;Simple Particle Filter (y_k = x_k+v_k)&quot;)
+</code></pre>
   </div>
 </details>
 <div class="code-output-image">
   <img src="../images/ece7230/plot_3.png" alt="Plot Output" />
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
-<p>Now we can simulate the true system,  $$ x_{k+1} = 0.9 x_k + w_k, \qquad y_k = \sin(x_k) + v_k, $$</p>
-<p>Note here that our particle filter is not NEARLY as good as in the linear case. This seems to be mainly due to the oscillatory nature of our observations. For many other nonlinear functions, our particle filter actually performs extremely well.</p>
+
+<p>Now we can simulate the true system,
+$$
+x_{k+1} = 0.9 x_k + w_k,
+\qquad
+y_k = \sin(x_k) + v_k,
+$$
+Note here that our particle filter is not NEARLY as good as in the linear case. This seems to be mainly due to the oscillatory nature of our observations. For many other nonlinear functions, our particle filter actually performs extremely well.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -612,17 +680,22 @@ plot_particles(x_particles_simple, x_true_simple, x_MAP_simple ,resample_times_s
 x_particles, x_MAP, resample_times = particle_filter(y, L, K, A, G, w, C, f, v)
 
 # Plot Particles
-plot_particles(x_particles, x_true, x_MAP,resample_times, title=&quot;Q2 Filtering (y_k = sin(x_k)+v_k)&quot;)</code></pre>
+plot_particles(x_particles, x_true, x_MAP,resample_times, title=&quot;Q2 Filtering (y_k = sin(x_k)+v_k)&quot;)
+</code></pre>
   </div>
 </details>
 <div class="code-output-image">
   <img src="../images/ece7230/plot_4.png" alt="Plot Output" />
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
-<h3 id="quantize-to-an-10-state-hmm-filter">Quantize to an 10 State HMM Filter <a href="#quantize-to-an-10-state-hmm-filter" class="anchor-link">#</a></h3>
-<p>Next, we can take our continuous process and quantize this to 10 individual states that we can then use an HMM filter on.</p>
-<p>HMM FILTER from particle filter we see we get states anywhere from -6 to 6 so if we use 10 states just discreteize between -5 and 5</p>
-<h3 id="hmm-functions">HMM Functions <a href="#hmm-functions" class="anchor-link">#</a></h3>
+
+<h3 id="quantize-to-an-10-state-hmm-filter">Quantize to an 10 State HMM Filter <a class="anchor-link" href="#quantize-to-an-10-state-hmm-filter">#</a></h3><p>Next, we can take our continuous process and quantize this to 10 individual states that we can then use an HMM filter on.</p>
+<p>HMM FILTER
+from particle filter we see we get states anywhere from -6 to 6 so if we use 10 states just discreteize between -5 and 5</p>
+
+
+<h3 id="hmm-functions">HMM Functions <a class="anchor-link" href="#hmm-functions">#</a></h3>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -717,7 +790,8 @@ def HMM_filter(P,B,y,N,K):
 
         xkHMM[k+1] = S[np.argmax(pi[:,k+1])]
     
-    return xkHMM</code></pre>
+    return xkHMM
+</code></pre>
   </div>
 </details>
 <details class="code-details">
@@ -765,7 +839,8 @@ def HMM_filter(P,B,y,N,K):
     plt.title(title)
     plt.legend()
     plt.grid(True)
-    plt.show()</code></pre>
+    plt.show()
+</code></pre>
   </div>
 </details>
 <details class="code-details">
@@ -785,7 +860,8 @@ xkHMM_empirical_simple = HMM_filter(P_E_simple,B_E_simple,y_simple,N,K)
 xkHMM_simple = HMM_filter(P_simple,B_simple,y_simple,N,K)
 
 # Plot
-plot_Q2(x_particles_simple, x_true_simple, x_MAP_simple, resample_times_simple,xkHMM_simple,xkHMM_empirical_simple,title=&quot;Simple Filtering (y_k = x_k+v_k)&quot;)</code></pre>
+plot_Q2(x_particles_simple, x_true_simple, x_MAP_simple, resample_times_simple,xkHMM_simple,xkHMM_empirical_simple,title=&quot;Simple Filtering (y_k = x_k+v_k)&quot;)
+</code></pre>
   </div>
 </details>
 <div class="code-output-image">
@@ -807,35 +883,76 @@ P, B = calculate_pdf_based_matrices(N, A, G, w, C, f, v)
 xkHMM_empirical = HMM_filter(P_E,B_E,y,N,K)
 xkHMM = HMM_filter(P,B,y,N,K)
 
-plot_Q2(x_particles,x_true,x_MAP,resample_times,xkHMM,xkHMM_empirical,title=&quot;Q2 Filtering (y_k = sin(x_k)+v_k)&quot;)</code></pre>
+plot_Q2(x_particles,x_true,x_MAP,resample_times,xkHMM,xkHMM_empirical,title=&quot;Q2 Filtering (y_k = sin(x_k)+v_k)&quot;)
+</code></pre>
   </div>
 </details>
 <div class="code-output-image">
   <img src="../images/ece7230/plot_6.png" alt="Plot Output" />
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
-<h3 id="extended-kalman-filter">Extended Kalman Filter <a href="#extended-kalman-filter" class="anchor-link">#</a></h3>
+
+<h3 id="extended-kalman-filter">Extended Kalman Filter <a class="anchor-link" href="#extended-kalman-filter">#</a></h3>
+
+
 <p>Extended Kalman Filter (EKF).</p>
-<p>Model: $$ x_{k+1} = A(k)\, x_k + w_k,\qquad w_k \sim \mathcal{N}(0,Q) $$</p>
+<p>Model:
+$$
+x_{k+1} = A(k)\, x_k + w_k,\qquad w_k \sim \mathcal{N}(0,Q)
+$$
 $$
 y_{k+1} = C(k)\, f(x_{k+1}) + v_{k+1},\qquad v_{k+1} \sim \mathcal{N}(0,R)
+$$</p>
+<p>Here we use two different Jacobian-like objects:
 $$
-<p>Here we use two different Jacobian-like objects: $$ F_k := A(k)\quad\text{(state-transition Jacobian, since the dynamics are linear)} $$</p>
-<p>and $$ F(x) := f'(x)\quad\text{(derivative of the nonlinear function }f\text{).} $$</p>
-<p>In our code <code>F</code> is the callable that returns \(f'(x)\).</p>
-<p>Initialization: $$ x_{0|0} = x_0,\qquad P_{0|0} = P_0. $$</p>
-<p>Prediction step: $$ x_{k+1|k} = A(k)\, x_{k|k} $$</p>
+F_k := A(k)\quad\text{(state-transition Jacobian, since the dynamics are linear)}
+$$
+and
+$$
+F(x) := f'(x)\quad\text{(derivative of the nonlinear function }f\text{).}
+$$
+In our code <code>F</code> is the callable that returns (f'(x)).</p>
+<p>Initialization:
+$$
+x_{0|0} = x_0,\qquad P_{0|0} = P_0.
+$$</p>
+<p>Prediction step:
+$$
+x_{k+1|k} = A(k)\, x_{k|k}
+$$
 $$
 P_{k+1|k} = F_k\, P_{k|k}\, F_k^\top + Q
-$$
+$$</p>
 <p>Update step:</p>
-<p>Measurement Jacobian (using \(F(x)=f'(x)\)): $$ H_k = C(k)\, f'(x_{k+1|k}) = C(k)\, F(x_{k+1|k}) $$</p>
-<p>Predicted measurement: $$ \hat{y}_{k+1} = C(k)\, f(x_{k+1|k}) $$</p>
-<p>Innovation: $$ \tilde{y}_{k+1} = y_{k+1} - \hat{y}_{k+1} $$</p>
-<p>Innovation covariance: $$ S_k = H_k\, P_{k+1|k}\, H_k^\top + R $$</p>
-<p>Kalman gain: $$ K_k = P_{k+1|k}\, H_k^\top S_k^{-1} $$</p>
-<p>State update: $$ x_{k+1|k+1} = x_{k+1|k} + K_k\, \tilde{y}_{k+1} $$</p>
-<p>Covariance update: $$ P_{k+1|k+1} = (I - K_k H_k)\, P_{k+1|k} $$</p>
+<p>Measurement Jacobian (using (F(x)=f'(x))):
+$$
+H_k = C(k)\, f'(x_{k+1|k}) = C(k)\, F(x_{k+1|k})
+$$</p>
+<p>Predicted measurement:
+$$
+\hat{y}_{k+1} = C(k)\, f(x_{k+1|k})
+$$</p>
+<p>Innovation:
+$$
+\tilde{y}_{k+1} = y_{k+1} - \hat{y}_{k+1}
+$$</p>
+<p>Innovation covariance:
+$$
+S_k = H_k\, P_{k+1|k}\, H_k^\top + R
+$$</p>
+<p>Kalman gain:
+$$
+K_k = P_{k+1|k}\, H_k^\top S_k^{-1}
+$$</p>
+<p>State update:
+$$
+x_{k+1|k+1} = x_{k+1|k} + K_k\, \tilde{y}_{k+1}
+$$</p>
+<p>Covariance update:
+$$
+P_{k+1|k+1} = (I - K_k H_k)\, P_{k+1|k}
+$$</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -901,7 +1018,8 @@ $$
         P[k+1] = (1 - Kk * Hk) * P_pred
 
     return x_hat, P
- </code></pre>
+ 
+</code></pre>
   </div>
 </details>
 <details class="code-details">
@@ -952,7 +1070,8 @@ $$
     plt.title(title)
     plt.legend()
     plt.grid(True)
-    plt.show()</code></pre>
+    plt.show()
+</code></pre>
   </div>
 </details>
 <details class="code-details">
@@ -970,15 +1089,19 @@ def F_simple(x): return 1
 xEKF_simple, P_est_simple = EKF_filter(y_simple, x0, P0, Q, R, A, G, C, f_simple, F_simple)
 
 # Plot
-plot_Q2_EKF(x_particles_simple, x_true_simple, y_simple, x_MAP_simple, resample_times_simple,xkHMM_simple,xkHMM_empirical_simple, xEKF_simple, title=&quot;Simple Filtering (y_k = x_k+v_k)&quot;)</code></pre>
+plot_Q2_EKF(x_particles_simple, x_true_simple, y_simple, x_MAP_simple, resample_times_simple,xkHMM_simple,xkHMM_empirical_simple, xEKF_simple, title=&quot;Simple Filtering (y_k = x_k+v_k)&quot;)
+</code></pre>
   </div>
 </details>
 <div class="code-output-image">
   <img src="../images/ece7230/plot_7.png" alt="Plot Output" />
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
+
 <p>Below is our final graph of question 2. The main thing we want to point out is that overall, none of these filtering methods worked well on this nonlinear system. After testing many functions, we have determined the issue is with the use of an oscillatory $\sin$ function. As you can see, our filters track well with our observations in yellow. However, since $\sin$ is so oscillatory, along with the fact its on a scale similar to the noise, our observations often are nowhere near the true values.</p>
-<p>$\textbf{Thus, for most other linear or nonlinear systems tested, these implementations worked extremely well. Here, for sin, they do not.}$ $\textbf{We believe this to be because of the oscillatory nature of sin and the fact the observations are often far apart from the true underlying state.}$</p>
+<p>$\textbf{Thus, for most other linear or nonlinear systems tested, these implementations worked extremely well. Here, for sin, they do not.}$
+$\textbf{We believe this to be because of the oscillatory nature of sin and the fact the observations are often far apart from the true underlying state.}$</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -994,16 +1117,25 @@ def F(x): return np.cos(x)
 xEKF, P_est = EKF_filter(y, x0, P0, Q, R, A, G, C, f, F)
 
 # Plot
-plot_Q2_EKF(x_particles, x_true, y, x_MAP, resample_times,xkHMM, xkHMM_empirical, xEKF, title=&quot;Q2 Filtering (y_k = sin(x_k)+v_k)&quot;)</code></pre>
+plot_Q2_EKF(x_particles, x_true, y, x_MAP, resample_times,xkHMM, xkHMM_empirical, xEKF, title=&quot;Q2 Filtering (y_k = sin(x_k)+v_k)&quot;)
+</code></pre>
   </div>
 </details>
 <div class="code-output-image">
   <img src="../images/ece7230/plot_8.png" alt="Plot Output" />
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
-<p>Simulate a 3-state HMM in Gaussian noise. Derive the EM algorithm for the state levels, noise variance and transition probability. Simulate the EM algorithm. You should compute and plot the log likelihood at each iteration and check that it is increasing. Compare the performance with a general purpose optimization solver where you feed into it the likelihood.</p>
-<h3 id="em-functions">EM Functions <a href="#em-functions" class="anchor-link">#</a></h3>
-<p>First, we define 'step_gaussian_hmm' which takes a transition matrix for the true probabilties P[i,j] = P(X_{k+1}=j | X_k=i) along with gaussian means for each states distribution.</p>
+
+<h2 id="question-3">Question 3 <a class="anchor-link" href="#question-3">#</a></h2><p>Simulate a 3-state HMM in Gaussian noise. Derive the EM algorithm
+for the state levels, noise variance and transition probability. Simulate
+the EM algorithm. You should compute and plot the log
+likelihood at each iteration and check that it is increasing.
+Compare the performance with a general purpose optimization solver
+where you feed into it the likelihood.</p>
+
+
+<h3 id="em-functions">EM Functions <a class="anchor-link" href="#em-functions">#</a></h3><p>First, we define 'step_gaussian_hmm' which takes a transition matrix for the true probabilties P[i,j] = P(X_{k+1}=j | X_k=i) along with gaussian means for each states distribution.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1036,22 +1168,29 @@ plot_Q2_EKF(x_particles, x_true, y, x_MAP, resample_times,xkHMM, xkHMM_empirical
     # Sample a continuous observation from the Gaussian corresponding to the new state.
     y_next = norm.rvs(loc=q[x_next], scale=sigma)
 
-    return x_next, y_next</code></pre>
+    return x_next, y_next
+</code></pre>
   </div>
 </details>
-<p>Next, we define a function that calculates an HMM smoother given observations and current estimates of P,q, and sigma squared. This returns our gamma smoothers which are then used in the EM algorithm. The direct formulas are shown below: $$ \alpha^{\theta}_{k+1}(j) = P(x_{k+1} = q_j,\, Y_{1:k+1}\mid \theta) = \sum_{i=1}^{X} \alpha^{\theta}_{k}(i)\, P_{ij}\, b_j(y_{k+1}). $$</p>
+
+<p>Next, we define a function that calculates an HMM smoother given observations and current estimates of P,q, and sigma squared. This returns our gamma smoothers which are then used in the EM algorithm. The direct formulas are shown below:
 $$
+\alpha^{\theta}_{k+1}(j)
+= P(x_{k+1} = q_j,\, Y_{1:k+1}\mid \theta)
+= \sum_{i=1}^{X} \alpha^{\theta}_{k}(i)\, P_{ij}\, b_j(y_{k+1}).
+$$</p>
+<p>$$
 \beta^{\theta}_{k}(i)
 = P(Y_{k+1:N} \mid x_k = q_i,\, \theta)
 = \sum_{j=1}^{X} \beta^{\theta}_{k+1}(j)\, P_{ij}\, b_j(y_{k+1}).
-$$
-$$
+$$</p>
+<p>$$
 \gamma^{\theta}_{k}(i)
 = P(x_k = q_i \mid Y_{1:N},\, \theta)
 = \frac{\alpha^{\theta}_k(i)\, \beta^{\theta}_k(i)}
        {\sum_{i=1}^{X} \alpha^{\theta}_k(i)\, \beta^{\theta}_k(i)}.
-$$
-$$
+$$</p>
+<p>$$
 \gamma^{\theta}_{k}(i,j)
 = P(x_k = q_i,\, x_{k+1} = q_j \mid Y_{1:N},\, \theta)
 = \frac{
@@ -1060,7 +1199,8 @@ $$
 \sum_{i=1}^{X}\sum_{j=1}^{X}
     \alpha^{\theta}_k(i)\, P_{ij}\, b_j(y_{k+1})\, \beta^{\theta}_{k+1}(j)
 }.
-$$
+$$</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1201,44 +1341,68 @@ def plot_em_convergence(P_est, q_est, sigma_sq_est, P_true, q_true, sigma_sq_tru
     axes[3].axis(&quot;off&quot;)
 
     plt.tight_layout()
-    plt.show()</code></pre>
+    plt.show()
+</code></pre>
   </div>
 </details>
-<h3 id="em-formulation">EM Formulation <a href="#em-formulation" class="anchor-link">#</a></h3>
-<p>Then, we can use this smoother in the EM algorithm to calculate better estimates of q, P, and sigma squared. The auxiliary function, $Q(\theta \mid \theta^{(I)})$, is defined as, $$ Q(\theta \mid \theta^{(I)})  =  -\frac{N}{2}\ln \sigma_v^{2} \;-\; \frac{1}{2\sigma_v^{2}} \sum_{t=1}^{N}\sum_{i=1}^{X} (y_t - q_i)^2\, \gamma^{\theta^{(I)}}_{t}(i) \;+\; \sum_{t=1}^{N}\sum_{i=1}^{X}\sum_{j=1}^{X} \gamma^{\theta^{(I)}}_{t}(i,j)\, \log P_{ij}. $$</p>
-<p>where</p>
+
+<h3 id="em-formulation">EM Formulation <a class="anchor-link" href="#em-formulation">#</a></h3><p>Then, we can use this smoother in the EM algorithm to calculate better estimates of q, P, and sigma squared. The auxiliary function, $Q(\theta \mid \theta^{(I)})$, is defined as,
 $$
+Q(\theta \mid \theta^{(I)}) 
+= 
+-\frac{N}{2}\ln \sigma_v^{2}
+\;-\;
+\frac{1}{2\sigma_v^{2}}
+\sum_{t=1}^{N}\sum_{i=1}^{X} (y_t - q_i)^2\, \gamma^{\theta^{(I)}}_{t}(i)
+\;+\;
+\sum_{t=1}^{N}\sum_{i=1}^{X}\sum_{j=1}^{X}
+\gamma^{\theta^{(I)}}_{t}(i,j)\, \log P_{ij}.
+$$</p>
+<p>where</p>
+<p>$$
 \gamma^{\theta^{(I)}}_{t}(i)
 = p(x_t = q_i \mid Y_{1:N} ; \theta^{(I)}),
 \qquad
 \gamma^{\theta^{(I)}}_{t}(i,j)
 = p(x_t = q_i, x_{t+1} = q_j \mid Y_{1:N} ; \theta^{(I)}),
-$$
+$$</p>
 <p>are computed using the HMM forward–backward smoother.</p>
 <p>Thus, we can calculate our M-Step by taking derivatives of our Q function and setting them equal to zero.</p>
-$$
+<p>$$
 \text{M Step:}\quad 
 \frac{\partial Q(\theta \mid \theta^{(I)})}{\partial \theta} = 0
 \;\;\Rightarrow\;\;
 \theta^{(I+1)} = \big(P^{(I+1)},\, q^{(I+1)},\, \sigma_v^{2\,(I+1)}\big).
+$$</p>
+<p>This gives us the updates,
 $$
-<p>This gives us the updates, $$ P^{(I+1)}_{ij} = \frac{\displaystyle \sum_{t=1}^{N-1}  \gamma^{\theta^{(I)}}_{t}(i,j)} {\displaystyle \sum_{t=1}^{N-1}  \gamma^{\theta^{(I)}}_{t}(i)} = \frac{ \mathbb{E}\{\#\text{ jumps from } i \text{ to } j \mid Y_{1:N}, \theta^{(I)}\} } { \mathbb{E}\{\#\text{ visits to } i \mid Y_{1:N}, \theta^{(I)}\} }. $$</p>
-$$
+P^{(I+1)}_{ij}
+=
+\frac{\displaystyle \sum_{t=1}^{N-1} 
+\gamma^{\theta^{(I)}}_{t}(i,j)}
+{\displaystyle \sum_{t=1}^{N-1} 
+\gamma^{\theta^{(I)}}_{t}(i)}
+=
+\frac{ \mathbb{E}\{\#\text{ jumps from } i \text{ to } j \mid Y_{1:N}, \theta^{(I)}\} }
+{ \mathbb{E}\{\#\text{ visits to } i \mid Y_{1:N}, \theta^{(I)}\} }.
+$$</p>
+<p>$$
 q^{(I+1)}_{i}
 =
 \frac{\displaystyle \sum_{t=1}^{N} 
 \gamma^{\theta^{(I)}}_{t}(i)\, y_t}
 {\displaystyle \sum_{t=1}^{N} 
 \gamma^{\theta^{(I)}}_{t}(i)}.
-$$
-$$
+$$</p>
+<p>$$
 \sigma_{v}^{2\,(I+1)}
 =
 \frac{1}{N}
 \sum_{t=1}^{N}\sum_{i=1}^{X}
 \gamma^{\theta^{(I)}}_{t}(i)\,
 \big( y_t - q^{(I+1)}_{i} \big)^2.
-$$
+$$</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1315,24 +1479,38 @@ $$
         den = np.sum(gamma_i) 
         sigma_sq_est /= den
 
-    return P_est, q_est, sigma_sq_est, log_likelihood</code></pre>
+    return P_est, q_est, sigma_sq_est, log_likelihood
+</code></pre>
   </div>
 </details>
-<p>Now that our functions are ready, we can initialize a simple 3 state Hidden Markov Model with parameters, $$ P_{\text{true}} = \begin{pmatrix} 0.8 & 0.1 & 0.1 \\ 0.1 & 0.8 & 0.1 \\ 0.1 & 0.1 & 0.8 \end{pmatrix}, $$</p>
-<p>state–dependent means</p>
+
+<p>Now that our functions are ready, we can initialize a simple 3 state Hidden Markov Model with parameters,
 $$
+P_{\text{true}} =
+\begin{pmatrix}
+0.8 &amp; 0.1 &amp; 0.1 \\
+0.1 &amp; 0.8 &amp; 0.1 \\
+0.1 &amp; 0.1 &amp; 0.8
+\end{pmatrix},
+$$</p>
+<p>state–dependent means</p>
+<p>$$
 q_{\text{true}} =
 \begin{pmatrix}
 -5.0 \\[4pt]
 0.0 \\[4pt]
 5.0
 \end{pmatrix},
-$$
+$$</p>
 <p>and Gaussian emission noise with variance</p>
-$$
+<p>$$
 \sigma_{\text{true}}^{2} = 1.0.
+$$</p>
+<p>Thus, conditional on (x_k = i), the observation satisfies
 $$
-<p>Thus, conditional on \(x_k = i\), the observation satisfies $$ y_k \sim \mathcal{N}(q_{\text{true},\, i},\, \sigma_{\text{true}}^{2}). $$</p>
+y_k \sim \mathcal{N}(q_{\text{true},\, i},\, \sigma_{\text{true}}^{2}).
+$$</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1363,10 +1541,13 @@ for k in range(K):
 
 pi_0 = np.ones(N)/N
 
-P_est, q_est, sigma_squared_est, log_likelihood = run_em_hmm(ykh, N, E)</code></pre>
+P_est, q_est, sigma_squared_est, log_likelihood = run_em_hmm(ykh, N, E)
+</code></pre>
   </div>
 </details>
+
 <p>Our results are printed below.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1392,7 +1573,8 @@ print(&quot;P_est:\n&quot;, final_P_sorted)
 print(&quot;q_est:\n&quot;, final_q_sorted)
 print(&quot;sigma_est:\n&quot;, final_sigma)
 
-plot_em_convergence(P_est, q_est, sigma_squared_est, P_true, q_true, sigma_true)</code></pre>
+plot_em_convergence(P_est, q_est, sigma_squared_est, P_true, q_true, sigma_true)
+</code></pre>
   </div>
 </details>
 <div class="code-output-title">Console Output</div>
@@ -1420,7 +1602,9 @@ sigma_est:
   <img src="../images/ece7230/plot_9.png" alt="Plot Output" />
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
+
 <p>We can also plot the Log-Likelihood of the EM algorithm and notice that we are only ever increasing our likelihood.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1434,14 +1618,17 @@ plt.ylabel(&quot;Log Likelihood&quot;)
 plt.title(&quot;Log-Likelihood of parameters across EM Algorithm&quot;)
 plt.legend()
 plt.grid(True)
-plt.show()</code></pre>
+plt.show()
+</code></pre>
   </div>
 </details>
 <div class="code-output-image">
   <img src="../images/ece7230/plot_10.png" alt="Plot Output" />
   <div class="image-caption">Figure: Output plot generated by code cell</div>
 </div>
+
 <p>Finally, we are asked to use an actual optimizer to see whether our answer aligns. Here, we first define a log-likelihood function in the format that our scipy optimizer will need.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1490,10 +1677,13 @@ plt.show()</code></pre>
     
     log_likelihood = np.sum(np.log(c_scalers))  
 
-    return -1*log_likelihood  </code></pre>
+    return -1*log_likelihood  
+</code></pre>
   </div>
 </details>
+
 <p>Then, we need to squash our parameters down into a vector. We stack it as (q,sigma squared, P).</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1507,11 +1697,14 @@ initial_P_flat = initial_P.flatten()
 initial_x = np.hstack([initial_q,initial_sigma_sq,initial_P_flat])
 argz = np.hstack([N,K,ykh])
 
-x_true = np.hstack([q_true,sigma_true,P_true.flatten()])</code></pre>
+x_true = np.hstack([q_true,sigma_true,P_true.flatten()])
+</code></pre>
   </div>
 </details>
-<p>Finally, we use scipy to optimize. Bounds are imposed to ensure $\sigma^2 > 0$ and $0 \le P_{ij} \le 1$, while equality constraints enforce that each row of $P$ sums to 1. The <code>scipy.optimize.minimize</code> function with the SLSQP method is used to maximize the log-likelihood, and the resulting parameters are unpacked, sorted by state means to resolve label ambiguity, and compared against the true parameters.</p>
+
+<p>Finally, we use scipy to optimize. Bounds are imposed to ensure $\sigma^2 &gt; 0$ and $0 \le P_{ij} \le 1$, while equality constraints enforce that each row of $P$ sums to 1. The <code>scipy.optimize.minimize</code> function with the SLSQP method is used to maximize the log-likelihood, and the resulting parameters are unpacked, sorted by state means to resolve label ambiguity, and compared against the true parameters.</p>
 <p>Additionally, we print the EM log likelihood along side this log likelihood to show that often times our EM algorithm does a better job at finding the maximum.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1587,7 +1780,8 @@ print(&quot;q_est:\n&quot;, final_q_sorted)
 print(&quot;sigma_est:\n&quot;, sigma_est)
 
 print(f&quot;\nMaximum Log-Likelihood Value from Scipy Optimizer: {-1*result.fun:.4f}&quot;)
-print(f&quot;\nMaximum Log-Likelihood Value from EM: {log_likelihood[E-2]}&quot;)</code></pre>
+print(f&quot;\nMaximum Log-Likelihood Value from EM: {log_likelihood[E-2]}&quot;)
+</code></pre>
   </div>
 </details>
 <div class="code-output-title">Console Output</div>
@@ -1615,25 +1809,93 @@ Maximum Log-Likelihood Value from Scipy Optimizer: -10248.7050
 
 Maximum Log-Likelihood Value from EM: -10236.603409415206
 </code></pre></div>
-<h2 id="question-4">Question 4 <a href="#question-4" class="anchor-link">#</a></h2>
-<p>Consider the model $$y_k = A \sin(0.01k + \phi) + x_k + w_k$$ Suppose $x_k$ is a 2 state Markov chain with state levels 1 and 2. Assume $w_k ∼ \mathcal{N}(0, 1)$. You only observe $y_1$, $y_2$, . . .. Derive the EM algorithm to estimate amplitude A, phase $\phi$ and the transition matrix of the Markov chain. You should compute and plot the log likelihood at each iteration and check that it is increasing.</p>
-<h3 id="e-step">E-Step <a href="#e-step" class="anchor-link">#</a></h3>
-<p>First we can define our model in terms of the noise's distribution. \begin{align<em>}     y_k &= A \sin(0.01k + \phi) + x_k + w_k \\     P(x_k | x_{k-1}) &= P \text{ matrix} \\     P(y_k | x_k) &= P_W(y_k - x_k - A \sin(0.01k + \phi)) \sim \mathcal{N}(x_k + A \sin(0.01k + \phi), 1) \end{align</em>}</p>
-<p>Then, we need to compute the Log-Likelihood function. \begin{align<em>}     \ln p(Y_N, x_N | \theta) &= \ln \prod_{k=1}^N P(y_k | x_k) P(x_k | x_{k-1}) \\     &= \sum_{k=1}^N \ln p(y_k | x_k) + \sum_{k=1}^N \ln P(x_k | x_{k-1}) \\     &= \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i) \ln P(y_k | x_k = i) + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i, x_{k+1} = j) \ln P(x_{k+1} = j | x_k = i) \\     &= \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i) \left( \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right) \\     &\quad + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i, x_{k+1} = j) \ln P_{ij} \end{align</em>}</p>
-<p>Next, we should calculate the Q-function using conditional expectations. \begin{align<em>}     Q(\theta | \theta^{(I)}) &= E \left[ \ln p(Y_N, x_N | \theta) \mid Y_N, \theta^{(I)} \right] \qquad \theta = [P_{ij}, A, \phi] \\     &= \sum_{i=1}^2 \sum_{k=1}^N E \left[ \mathbb{I}(x_k = i) \left( \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right) \Bigg| Y_N, \theta^{(I)} \right] \\     &\quad + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N E \left[ \mathbb{I}(x_k = i, x_{k+1} = j) \ln P_{ij} \mid Y_N, \theta^{(I)} \right] \end{align</em>}</p>
-<p>Note, we can write this in terms of a smoother $\gamma$: \begin{align<em>}     E[\mathbb{I}(x_k = i) | Y_N, \theta^{(I)}] &= P(x_k = i | Y_N, \theta^{(I)}) = \gamma_k^{\theta^{(I)}}(i) \\     E[\mathbb{I}(x_k = i, x_{k+1} = j) | Y_N, \theta^{(I)}] &= P(x_k = i, x_{k+1} = j | Y_N, \theta^{(I)}) = \gamma_k^{\theta^{(I)}}(i, j) \end{align</em>}</p>
-<p>Thus, our final result for our auxilary function is: $$ Q(\theta | \theta^{(I)}) = \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{\theta^{(I)}}(i) \left[ \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right] + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{\theta^{(I)}}(i, j) \ln P_{ij} $$</p>
-<h3 id="m-step">M-Step <a href="#m-step" class="anchor-link">#</a></h3>
-<p>Then, note that our estimate for $P$ is the exact same as it was in question 3. That is, $$ P^{(I+1)}_{ij} = \frac{\displaystyle \sum_{t=1}^{N-1}  \gamma^{\theta^{(I)}}_{t}(i,j)} {\displaystyle \sum_{t=1}^{N-1}  \gamma^{\theta^{(I)}}_{t}(i)} = \frac{ \mathbb{E}\{\#\text{ jumps from } i \text{ to } j \mid Y_{1:N}, \theta^{(I)}\} } { \mathbb{E}\{\#\text{ visits to } i \mid Y_{1:N}, \theta^{(I)}\} }. $$</p>
-<p>Then take the derivative w.r.t $A$: $$ \frac{\partial Q(\theta | \theta^{(I)})}{\partial A} = 0 $$</p>
-<p>Recall that the term dependent on $A$ inside the Q-function is proportional to the squared error. Using the Chain Rule: \begin{align<em>}     \frac{\partial Q}{\partial A} &= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \frac{\partial}{\partial A} \left[ -\frac{1}{2} (y_k - i - A \sin(0.01k + \phi))^2 \right] \\     &= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i - A \sin(0.01k + \phi)) \cdot \sin(0.01k + \phi) = 0 \end{align</em>} Rearranging to isolate $A$: \begin{align<em>}     \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i) \sin(0.01k + \phi) &= A \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \sin^2(0.01k + \phi) \end{align</em>} Thus, the update for $A$ is: $$ \hat{A} = \frac{\sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i) \sin(0.01k + \phi)}{\sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \sin^2(0.01k + \phi)} $$</p>
-<p>Note that this update for A depends on $\phi$. Thus, we will be using a step EM algorithm where we update our parameters one at a time.</p>
-<p>Next take the derivative w.r.t $\phi$: $$ \frac{\partial Q(\theta | \theta^{(I)})}{\partial \phi} = 0 $$</p>
-<p>\begin{align<em>}     \frac{\partial Q}{\partial \phi} &= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i - A \sin(0.01k + \phi)) \cdot (A \cos(0.01k + \phi)) = 0 \end{align</em>}</p>
-<p>This results in a transcendental equation: $$ \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \left[ (y_k - i) \cos(0.01k + \phi) - A \sin(0.01k + \phi)\cos(0.01k + \phi) \right] = 0 $$</p>
-<p>There is no algebraic closed-form solution for $\phi$ in this form because $\phi$ is trapped inside the sine and cosine functions. Thus we will use a numerical solver to calculate this.</p>
-<h3 id="q4-functions">Q4 Functions <a href="#q4-functions" class="anchor-link">#</a></h3>
-<p>First we define a step function which propagates our state forward. Note, the difference here is that our observations are chosen based off our new model. Additionally, we define a plotting function that will be used later.</p>
+
+<h2 id="question-4">Question 4 <a class="anchor-link" href="#question-4">#</a></h2><p>Consider the model
+$$y_k = A \sin(0.01k + \phi) + x_k + w_k$$
+Suppose $x_k$ is a 2 state Markov chain with state levels 1 and 2. Assume
+$w_k ∼ \mathcal{N}(0, 1)$.
+You only observe $y_1$, $y_2$, . . .. Derive the EM algorithm to estimate
+amplitude A, phase $\phi$ and the transition matrix of the Markov chain. You should compute and plot the log likelihood at each iteration and check that it is
+increasing.</p>
+
+
+<h3 id="e-step">E-Step <a class="anchor-link" href="#e-step">#</a></h3><p>First we can define our model in terms of the noise's distribution.
+\begin{align*}
+    y_k &amp;= A \sin(0.01k + \phi) + x_k + w_k \\
+    P(x_k | x_{k-1}) &amp;= P \text{ matrix} \\
+    P(y_k | x_k) &amp;= P_W(y_k - x_k - A \sin(0.01k + \phi)) \sim \mathcal{N}(x_k + A \sin(0.01k + \phi), 1)
+\end{align*}</p>
+<p>Then, we need to compute the Log-Likelihood function.
+\begin{align*}
+    \ln p(Y_N, x_N | \theta) &amp;= \ln \prod_{k=1}^N P(y_k | x_k) P(x_k | x_{k-1}) \\
+    &amp;= \sum_{k=1}^N \ln p(y_k | x_k) + \sum_{k=1}^N \ln P(x_k | x_{k-1}) \\
+    &amp;= \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i) \ln P(y_k | x_k = i) + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i, x_{k+1} = j) \ln P(x_{k+1} = j | x_k = i) \\
+    &amp;= \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i) \left( \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right) \\
+    &amp;\quad + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \mathbb{I}(x_k = i, x_{k+1} = j) \ln P_{ij}
+\end{align*}</p>
+<p>Next, we should calculate the Q-function using conditional expectations.
+\begin{align*}
+    Q(\theta | \theta^{(I)}) &amp;= E \left[ \ln p(Y_N, x_N | \theta) \mid Y_N, \theta^{(I)} \right] \qquad \theta = [P_{ij}, A, \phi] \\
+    &amp;= \sum_{i=1}^2 \sum_{k=1}^N E \left[ \mathbb{I}(x_k = i) \left( \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right) \Bigg| Y_N, \theta^{(I)} \right] \\
+    &amp;\quad + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N E \left[ \mathbb{I}(x_k = i, x_{k+1} = j) \ln P_{ij} \mid Y_N, \theta^{(I)} \right]
+\end{align*}</p>
+<p>Note, we can write this in terms of a smoother $\gamma$:
+\begin{align*}
+    E[\mathbb{I}(x_k = i) | Y_N, \theta^{(I)}] &amp;= P(x_k = i | Y_N, \theta^{(I)}) = \gamma_k^{\theta^{(I)}}(i) \\
+    E[\mathbb{I}(x_k = i, x_{k+1} = j) | Y_N, \theta^{(I)}] &amp;= P(x_k = i, x_{k+1} = j | Y_N, \theta^{(I)}) = \gamma_k^{\theta^{(I)}}(i, j)
+\end{align*}</p>
+<p>Thus, our final result for our auxilary function is:
+$$
+Q(\theta | \theta^{(I)}) = \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{\theta^{(I)}}(i) \left[ \ln \left( \frac{1}{\sqrt{2\pi}} \right) - \frac{(y_k - i - A \sin(0.01k + \phi))^2}{2} \right] + \sum_{j=1}^2 \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{\theta^{(I)}}(i, j) \ln P_{ij}
+$$</p>
+
+
+<h3 id="m-step">M-Step <a class="anchor-link" href="#m-step">#</a></h3><p>Then, note that our estimate for $P$ is the exact same as it was in question 3. That is,
+$$
+P^{(I+1)}_{ij}
+=
+\frac{\displaystyle \sum_{t=1}^{N-1} 
+\gamma^{\theta^{(I)}}_{t}(i,j)}
+{\displaystyle \sum_{t=1}^{N-1} 
+\gamma^{\theta^{(I)}}_{t}(i)}
+=
+\frac{ \mathbb{E}\{\#\text{ jumps from } i \text{ to } j \mid Y_{1:N}, \theta^{(I)}\} }
+{ \mathbb{E}\{\#\text{ visits to } i \mid Y_{1:N}, \theta^{(I)}\} }.
+$$</p>
+<p>Then take the derivative w.r.t $A$:
+$$
+\frac{\partial Q(\theta | \theta^{(I)})}{\partial A} = 0
+$$
+Recall that the term dependent on $A$ inside the Q-function is proportional to the squared error. Using the Chain Rule:
+\begin{align*}
+    \frac{\partial Q}{\partial A} &amp;= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \frac{\partial}{\partial A} \left[ -\frac{1}{2} (y_k - i - A \sin(0.01k + \phi))^2 \right] \\
+    &amp;= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i - A \sin(0.01k + \phi)) \cdot \sin(0.01k + \phi) = 0
+\end{align*}
+Rearranging to isolate $A$:
+\begin{align*}
+    \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i) \sin(0.01k + \phi) &amp;= A \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \sin^2(0.01k + \phi)
+\end{align*}
+Thus, the update for $A$ is:
+$$
+\hat{A} = \frac{\sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i) \sin(0.01k + \phi)}{\sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \sin^2(0.01k + \phi)}
+$$
+Note that this update for A depends on $\phi$. Thus, we will be using a step EM algorithm where we update our parameters one at a time.</p>
+<p>Next take the derivative w.r.t $\phi$:
+$$
+\frac{\partial Q(\theta | \theta^{(I)})}{\partial \phi} = 0
+$$</p>
+<p>\begin{align*}
+    \frac{\partial Q}{\partial \phi} &amp;= \sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) (y_k - i - A \sin(0.01k + \phi)) \cdot (A \cos(0.01k + \phi)) = 0
+\end{align*}</p>
+<p>This results in a transcendental equation:
+$$
+\sum_{i=1}^2 \sum_{k=1}^N \gamma_k^{(I)}(i) \left[ (y_k - i) \cos(0.01k + \phi) - A \sin(0.01k + \phi)\cos(0.01k + \phi) \right] = 0
+$$
+There is no algebraic closed-form solution for $\phi$ in this form because $\phi$ is trapped inside the sine and cosine functions. Thus we will use a numerical solver to calculate this.</p>
+
+
+<h3 id="q4-functions">Q4 Functions <a class="anchor-link" href="#q4-functions">#</a></h3><p>First we define a step function which propagates our state forward. Note, the difference here is that our observations are chosen based off our new model. Additionally, we define a plotting function that will be used later.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1700,10 +1962,13 @@ def plot_em_convergence(P_est, A_est, phi_est, P_true, A_true, phi_true):
     axes[3].axis(&quot;off&quot;)
 
     plt.tight_layout()
-    plt.show()</code></pre>
+    plt.show()
+</code></pre>
   </div>
 </details>
+
 <p>Next, we must redefine our smoother function to change our emission probabilties (P(y_k | x_k=j)) to match our new problem.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1776,11 +2041,14 @@ def plot_em_convergence(P_est, A_est, phi_est, P_true, A_true, phi_true):
         if s &gt; 0:
             gamma[:, :, k] /= s
 
-    return alpha, beta, gamma_i, gamma, log_likelihood</code></pre>
+    return alpha, beta, gamma_i, gamma, log_likelihood
+</code></pre>
   </div>
 </details>
+
 <p>Finally, we can write our function that runs the EM algorithm using our new smoother. Here, we have solved for A explicitly using the previous phi iteration.</p>
-<p>To solve for $\phi$ we use a scipy root solver to solve the transcendental equation. To use this root solver we must provide it a bound in which we know there is a root, i.e. a region $[a,b]$ where $f(a)$ and $f(b)$ have differing signs. Luckily, we know that our $\phi$ will be between $[0,2\pi]$. However, since this is an incredibly oscillatory function, there are many roots and thus we are not always gaurenteed to find two points where $f(a)$ and $f(b)$ have different signs. So, we discretize the space and take the first interval we find with $f(a)f(b)<0$.</p>
+<p>To solve for $\phi$ we use a scipy root solver to solve the transcendental equation. To use this root solver we must provide it a bound in which we know there is a root, i.e. a region $[a,b]$ where $f(a)$ and $f(b)$ have differing signs. Luckily, we know that our $\phi$ will be between $[0,2\pi]$. However, since this is an incredibly oscillatory function, there are many roots and thus we are not always gaurenteed to find two points where $f(a)$ and $f(b)$ have different signs. So, we discretize the space and take the first interval we find with $f(a)f(b)&lt;0$.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1856,12 +2124,19 @@ def plot_em_convergence(P_est, A_est, phi_est, P_true, A_true, phi_true):
                 phi_est[it+1] = brentq(equation_to_solve, a, b)
                 break
 
-    return P_est, A_est, phi_est, log_likelihood</code></pre>
+    return P_est, A_est, phi_est, log_likelihood
+</code></pre>
   </div>
 </details>
-<h3 id="running-the-em-algorithm-for-question-4">Running the EM Algorithm for Question 4 <a href="#running-the-em-algorithm-for-question-4" class="anchor-link">#</a></h3>
-<p>Below we run an EM algorithm on the arbitarily chosen system,</p>
-<p>\begin{align<em>} P &= \begin{bmatrix} 0.8 & 0.2 \\ 0.2 & 0.8\end{bmatrix} \quad &&A=2 \quad &&&\phi=2.34 \end{align</em>} where $P$ is the transition matrix for our two state signal $x_k$ and our observations come from, $$y_k= A\sin(0.01k+\phi)+x_k+w_k.$$  Note, we use a large $K$ here, that is run the trajectorys for a longer time, to allow our $P$ matrix to more accurately account for jumps between states. Additionally, this helps in the convergence of $A$ and $\phi$ as more data in our $\gamma$ smoother generally helps with prediction.</p>
+
+<h3 id="running-the-em-algorithm-for-question-4">Running the EM Algorithm for Question 4 <a class="anchor-link" href="#running-the-em-algorithm-for-question-4">#</a></h3><p>Below we run an EM algorithm on the arbitarily chosen system,</p>
+<p>\begin{align*}
+P &amp;= \begin{bmatrix} 0.8 &amp; 0.2 \\ 0.2 &amp; 0.8\end{bmatrix} \quad &amp;&amp;A=2 \quad &amp;&amp;&amp;\phi=2.34
+\end{align*}
+where $P$ is the transition matrix for our two state signal $x_k$ and our observations come from,
+$$y_k= A\sin(0.01k+\phi)+x_k+w_k.$$</p>
+<p>Note, we use a large $K$ here, that is run the trajectorys for a longer time, to allow our $P$ matrix to more accurately account for jumps between states. Additionally, this helps in the convergence of $A$ and $\phi$ as more data in our $\gamma$ smoother generally helps with prediction.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1891,10 +2166,13 @@ for k in range(K):
 
 pi_0 = np.ones(N)/N
 
-P_est, A_est, phi_est, log_likelihood = run_em_hmm_Q4(ykh, N, E)</code></pre>
+P_est, A_est, phi_est, log_likelihood = run_em_hmm_Q4(ykh, N, E)
+</code></pre>
   </div>
 </details>
+
 <p>Below are results of our EM algorithm. We first see in our graph that all of our parameters converge to their true values very quickly, often in less than 10 iterations. Finally, we see that our log-likelihood is an strictly increasing function.</p>
+
 <details class="code-details">
   <summary>View Source Code</summary>
   <div class="code-block-wrapper">
@@ -1926,7 +2204,8 @@ plt.ylabel(&quot;Log Likelihood&quot;)
 plt.title(&quot;Log-Likelihood of parameters across EM Algorithm Q4&quot;)
 plt.legend()
 plt.grid(True)
-plt.show()</code></pre>
+plt.show()
+</code></pre>
   </div>
 </details>
 <div class="code-output-title">Console Output</div>
