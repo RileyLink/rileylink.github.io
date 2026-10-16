@@ -1165,6 +1165,15 @@ body.menu-open {
 }
 
 /* Resume downloads, publication citations, and blog status */
+.lab-link {
+  color: #0969da;
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+.lab-link:hover, .lab-link:focus-visible { color: #0550ae; }
+[data-theme="dark"] .lab-link { color: #79b8ff; }
+[data-theme="dark"] .lab-link:hover,
+[data-theme="dark"] .lab-link:focus-visible { color: #b6d8ff; }
 .resume__download, .construction-page__links {
   display: flex;
   flex-wrap: wrap;

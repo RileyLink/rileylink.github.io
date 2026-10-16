@@ -1,0 +1,6 @@
+# Keep unfinished blog content in Git while excluding it from GitHub Pages.
+exclude:
+  - blog/posts
+  - blog/images
+  - blog/index.draft.html
+  - BLOG_MAINTENANCE.md

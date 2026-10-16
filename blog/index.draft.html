@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog — Riley Link</title>
+  <meta name="description" content="Tutorials, writeups, and mathematical explorations by Riley Link — Cornell Applied Mathematics PhD student.">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Newsreader:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../css/main.css">
+  <link rel="stylesheet" href="../css/blog.css">
+</head>
+<body>
+
+  <!-- ============================
+       Navigation
+       ============================ -->
+  <nav class="nav" id="nav">
+    <div class="nav__inner">
+      <a href="../index.html" class="nav__logo">Riley Link</a>
+
+      <div class="nav__links" id="navLinks">
+        <a href="../index.html#about" class="nav__link">About</a>
+        <a href="#" class="nav__link active">Blog</a>
+        <a href="../projects.html" class="nav__link">Publications &amp; Projects</a>
+        <a href="../index.html#resume" class="nav__link">Resume</a>
+        <a href="../index.html#contact" class="nav__link">Contact</a>
+      </div>
+
+      <div class="nav__actions">
+        <!-- Dark Mode Toggle -->
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+          <!-- Sun icon (shown in dark mode) -->
+          <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <!-- Moon icon (shown in light mode) -->
+          <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+        </button>
+
+        <!-- Hamburger (mobile) -->
+        <button class="nav__hamburger" id="hamburger" aria-label="Open menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Overlay -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="../index.html#about" class="mobile-menu__link">About</a>
+    <a href="#" class="mobile-menu__link">Blog</a>
+    <a href="../projects.html" class="mobile-menu__link">Publications &amp; Projects</a>
+    <a href="../index.html#resume" class="mobile-menu__link">Resume</a>
+    <a href="../index.html#contact" class="mobile-menu__link">Contact</a>
+  </div>
+
+  <!-- Blog Hero -->
+  <section class="blog-hero">
+    <h1>Blog</h1>
+    <p class="subtitle">Tutorials, writeups, and mathematical explorations</p>
+  </section>
+
+  <!-- Category Filter -->
+  <div class="category-filter" id="category-filter">
+    <button class="category-pill active" data-category="all">All</button>
+    <button class="category-pill" data-category="mathematics">Mathematics</button>
+    <button class="category-pill" data-category="geometric-mechanics">Geometric Mechanics</button>
+    <button class="category-pill" data-category="control-theory">Control Theory</button>
+    <button class="category-pill" data-category="computational-physics">Computational Physics</button>
+    <button class="category-pill" data-category="programming">Programming</button>
+    <button class="category-pill" data-category="tutorials">Tutorials</button>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="blog-search">
+    <span class="search-icon">⌕</span>
+    <input type="text" id="blog-search-input" placeholder="Search posts..." aria-label="Search blog posts">
+  </div>
+
+  <!-- Post Grid -->
+  <div class="post-grid" id="post-grid">
+
+    <!-- Post 5 — ECE 7230: Bayesian Estimation, Filtering, and EM -->
+    <a href="posts/bayesian-estimation.html" class="post-card" data-category="mathematics" data-title="ECE 7230: Bayesian Estimation, Filtering, and EM" data-excerpt="Implementing Kalman filters, particle filters, HMM quantization, and the Expectation-Maximization (EM) algorithm to estimate parameters and states.">
+      <div class="post-card-meta">
+        <span class="post-card-category">Mathematics</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-date">November 20, 2025</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-readtime">20 min read</span>
+      </div>
+      <h2>ECE 7230: Bayesian Estimation, Filtering, and EM</h2>
+      <p class="excerpt">Implementing Kalman filters, particle filters, HMM quantization, and the Expectation-Maximization (EM) algorithm to estimate parameters and states...</p>
+      <span class="read-more">Read more →</span>
+    </a>
+
+    <!-- Post 3 — Image Deconvolution and Deep Learning -->
+    <a href="posts/image-deconvolution.html" class="post-card" data-category="computational-physics" data-title="Image Deconvolution and Deep Learning" data-excerpt="Exploring image deconvolution using Fourier transforms and combining it with deep learning classifiers to restore blurred images.">
+      <div class="post-card-meta">
+        <span class="post-card-category">Computational Physics</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-date">December 18, 2024</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-readtime">15 min read</span>
+      </div>
+      <h2>Image Deconvolution and Deep Learning</h2>
+      <p class="excerpt">Exploring image deconvolution using Fourier transforms and combining it with deep learning classifiers to restore blurred images...</p>
+      <span class="read-more">Read more →</span>
+    </a>
+
+    <!-- Post 4 — Linear Regression in Computational Physics -->
+    <a href="posts/linear-regression.html" class="post-card" data-category="computational-physics" data-title="Linear Regression in Computational Physics" data-excerpt="Implementing step-by-step linear regression to fit experimental data using matrix-based solutions and extending to higher-order polynomials.">
+      <div class="post-card-meta">
+        <span class="post-card-category">Computational Physics</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-date">December 05, 2024</span>
+        <span class="post-card-dot"></span>
+        <span class="post-card-readtime">8 min read</span>
+      </div>
+      <h2>Linear Regression in Computational Physics</h2>
+      <p class="excerpt">Implementing step-by-step linear regression to fit experimental data using matrix-based solutions and extending to higher-order polynomials...</p>
+      <span class="read-more">Read more →</span>
+    </a>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p class="footer-text">© 2026 Riley Link</p>
+      <div class="footer-links">
+        <a href="https://github.com/RileyLink" class="footer-link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <a href="https://scholar.google.com/" class="footer-link" target="_blank" rel="noopener noreferrer">Scholar</a>
+        <a href="https://www.linkedin.com/in/riley-link" class="footer-link" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Main JS -->
+  <script src="../js/main.js"></script>
+
+  <!-- Blog filtering & search -->
+  <script>
+    (function() {
+      // Category filtering
+      const filterBtns = document.querySelectorAll('.category-pill');
+      const postCards = document.querySelectorAll('.post-card');
+      const searchInput = document.getElementById('blog-search-input');
+
+      filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          filterPosts();
+        });
+      });
+
+      searchInput.addEventListener('input', () => {
+        filterPosts();
+      });
+
+      function filterPosts() {
+        const activeCategory = document.querySelector('.category-pill.active').dataset.category;
+        const query = searchInput.value.toLowerCase().trim();
+
+        postCards.forEach(card => {
+          const category = card.dataset.category;
+          const title = (card.dataset.title || '').toLowerCase();
+          const excerpt = (card.dataset.excerpt || '').toLowerCase();
+
+          const matchCategory = activeCategory === 'all' || category === activeCategory;
+          const matchSearch = !query || title.includes(query) || excerpt.includes(query);
+
+          if (matchCategory && matchSearch) {
+            card.style.display = '';
+            card.style.opacity = '1';
+            card.style.transform = '';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+    })();
+  </script>
+
+</body>
+</html>
