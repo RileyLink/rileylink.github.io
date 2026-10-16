@@ -1163,3 +1163,41 @@ body.menu-open {
   .nav__hamburger { display: none; }
   .nav__links { display: flex; }
 }
+
+/* Resume downloads, publication citations, and blog status */
+.resume__download, .construction-page__links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-md);
+}
+.publications-list {
+  display: grid;
+  gap: var(--space-lg);
+  max-width: 800px;
+  margin: var(--space-md) auto 0;
+}
+.publication-authors {
+  margin-top: var(--space-md);
+  color: var(--text-primary);
+}
+.publications-list .project-card__excerpt { margin-top: var(--space-sm); }
+.publications-list .project-card__links { margin-top: var(--space-lg); }
+.construction-page {
+  min-height: calc(100vh - 100px);
+  display: flex;
+  align-items: center;
+  padding: calc(var(--nav-height) + var(--space-3xl)) 0 var(--space-3xl);
+}
+.construction-page__label {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-md);
+}
+.construction-page__description {
+  max-width: 560px;
+  margin: var(--space-lg) auto var(--space-xl);
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  line-height: 1.7;
+  color: var(--text-secondary);
+}
